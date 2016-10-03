@@ -1,0 +1,15 @@
+
+Copy ps2stuff.o to /lib/modules/2.2.1/misc/ and add the following line
+to /etc/modules.conf:
+
+  alias char-major-60 ps2stuff
+
+Now go to /dev and make the device:
+
+  mknod ps2stuff c 60 0
+
+You might want to change the permissions/ownership of the device:
+
+  chown yourlogin ps2stuff
+
+*** Note:  Don't use the test program -- it's broken and will lock your machine! ***

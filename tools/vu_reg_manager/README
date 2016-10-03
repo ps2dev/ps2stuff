@@ -1,0 +1,85 @@
+Perl Script for Managing VU Register Allocation
+Copyright (c) 1999-2001 Sony Computer Entertainment America Inc.
+All Rights Reserved.
+
+
+Tutorial for the impatient:
+***************************
+
+Here's an example:
+
+; sample vu microcode that does absolutely nothing
+; (but does it without producing any assembler errors)
+
+.init_free_vf	vf01, vf02, vf03, vf04, vf05, vf06, you, get, the, idea	; also init_vf or init_free_all_vf
+.init_free_vi	vi01, vi02, vi03, vi04, etc., etc.			; also init_vi or init_free_all_vi
+
+	.set_vf	param_to_old_code, vf25
+
+	.get_vf	vertex, normal, scale, zeroVec
+	.get_vi	index, mask, ptrs[2]
+
+.status_vf	; shows the allocated/free vf registers
+.status_vi
+
+	sub	zeroVec, zeroVec, zeroVec		iaddiu	index, vi00, 4
+	mulx.xyz	vertex, vertex, scale[x]		iaddiu	mask, vi00, 7
+
+	.rename_vf vertex, scaledVertex		; or .ren_vf
+	.free_vf	scale
+
+	nop					sqi	scaledVertex, (ptrs[0]++)
+
+	.get_vf	nextVertex
+
+	mul.xy	nextVertex, scaledVertex, normal	; or you can split the instruction over two lines
++	isubiu	index, index, 1			; so it's easier to keep code and comments in sync (for the editor-impaired)
+
+	add.xy	param_to_old_code, nextVertex, zeroVec	nop
+
+	.include	"some_routine"			; this file is included and processed as if it were part of this file
+
+.free_all_vf
+.free_all_vi
+
+
+What it's good for:
+******************
+
+Simple management of vu registers and _some_ basic error checking.  Easy to modify and distribute.	Can be used to flatten
+out a vsm file that includes others so the result can be piped through cpp to share #defines between C code and asm.
+
+What it ain't:
+*************
+
+Doesn't type-check registers because it doesn't understand the instructions.  Makes no attempt to distinguish between vf01 and vf1.
+Won't correctly handle assembler macros that get or free registers (because they haven't been expanded yet). (In theory
+you could use cpp or m4 or some other preprocessor to get around this).
+
+Simply put this is a simple script, so don't expect too much of it.  If you want some/all of the above, consider Stewart
+Sargaison's patches to the assemblers.
+
+Use:
+***
+
+vu_reg_manager.pl [-d or --debug] [-a or --analyze] [-n or --no_includes] [file]
+
+  -a	Process the file as normal and print out the max number of registers used.  Don't send anything to standard out.
+	Makes all of the registers free and ignores any .init_free_?? directives.
+	(can be used in conjunction with -n.)
+  -d	Print out lots and lots of ugly debug info.
+  -n	Don't process .includes -- leave them in the output for the assembler to deal with.
+  file	File name or '-' for stdin.  If no filename is given read from stdin.
+
+Notes:
+*****
+
+  o The top line of the file tells the shell where to find perl (just like a shell script).  You might need to change it.
+  o The names of all the directives are at the top of the script; the names can easily be changed. Go wild.
+  o The ".include" directive only looks in the current directory; for anything it can't find it will just leave
+    the .include statement in the output for the assembler to deal with.
+
+I suggest putting this in your makefile and pipe its output to the [preprocessor then the] assembler.
+
+Tyler Daniel
+Sony Computer Entertainment America
