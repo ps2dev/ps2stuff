@@ -11,8 +11,8 @@
 #include <stdlib.h>
 
 #ifndef PS2_LINUX
-#include "libgraph.h"
-#include "libdma.h"
+#include "graph.h"
+#include "dma.h"
 #endif
 
 #include "ps2s/texture.h"

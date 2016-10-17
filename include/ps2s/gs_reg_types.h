@@ -46,6 +46,7 @@ typedef struct {
 	tU64 pad63: 1 __attribute__((packed));
 } tDimx __attribute__((packed));
 
+/*
 #ifndef PS2_LINUX
 #  include "eetypes.h"
 #  include "eestruct.h"
@@ -131,5 +132,6 @@ typedef struct {
    typedef ps2_gsreg_zbuf	tZbuf;
 #endif
 }
+*/
 
 #endif // pgl_gs_reg_types_h

@@ -11,7 +11,7 @@
 #include <stdio.h>
 
 #ifndef PS2_LINUX
-#  include "libdma.h"
+#  include "dma.h"
 #endif
 
 #include "ps2s/drawenv.h"

@@ -3,7 +3,7 @@ DEFAULTBUILD		= optimized
 
 ### native ###
 
-optflags		:= -mvu0-use-vf0-vf31
+optflags		:=
 incdirs			:= $(SCEDIR)/ee/include $(SCEDIR)/common/include
 debug_flags		:= -D_DEBUG -g
 

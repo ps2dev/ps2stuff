@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 #ifndef PS2_LINUX
-#  include "libdma.h"
+#  include "dma.h"
 #else
 // ps2stuff, the kernel module
 #  include "ps2stuff_kmodule.h"

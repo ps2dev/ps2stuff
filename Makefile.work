@@ -77,7 +77,7 @@ endif
 # What tools to use.
 
 ifeq ($(PLATFORM),ps2)
-PREFIX		= $(SCEDIR)/ee/gcc/bin/ee-
+PREFIX		= ee-
 BINLOADER	= $(DSEDB) -r run
 endif
 

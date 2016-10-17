@@ -13,7 +13,7 @@
 #include <malloc.h>
 
 #ifndef PS2_LINUX
-#  include "eekernel.h"
+#  include "kernel.h"
 #else
 #  include <sys/ioctl.h>
 #  include <unistd.h>

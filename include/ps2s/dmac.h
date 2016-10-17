@@ -28,7 +28,7 @@ typedef struct {
 	unsigned TAG:16;	// DMAtag
 } tD_CHCR;
 #else
-#  include "libdma.h"
+#  include "dma.h"
 #endif
 
 typedef struct {
