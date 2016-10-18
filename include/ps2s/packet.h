@@ -115,7 +115,7 @@ class CDmaPacket
 
    protected:
       tU8 		*pBase, *pNext;
-      tDmaChannel	*pDmaChannel;
+      tDmaChannelId	dmaChannelId;
 #ifdef PS2_LINUX
       int*		ChannelFd;
 #endif
@@ -334,7 +334,7 @@ inline void
 CDmaPacket::SetDmaChannel( tDmaChannelId channel )
 {
 #ifndef PS2_LINUX
-   pDmaChannel = (tDmaChannel*)sceDmaGetChan(channel);
+   dmaChannelId = channel;
 #else
    ChannelFd = GetChannelFd(channel);
 #endif

@@ -14,7 +14,6 @@
  * typedefs
  */
 
-#ifdef PS2_LINUX
 // PLIN
 typedef struct tD_CHCR_t {
 	unsigned DIR: 1;	// Direction
@@ -27,9 +26,6 @@ typedef struct tD_CHCR_t {
 	unsigned p1 : 7;
 	unsigned TAG:16;	// DMAtag
 } tD_CHCR;
-#else
-#  include "dma.h"
-#endif
 
 typedef struct tSourceChainTag_t {
       tU64 QWC:16;

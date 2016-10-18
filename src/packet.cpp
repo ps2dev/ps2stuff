@@ -44,7 +44,7 @@ int CDmaPacket::PGL_fd = -1;
 CDmaPacket::CDmaPacket( tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel, tU32 memMapping, bool isFull )
    :	pBase((tU8*)buffer), pNext( (tU8*)((isFull) ? buffer + bufferQWSize : buffer) ),
 #ifndef PS2_LINUX
-	pDmaChannel((tDmaChannel*)sceDmaGetChan(channel)),
+	dmaChannelId(channel),
 #else
 	ChannelFd(GetChannelFd(channel)),
 #endif
@@ -67,7 +67,7 @@ CDmaPacket::CDmaPacket( tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel,
 CDmaPacket::CDmaPacket( tU32 bufferQWSize, tDmaChannelId channel, tU32 memMapping )
    :
 #ifndef PS2_LINUX
-	pDmaChannel((tDmaChannel*)sceDmaGetChan(channel)),
+	dmaChannelId(channel),
 #else
 	ChannelFd(GetChannelFd(channel)),
 #endif
@@ -144,12 +144,13 @@ CDmaPacket::Send( bool waitForEnd, bool flushCache )
    mAssert( pktQWLength != 0 );
 
 #ifndef PS2_LINUX
-   if ( flushCache ) FlushCache(0);
+   //if ( flushCache ) FlushCache(0);
 
    // clear any memory mappings (this won't work for sp)
-   sceDmaSendN( (sceDmaChan*)pDmaChannel, (void*)((tU32)pBase & 0x0fffffff), pktQWLength );
+   dma_wait_fast();
+   dma_channel_send_normal(dmaChannelId, (void*)((tU32)pBase & 0x0fffffff), pktQWLength, 0, 0);
    asm ("sync.l");
-   if ( waitForEnd ) sceDmaSync( (sceDmaChan*)pDmaChannel, 0, 0 );
+   if ( waitForEnd ) dma_channel_fast_waits(dmaChannelId);
 #else // PS2_LINUX
    mErrorIf( ChannelFd != GetChannelFd(DMAC::Channels::vif1),
 	     "Can only send vif1 packets now in linux" );
@@ -221,12 +222,13 @@ CSCDmaPacket::Send( bool waitForEnd, bool flushCache )
    if ( flushCache ) FlushCache(0);
 
    // tell the channel whether to xfer the 64 bits above the dma tags
-   pDmaChannel->chcr.TTE = bTTE;
+   //pDmaChannel->chcr.TTE = bTTE;
 
    // clear any memory mappings (this won't work for sp)
-   sceDmaSend( (sceDmaChan*)pDmaChannel, (void*)((tU32)pBase & 0x0fffffff) );
+   dma_wait_fast();
+   dma_channel_send_chain(dmaChannelId, (void*)((tU32)pBase & 0x0fffffff), 0 /* data_size for cache flush... */, bTTE ? DMA_FLAG_TRANSFERTAG : 0, 0);
 
-   if ( waitForEnd ) sceDmaSync( (sceDmaChan*)pDmaChannel, 0, 0 );
+   if ( waitForEnd ) dma_channel_fast_waits(dmaChannelId);
 #else // PS2_LINUX
    mErrorIf( ChannelFd != GetChannelFd(DMAC::Channels::vif1),
 	     "Can only send vif1 packets now in linux" );
