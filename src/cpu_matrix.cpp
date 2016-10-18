@@ -35,8 +35,10 @@ cpu_mat_44::set_rotate( float angle, cpu_vec_xyz axis )
 }
 
 cpu_mat_44
-cpu_mat_44::transpose() const return result;
+cpu_mat_44::transpose() const
 {
+   cpu_mat_44 result;
+
    result.col0[1] = col1(0); result.col1[0] = col0(1);
    result.col1[2] = col2(1); result.col2[1] = col1(2);
    result.col2[3] = col3(2); result.col3[2] = col2(3);
@@ -49,4 +51,6 @@ cpu_mat_44::transpose() const return result;
    result.col1[1] = col1(1);
    result.col2[2] = col2(2);
    result.col3[3] = col3(3);
+
+   return result;
 }

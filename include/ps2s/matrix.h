@@ -1344,8 +1344,9 @@ class transform_t
 
 inline
 mat_33
-vec_xyz::operator ~() const return result;
+vec_xyz::operator ~() const
 {
+   mat_33 result;
    asm ( "### make tilde matrix from vec_xyz ### \n"
 	 "vsub res0, res0, res0 \n"
 	 "vsub res1, res1, res1 \n"
@@ -1363,25 +1364,30 @@ vec_xyz::operator ~() const return result;
 	 "=&j res2" (result.col2), "=r" (vu0_ACC)
 	 : "j vec" (vec128)
       );
+   return result;
 }
 
 inline
 mat_33
-vec_xyz::tilde_mult( const mat_33& mat ) const return result;
+vec_xyz::tilde_mult( const mat_33& mat ) const
 {
+   mat_33 result;
    result.col0 = this->cross(mat.col0);
    result.col1 = this->cross(mat.col1);
    result.col2 = this->cross(mat.col2);
+   return result;
 }
 
 inline
 mat_34
-vec_xyz::tilde_mult( const mat_34& mat ) const return result;
+vec_xyz::tilde_mult( const mat_34& mat ) const
 {
+   mat_34 result;
    result.col0 = this->cross(mat.col0);
    result.col1 = this->cross(mat.col1);
    result.col2 = this->cross(mat.col2);
    result.col3 = this->cross(mat.col3);
+   return result;
 }
 
 inline
@@ -1459,20 +1465,24 @@ vec_xyz::operator * ( const mat_34& mat ) const
 
 inline
 mat_33
-vec_xyz::tensor_mult( const vec_3 vec ) const return result
+vec_xyz::tensor_mult( const vec_3 vec ) const
 {
+   mat_33 result;
    result.col0 = vec * vec_x(*this);
    result.col1 = vec * vec_y(*this);
    result.col2 = vec * vec_z(*this);
+   return result;
 }
 
 inline
 mat_43
-vec_xyz::tensor_mult( const vec_4 vec ) const return result
+vec_xyz::tensor_mult( const vec_4 vec ) const
 {
+   mat_43 result;
    result.col0 = vec * vec_x(*this);
    result.col1 = vec * vec_y(*this);
    result.col2 = vec * vec_z(*this);
+   return result;
 }
 
 // vec_4
@@ -1559,22 +1569,26 @@ vec_xyzw::operator * ( const mat_44& mat ) const
 
 inline
 mat_34
-vec_xyzw::tensor_mult( const vec_3 vec ) const return result
+vec_xyzw::tensor_mult( const vec_3 vec ) const
 {
+   mat_34 result;
    result.col0 = vec * vec_x(*this);
    result.col1 = vec * vec_y(*this);
    result.col2 = vec * vec_z(*this);
    result.col3 = vec * vec_w(*this);
+   return result;
 }
 
 inline
 mat_44
-vec_xyzw::tensor_mult( const vec_4 vec ) const return result
+vec_xyzw::tensor_mult( const vec_4 vec ) const
 {
+   mat_44 result;
    result.col0 = vec * vec_x(*this);
    result.col1 = vec * vec_y(*this);
    result.col2 = vec * vec_z(*this);
    result.col3 = vec * vec_w(*this);
+   return result;
 }
 
 // mat_33
@@ -1609,19 +1623,22 @@ mat_33::mat_33(const mat_44& mat)
 
 inline
 mat_33
-mat_33::operator - () const return result;
+mat_33::operator - () const
 {
+   mat_33 result;
    result.col0 = -col0;
    result.col1 = -col1;
    result.col2 = -col2;
+   return result;
 }
 
 // transpose & inverse
 
 inline
 mat_33
-mat_33::transpose() const return result;
+mat_33::transpose() const
 {
+   mat_33 result;
    vec128_t temp0, temp1, temp2, temp3;
 
    asm ( "### mat_33::transpose ### \n"
@@ -1649,12 +1666,14 @@ mat_33::transpose() const return result;
 	 "r temp2" (temp2),
 	 "r temp3" (temp3)
       );
+   return result;
 }
 
 inline
 mat_33
-mat_33::inverse() const return result;
+mat_33::inverse() const
 {
+   mat_33 result;
    vec128_t temp, determinant;
 
    asm ( "### mat_33::inverse ### \n"
@@ -1693,63 +1712,75 @@ mat_33::inverse() const return result;
 	 "j col1" (col1),
 	 "j col2" (col2)
       );
+   return result;
 }
 
 // matrix/scalar operations
 
 inline
 mat_33
-mat_33::operator * ( float scale ) const return result;
+mat_33::operator * ( float scale ) const
 {
+   mat_33 result;
    vec_x vec(scale);
 
    result.col0 = col0 * vec;
    result.col1 = col1 * vec;
    result.col2 = col2 * vec;
+   return result;
 }
 
 inline
 mat_33
-mat_33::operator * ( const vec_x scale ) const return result;
+mat_33::operator * ( const vec_x scale ) const
 {
+   mat_33 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
+   return result;
 }
 
 inline
 mat_33
-mat_33::operator * ( const vec_y scale ) const return result;
+mat_33::operator * ( const vec_y scale ) const
 {
+   mat_33 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
+   return result;
 }
 
 inline
 mat_33
-mat_33::operator * ( const vec_z scale ) const return result;
+mat_33::operator * ( const vec_z scale ) const
 {
+   mat_33 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
+   return result;
 }
 
 inline
 mat_33
-mat_33::operator * ( const vec_w scale ) const return result;
+mat_33::operator * ( const vec_w scale ) const
 {
+   mat_33 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
+   return result;
 }
 
 // matrix/vector operations
 
 inline
 mat_33
-mat_33::mult_tilde ( vec_3 vec ) const return result;
+mat_33::mult_tilde ( vec_3 vec ) const
 {
+   mat_33 result;
    asm ( "### mat_33 mult_tilde vec_3 ### \n"
 	 "vmulaz ACC, col1, vec \n"
 	 "vmsuby res0, col2, vec \n"
@@ -1760,83 +1791,100 @@ mat_33::mult_tilde ( vec_3 vec ) const return result;
 	 : "=&j res0" (result.col0), "=&j res1" (result.col1), "=&j res2" (result.col2), "=r" (vu0_ACC)
 	 : "j col0" (col0), "j col1" (col1), "j col2" (col2), "j vec" (vec)
       );
+   return result;
 }
 
 // matrix/matrix operations
 
 inline
 mat_33
-mat_33::operator + ( const mat_33& mat ) const return result;
+mat_33::operator + ( const mat_33& mat ) const
 {
+   mat_33 result;
    result.col0 = col0 + mat.get_col0();
    result.col1 = col1 + mat.get_col1();
    result.col2 = col2 + mat.get_col2();
+   return result;
 }
 
 inline
 mat_33
-mat_33::operator - ( const mat_33& mat ) const return result;
+mat_33::operator - ( const mat_33& mat ) const
 {
+   mat_33 result;
    result.col0 = col0 - mat.get_col0();
    result.col1 = col1 - mat.get_col1();
    result.col2 = col2 - mat.get_col2();
+   return result;
 }
 
 inline
 mat_33
-mat_33::operator * ( const mat_33& mat ) const return result;
+mat_33::operator * ( const mat_33& mat ) const
 {
+   mat_33 result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
+   return result;
 }
 
 inline
 mat_34
-mat_33::operator * ( const mat_34& mat ) const return result;
+mat_33::operator * ( const mat_34& mat ) const
 {
+   mat_34 result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
    result.col3 = *this * mat.get_col3();
+   return result;
 }
 
 inline
 mat_33
-mat_33::trans_mult( const mat_33& mat ) const return result;
+mat_33::trans_mult( const mat_33& mat ) const
 {
+   mat_33 result;
    result.col0 = this->trans_mult(mat.get_col0());
    result.col1 = this->trans_mult(mat.get_col1());
    result.col2 = this->trans_mult(mat.get_col2());
+   return result;
 }
 
 inline
 mat_34
-mat_33::trans_mult( const mat_34& mat ) const return result;
+mat_33::trans_mult( const mat_34& mat ) const
 {
+   mat_34 result;
    result.col0 = this->trans_mult(mat.get_col0());
    result.col1 = this->trans_mult(mat.get_col1());
    result.col2 = this->trans_mult(mat.get_col2());
    result.col3 = this->trans_mult(mat.get_col3());
+   return result;
 }
 
 inline
 mat_33
-mat_33::mult_trans( const mat_33 &mat ) const return result;
+mat_33::mult_trans( const mat_33 &mat ) const
 {
+   mat_33 result;
    result.col0 = this->mult_trans_col0(mat);
    result.col1 = this->mult_trans_col1(mat);
    result.col2 = this->mult_trans_col2(mat);
+   return result;
 }
 
 inline
 mat_34
-mat_33::mult_trans( const mat_43 &mat ) const return result;
+mat_33::mult_trans( const mat_43 &mat ) const
 {
+   mat_34 result;
    result.col0 = this->mult_trans_col0(mat);
    result.col1 = this->mult_trans_col1(mat);
    result.col2 = this->mult_trans_col2(mat);
    result.col3 = this->mult_trans_col3(mat);
+   return result;
 }
 // mat_44
 
@@ -1855,20 +1903,23 @@ mat_44::mat_44(const transform_t& mat)
 
 inline
 mat_44
-mat_44::operator - () const return result;
+mat_44::operator - () const
 {
+   mat_44 result;
    result.col0 = -col0;
    result.col1 = -col1;
    result.col2 = -col2;
    result.col3 = -col3;
+   return result;
 }
 
 // transpose
 
 inline
 mat_44
-mat_44::transpose() const return result;
+mat_44::transpose() const
 {
+   mat_44 result;
    vec128_t temp0, temp1, temp2, temp3;
 
    asm ( "### mat_44::transpose ### \n"
@@ -1899,159 +1950,190 @@ mat_44::transpose() const return result;
 	 "r temp2" (temp2),
 	 "r temp3" (temp3)
       );
+   return result;
 }
 
 // matrix/scalar operations
 
 inline
 mat_44
-mat_44::operator * ( float scale ) const return result;
+mat_44::operator * ( float scale ) const
 {
+   mat_44 result;
    vec_x vec(scale);
 
    result.col0 = col0 * vec;
    result.col1 = col1 * vec;
    result.col2 = col2 * vec;
    result.col3 = col3 * vec;
+   return result;
 }
 
 inline
 mat_44
-mat_44::operator * ( const vec_x scale ) const return result;
+mat_44::operator * ( const vec_x scale ) const
 {
+   mat_44 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
    result.col3 = col3 * scale;
+   return result;
 }
 
 inline
 mat_44
-mat_44::operator * ( const vec_y scale ) const return result;
+mat_44::operator * ( const vec_y scale ) const
 {
+   mat_44 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
    result.col3 = col3 * scale;
+   return result;
 }
 
 inline
 mat_44
-mat_44::operator * ( const vec_z scale ) const return result;
+mat_44::operator * ( const vec_z scale ) const
 {
+   mat_44 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
    result.col3 = col3 * scale;
+   return result;
 }
 
 inline
 mat_44
-mat_44::operator * ( const vec_w scale ) const return result;
+mat_44::operator * ( const vec_w scale ) const
 {
+   mat_44 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
    result.col3 = col3 * scale;
+   return result;
 }
 
 // matrix/matrix operations
 
 inline
 mat_44
-mat_44::operator + ( const mat_44& mat ) const return result;
+mat_44::operator + ( const mat_44& mat ) const
 {
+   mat_44 result;
    result.col0 = col0 + mat.get_col0();
    result.col1 = col1 + mat.get_col1();
    result.col2 = col2 + mat.get_col2();
    result.col3 = col3 + mat.get_col3();
+   return result;
 }
 
 inline
 mat_44
-mat_44::operator - ( const mat_44& mat ) const return result;
+mat_44::operator - ( const mat_44& mat ) const
 {
+   mat_44 result;
    result.col0 = col0 - mat.get_col0();
    result.col1 = col1 - mat.get_col1();
    result.col2 = col2 - mat.get_col2();
    result.col3 = col3 - mat.get_col3();
+   return result;
 }
 
 inline
 mat_44
-mat_44::operator * ( const mat_44& mat ) const return result;
+mat_44::operator * ( const mat_44& mat ) const
 {
+   mat_44 result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
    result.col3 = *this * mat.get_col3();
+   return result;
 }
 
 inline
 mat_43
-mat_44::operator * ( const mat_43& mat ) const return result;
+mat_44::operator * ( const mat_43& mat ) const
 {
+   mat_43 result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
+   return result;
 }
 
 inline
 mat_44
-mat_44::operator * ( const transform_t& mat ) const return result;
+mat_44::operator * ( const transform_t& mat ) const
 {
+   mat_44 result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
    result.col3 = *this * mat.get_col3();
+   return result;
 }
 
 inline
 mat_44
-mat_44::trans_mult( const mat_44 &mat ) const return result;
+mat_44::trans_mult( const mat_44 &mat ) const
 {
+   mat_44 result;
    result.col0 = this->trans_mult(mat.get_col0());
    result.col1 = this->trans_mult(mat.get_col1());
    result.col2 = this->trans_mult(mat.get_col2());
    result.col3 = this->trans_mult(mat.get_col3());
+   return result;
 }
 
 inline
 mat_43
-mat_44::trans_mult( const mat_43& mat ) const return result;
+mat_44::trans_mult( const mat_43& mat ) const
 {
+   mat_43 result;
    result.col0 = this->trans_mult(mat.get_col0());
    result.col1 = this->trans_mult(mat.get_col1());
    result.col2 = this->trans_mult(mat.get_col2());
+   return result;
 }
 
 inline
 mat_44
-mat_44::trans_mult( const transform_t& mat ) const return result;
+mat_44::trans_mult( const transform_t& mat ) const
 {
+   mat_44 result;
    result.col0 = this->trans_mult(mat.get_col0());
    result.col1 = this->trans_mult(mat.get_col1());
    result.col2 = this->trans_mult(mat.get_col2());
    result.col3 = this->trans_mult(mat.get_col3());
+   return result;
 }
 
 inline
 mat_44
-mat_44::mult_trans( const mat_44& mat ) const return result;
+mat_44::mult_trans( const mat_44& mat ) const
 {
+   mat_44 result;
    result.col0 = this->mult_trans_col0(mat);
    result.col1 = this->mult_trans_col1(mat);
    result.col2 = this->mult_trans_col2(mat);
    result.col3 = this->mult_trans_col3(mat);
+   return result;
 }
 
 inline
 mat_43
-mat_44::mult_trans( const mat_34& mat ) const return result;
+mat_44::mult_trans( const mat_34& mat ) const
 {
+   mat_43 result;
    result.col0 = this->mult_trans_col0(mat);
    result.col1 = this->mult_trans_col1(mat);
    result.col2 = this->mult_trans_col2(mat);
+   return result;
 }
 
 // mat_43
@@ -2070,19 +2152,22 @@ mat_43::mat_43(const mat_44& mat)
 
 inline
 mat_43
-mat_43::operator - () const return result;
+mat_43::operator - () const
 {
+   mat_43 result;
    result.col0 = -col0;
    result.col1 = -col1;
    result.col2 = -col2;
+   return result;
 }
 
 // transpose
 
 inline
 mat_34
-mat_43::transpose() const return result;
+mat_43::transpose() const
 {
+   mat_34 result;
    vec128_t temp0, temp1, temp2, temp3;
 
    asm ( "### mat_43::transpose ### \n"
@@ -2112,63 +2197,75 @@ mat_43::transpose() const return result;
 	 "r temp2" (temp2),
 	 "r temp3" (temp3)
       );
+   return result;
 }
 
 // matrix/scalar operations
 
 inline
 mat_43
-mat_43::operator * ( float scale ) const return result;
+mat_43::operator * ( float scale ) const
 {
+   mat_43 result;
    vec_x vec(scale);
 
    result.col0 = col0 * vec;
    result.col1 = col1 * vec;
    result.col2 = col2 * vec;
+   return result;
 }
 
 inline
 mat_43
-mat_43::operator * ( const vec_x scale ) const return result;
+mat_43::operator * ( const vec_x scale ) const
 {
+   mat_43 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
+   return result;
 }
 
 inline
 mat_43
-mat_43::operator * ( const vec_y scale ) const return result;
+mat_43::operator * ( const vec_y scale ) const
 {
+   mat_43 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
+   return result;
 }
 
 inline
 mat_43
-mat_43::operator * ( const vec_z scale ) const return result;
+mat_43::operator * ( const vec_z scale ) const
 {
+   mat_43 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
+   return result;
 }
 
 inline
 mat_43
-mat_43::operator * ( const vec_w scale ) const return result;
+mat_43::operator * ( const vec_w scale ) const
 {
+   mat_43 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
+   return result;
 }
 
 // matrix/vector operations
 
 inline
 mat_43
-mat_43::mult_tilde ( vec_3 vec ) const return result;
+mat_43::mult_tilde ( vec_3 vec ) const
 {
+   mat_43 result;
    asm ( "### mat_43 mult_tilde vec_3 ### \n"
 	 "vmulaz ACC, col1, vec \n"
 	 "vmsuby res0, col2, vec \n"
@@ -2179,93 +2276,112 @@ mat_43::mult_tilde ( vec_3 vec ) const return result;
 	 : "=&j res0" (result.col0), "=&j res1" (result.col1), "=&j res2" (result.col2), "=r" (vu0_ACC)
 	 : "j col0" (col0), "j col1" (col1), "j col2" (col2), "j vec" (vec)
       );
+   return result;
 }
 
 // matrix/matrix operations
 
 inline
 mat_43
-mat_43::operator + ( const mat_43& mat ) const return result;
+mat_43::operator + ( const mat_43& mat ) const
 {
+   mat_43 result;
    result.col0 = col0 + mat.get_col0();
    result.col1 = col1 + mat.get_col1();
    result.col2 = col2 + mat.get_col2();
+   return result;
 }
 
 inline
 mat_43
-mat_43::operator - ( const mat_43& mat ) const return result;
+mat_43::operator - ( const mat_43& mat ) const
 {
+   mat_43 result;
    result.col0 = col0 - mat.get_col0();
    result.col1 = col1 - mat.get_col1();
    result.col2 = col2 - mat.get_col2();
+   return result;
 }
 
 inline
 mat_43
-mat_43::operator * ( const mat_33& mat ) const return result;
+mat_43::operator * ( const mat_33& mat ) const
 {
+   mat_43 result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
+   return result;
 }
 
 inline
 mat_44
-mat_43::operator * ( const mat_34& mat ) const return result;
+mat_43::operator * ( const mat_34& mat ) const
 {
+   mat_44 result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
    result.col3 = *this * mat.get_col3();
+   return result;
 }
 
 inline
 mat_33
-mat_43::trans_mult( const mat_43& mat ) const return result;
+mat_43::trans_mult( const mat_43& mat ) const
 {
+   mat_33 result;
    result.col0 = this->trans_mult(mat.get_col0());
    result.col1 = this->trans_mult(mat.get_col1());
    result.col2 = this->trans_mult(mat.get_col2());
+   return result;
 }
 
 inline
 mat_34
-mat_43::trans_mult( const mat_44& mat ) const return result;
+mat_43::trans_mult( const mat_44& mat ) const
 {
+   mat_34 result;
    result.col0 = this->trans_mult(mat.get_col0());
    result.col1 = this->trans_mult(mat.get_col1());
    result.col2 = this->trans_mult(mat.get_col2());
    result.col3 = this->trans_mult(mat.get_col3());
+   return result;
 }
 
 inline
 mat_34
-mat_43::trans_mult( const transform_t& mat ) const return result;
+mat_43::trans_mult( const transform_t& mat ) const
 {
+   mat_34 result;
    result.col0 = this->trans_mult(mat.get_col0());
    result.col1 = this->trans_mult(mat.get_col1());
    result.col2 = this->trans_mult(mat.get_col2());
    result.col3 = this->trans_mult(mat.get_col3());
+   return result;
 }
 
 inline
 mat_44
-mat_43::mult_trans ( const mat_43& mat ) const return result;
+mat_43::mult_trans ( const mat_43& mat ) const
 {
+   mat_44 result;
    result.col0 = this->mult_trans_col0(mat);
    result.col1 = this->mult_trans_col1(mat);
    result.col2 = this->mult_trans_col2(mat);
    result.col3 = this->mult_trans_col3(mat);
+   return result;
 }
 
 inline
 mat_43
-mat_43::mult_trans ( const mat_33& mat ) const return result;
+mat_43::mult_trans ( const mat_33& mat ) const
 {
+   mat_43 result;
    result.col0 = this->mult_trans_col0(mat);
    result.col1 = this->mult_trans_col1(mat);
    result.col2 = this->mult_trans_col2(mat);
+   return result;
 }
 
 // mat_34
@@ -2285,20 +2401,23 @@ mat_34::mat_34(const mat_44& mat)
 
 inline
 mat_34
-mat_34::operator - () const return result;
+mat_34::operator - () const
 {
+   mat_34 result;
    result.col0 = -col0;
    result.col1 = -col1;
    result.col2 = -col2;
    result.col3 = -col3;
+   return result;
 }
 
 // transpose
 
 inline
 mat_43
-mat_34::transpose() const return result;
+mat_34::transpose() const
 {
+   mat_43 result;
    vec128_t temp0, temp1, temp2, temp3;
 
    asm ( "### mat_34::transpose ### \n"
@@ -2327,149 +2446,178 @@ mat_34::transpose() const return result;
 	 "r temp2" (temp2),
 	 "r temp3" (temp3)
       );
+   return result;
 }
 
 // matrix/scalar operations
 
 inline
 mat_34
-mat_34::operator * ( float scale ) const return result;
+mat_34::operator * ( float scale ) const
 {
+   mat_34 result;
    vec_x vec(scale);
 
    result.col0 = col0 * vec;
    result.col1 = col1 * vec;
    result.col2 = col2 * vec;
    result.col3 = col3 * vec;
+   return result;
 }
 
 inline
 mat_34
-mat_34::operator * ( const vec_x scale ) const return result;
+mat_34::operator * ( const vec_x scale ) const
 {
+   mat_34 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
    result.col3 = col3 * scale;
+   return result;
 }
 
 inline
 mat_34
-mat_34::operator * ( const vec_y scale ) const return result;
+mat_34::operator * ( const vec_y scale ) const
 {
+   mat_34 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
    result.col3 = col3 * scale;
+   return result;
 }
 
 inline
 mat_34
-mat_34::operator * ( const vec_z scale ) const return result;
+mat_34::operator * ( const vec_z scale ) const
 {
+   mat_34 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
    result.col3 = col3 * scale;
+   return result;
 }
 
 inline
 mat_34
-mat_34::operator * ( const vec_w scale ) const return result;
+mat_34::operator * ( const vec_w scale ) const
 {
+   mat_34 result;
    result.col0 = col0 * scale;
    result.col1 = col1 * scale;
    result.col2 = col2 * scale;
    result.col3 = col3 * scale;
+   return result;
 }
 
 // matrix/matrix operations
 
 inline
 mat_34
-mat_34::operator + ( const mat_34& mat ) const return result;
+mat_34::operator + ( const mat_34& mat ) const
 {
+   mat_34 result;
    result.col0 = col0 + mat.get_col0();
    result.col1 = col1 + mat.get_col1();
    result.col2 = col2 + mat.get_col2();
    result.col3 = col3 + mat.get_col3();
+   return result;
 }
 
 inline
 mat_34
-mat_34::operator - ( const mat_34& mat ) const return result;
+mat_34::operator - ( const mat_34& mat ) const
 {
+   mat_34 result;
    result.col0 = col0 - mat.get_col0();
    result.col1 = col1 - mat.get_col1();
    result.col2 = col2 - mat.get_col2();
    result.col3 = col3 - mat.get_col3();
+   return result;
 }
 
 inline
 mat_33
-mat_34::operator * ( const mat_43& mat ) const return result;
+mat_34::operator * ( const mat_43& mat ) const
 {
+   mat_33 result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
+   return result;
 }
 
 inline
 mat_34
-mat_34::operator * ( const mat_44& mat ) const return result;
+mat_34::operator * ( const mat_44& mat ) const
 {
+   mat_34 result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
    result.col3 = *this * mat.get_col3();
+   return result;
 }
 
 inline
 mat_34
-mat_34::operator * ( const transform_t& mat ) const return result;
+mat_34::operator * ( const transform_t& mat ) const
 {
+   mat_34 result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
    result.col3 = *this * mat.get_col3();
+   return result;
 }
 
 inline
 mat_43
-mat_34::trans_mult( const mat_33& mat ) const return result;
+mat_34::trans_mult( const mat_33& mat ) const
 {
+   mat_43 result;
    result.col0 = this->trans_mult(mat.get_col0());
    result.col1 = this->trans_mult(mat.get_col1());
    result.col2 = this->trans_mult(mat.get_col2());
+   return result;
 }
 
 inline
 mat_44
-mat_34::trans_mult( const mat_34& mat ) const return result;
+mat_34::trans_mult( const mat_34& mat ) const
 {
+   mat_44 result;
    result.col0 = this->trans_mult(mat.get_col0());
    result.col1 = this->trans_mult(mat.get_col1());
    result.col2 = this->trans_mult(mat.get_col2());
    result.col3 = this->trans_mult(mat.get_col3());
+   return result;
 }
 
 inline
 mat_33
-mat_34::mult_trans ( const mat_34& mat ) const return result;
+mat_34::mult_trans ( const mat_34& mat ) const
 {
+   mat_33 result;
    result.col0 = this->mult_trans_col0(mat);
    result.col1 = this->mult_trans_col1(mat);
    result.col2 = this->mult_trans_col2(mat);
+   return result;
 }
 
 inline
 mat_34
-mat_34::mult_trans ( const mat_44& mat ) const return result;
+mat_34::mult_trans ( const mat_44& mat ) const
 {
+   mat_34 result;
    result.col0 = this->mult_trans_col0(mat);
    result.col1 = this->mult_trans_col1(mat);
    result.col2 = this->mult_trans_col2(mat);
    result.col3 = this->mult_trans_col3(mat);
+   return result;
 }
 
 // transform_t
@@ -2478,8 +2626,9 @@ mat_34::mult_trans ( const mat_44& mat ) const return result;
 
 inline
 transform_t
-transform_t::inverse() const return result;
+transform_t::inverse() const
 {
+   transform_t result;
    vec128_t temp, determinant;
 
    asm ( "### transform_t::inverse, part I ### \n"
@@ -2532,12 +2681,14 @@ transform_t::inverse() const return result;
 	 "=r" (vu0_ACC)
 	 : "j col3" (col3), "j" (vu0_Q)
       );
+   return result;
 }
 
 inline
 transform_t
-transform_t::orthonormal_inverse() const return result;
+transform_t::orthonormal_inverse() const
 {
+   transform_t result;
    asm ( "### transform_t::orthonormal_inverse ### \n"
 	 "vadd.x inv0, vf00, col0 \n"
 	 "vadd.y inv1, vf00, col1 \n"
@@ -2561,37 +2712,44 @@ transform_t::orthonormal_inverse() const return result;
 	 "j col2" (col2),
 	 "j col3" (col3)
       );
+   return result;
 }
 
 // matrix/matrix operations
 
 inline
 transform_t
-transform_t::operator * ( const transform_t& mat ) const return result;
+transform_t::operator * ( const transform_t& mat ) const
 {
+   transform_t result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
    result.col3 = *this * mat.get_col3();
+   return result;
 }
 
 inline
 mat_44
-transform_t::operator * ( const mat_44& mat ) const return result;
+transform_t::operator * ( const mat_44& mat ) const
 {
+   mat_44 result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
    result.col3 = *this * mat.get_col3();
+   return result;
 }
 
 inline
 mat_43
-transform_t::operator * ( const mat_43& mat ) const return result;
+transform_t::operator * ( const mat_43& mat ) const
 {
+   mat_43 result;
    result.col0 = *this * mat.get_col0();
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
+   return result;
 }
 
 #endif // PS2_LINUX

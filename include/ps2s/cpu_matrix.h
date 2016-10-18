@@ -72,8 +72,10 @@ class cpu_mat_44 {
 };
 
 inline cpu_vec_4
-cpu_mat_44::operator * ( const cpu_vec_4 &rhs ) const return result;
+cpu_mat_44::operator * ( const cpu_vec_4 &rhs ) const
 {
+   cpu_vec_4 result;
+
    cpu_vec_4 row0( col0(0), col1(0), col2(0), col3(0) );
    result[0] = row0.dot(rhs);
 
@@ -85,15 +87,21 @@ cpu_mat_44::operator * ( const cpu_vec_4 &rhs ) const return result;
 
    cpu_vec_4 row3( col0(3), col1(3), col2(3), col3(3) );
    result[3] = row3.dot(rhs);
+
+   return result;
 }
 
 inline cpu_mat_44
-cpu_mat_44::operator * ( const cpu_mat_44 &rhs ) const return result;
+cpu_mat_44::operator * ( const cpu_mat_44 &rhs ) const
 {
+   cpu_mat_44 result;
+
    result.col0 = *this * rhs.get_col0();
    result.col1 = *this * rhs.get_col1();
    result.col2 = *this * rhs.get_col2();
    result.col3 = *this * rhs.get_col3();
+
+   return result;
 }
 
 #endif // ps2s_cpu_matrix_h

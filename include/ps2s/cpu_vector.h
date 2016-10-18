@@ -264,8 +264,9 @@ typedef cpu_vec_4 cpu_vec_xyzw;
 
 inline
 cpu_vec_3
-cpu_vec_3::operator + (const cpu_vec_3 &vec) return result;
+cpu_vec_3::operator + (const cpu_vec_3 &vec)
 {
+   cpu_vec_3 result;
 #ifdef NO_ASM
 
    result.x = x + vec.x;
@@ -284,12 +285,14 @@ cpu_vec_3::operator + (const cpu_vec_3 &vec) return result;
       );
 
 #endif
+   return result;
 }
 
 inline
 cpu_vec_3
-cpu_vec_3::operator - (const cpu_vec_3 &vec) return result;
+cpu_vec_3::operator - (const cpu_vec_3 &vec)
 {
+   cpu_vec_3 result;
 #ifdef NO_ASM
 
    result.x = x - vec.x;
@@ -308,13 +311,14 @@ cpu_vec_3::operator - (const cpu_vec_3 &vec) return result;
       );
 
 #endif
-
+   return result;
 }
 
 inline
 cpu_vec_3
-cpu_vec_3::operator - () return result;
+cpu_vec_3::operator - ()
 {
+   cpu_vec_3 result;
 #ifdef NO_ASM
 
    result.x = -x;
@@ -332,14 +336,14 @@ cpu_vec_3::operator - () return result;
       );
 
 #endif
-
+   return result;
 }
 
 inline
 cpu_vec_3
-cpu_vec_3::operator * (float scalar) return result;
+cpu_vec_3::operator * (float scalar)
 {
-
+   cpu_vec_3 result;
 #ifdef NO_ASM
 
    result.x = x * scalar;
@@ -357,7 +361,7 @@ cpu_vec_3::operator * (float scalar) return result;
       );
 
 #endif
-
+   return result;
 }
 
 inline
@@ -390,9 +394,9 @@ cpu_vec_3::dot(const cpu_vec_3 &vec) const
 
 inline
 cpu_vec_3
-cpu_vec_3::cross(const cpu_vec_3 &vec) return result;
+cpu_vec_3::cross(const cpu_vec_3 &vec)
 {
-
+   cpu_vec_3 result;
 #ifdef NO_ASM
 
    result.x = y * vec.z - z * vec.y;
@@ -414,14 +418,19 @@ cpu_vec_3::cross(const cpu_vec_3 &vec) return result;
       );
 
 #endif
+   return result;
 }
 
 inline
 cpu_vec_3
-cpu_vec_3::normalized() return result;
+cpu_vec_3::normalized()
 {
+   cpu_vec_3 result;
+
    float lengthInv = 1.0f/sqrtf(this->dot(*this));
    result = *this * lengthInv;
+
+   return result;
 }
 
 /********************************************
@@ -430,52 +439,72 @@ cpu_vec_3::normalized() return result;
 
 inline
 cpu_vec_4
-cpu_vec_4::operator + (const cpu_vec_4 &vec) return result;
+cpu_vec_4::operator + (const cpu_vec_4 &vec)
 {
+   cpu_vec_4 result;
+
    result.x = x + vec.x;
    result.y = y + vec.y;
    result.z = z + vec.z;
    result.w = w + vec.w;
+
+   return result;
 }
 
 inline
 cpu_vec_4
-cpu_vec_4::operator - (const cpu_vec_4 &vec) return result;
+cpu_vec_4::operator - (const cpu_vec_4 &vec)
 {
+   cpu_vec_4 result;
+
    result.x = x - vec.x;
    result.y = y - vec.y;
    result.z = z - vec.z;
    result.w = w - vec.w;
+
+   return result;
 }
 
 inline
 cpu_vec_4
-cpu_vec_4::operator - () return result;
+cpu_vec_4::operator - ()
 {
+   cpu_vec_4 result;
+
    result.x = -x;
    result.y = -y;
    result.z = -z;
    result.w = -w;
+
+   return result;
 }
 
 inline
 cpu_vec_4
-cpu_vec_4::operator * (const cpu_vec_4 &vec) return result;
+cpu_vec_4::operator * (const cpu_vec_4 &vec)
 {
+   cpu_vec_4 result;
+
    result.x = x * vec.x;
    result.y = y * vec.y;
    result.z = z * vec.z;
    result.w = w * vec.w;
+
+   return result;
 }
 
 inline
 cpu_vec_4
-cpu_vec_4::operator * (float scalar) return result;
+cpu_vec_4::operator * (float scalar)
 {
+   cpu_vec_4 result;
+
    result.x = x * scalar;
    result.y = y * scalar;
    result.z = z * scalar;
    result.w = w * scalar;
+
+   return result;
 }
 
 inline
@@ -513,10 +542,14 @@ cpu_vec_4::length() const
 
 inline
 cpu_vec_4
-cpu_vec_4::normalized() return result;
+cpu_vec_4::normalized()
 {
+   cpu_vec_4 result;
+
    float lengthInv = 1.0f/length();
    result = *this * lengthInv;
+
+   return result;
 }
 
 const cpu_vec_4&
