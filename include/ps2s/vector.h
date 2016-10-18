@@ -214,22 +214,22 @@ class vec_x : public vec_template<x_base>
 	 asm (
 	    " ### init vec_x with a float ###       \n"
 	    "  .if %A0                              \n"
-	    "  move this, new_x                     \n"
+	    "  move %[_this], %[new_x]              \n"
 	    "  .endif                               \n"
 	    "                                       \n"
 	    "  .if %A1                              \n"
-	    "  lw this, new_x                       \n"
+	    "  lw %[_this], %[new_x]                \n"
 	    "  .endif                               \n"
 	    "                                       \n"
 	    "  .if %A2                              \n"
-	    "  mfc1 this, new_x                     \n"
+	    "  mfc1 %[_this], %[new_x]              \n"
 	    "  .endif                               \n"
 	    "                                       \n"
 	    "  .if %A3                              \n"
-	    "  qmtc2 new_x, this                    \n"
+	    "  qmtc2 %[new_x], %[_this]             \n"
 	    "  .endif                               \n"
-	    : "=r,r,r,j this" (vec128)
-	    : "r,m,f,r new_x" (x)
+	    : [_this] "=r,r,r,j" (vec128)
+	    : [new_x] "r,m,f,r" (x)
 	    );
       }
 
@@ -243,22 +243,22 @@ class vec_x : public vec_template<x_base>
 	 asm (
 	    " ### vec_x to float ###                \n"
 	    "  .if %A0                              \n"
-	    "  move new_float, this                 \n"
+	    "  move %[new_float], %[_this]          \n"
 	    "  .endif                               \n"
 	    "                                       \n"
 	    "  .if %A1                              \n"
-	    "  sw this, new_float                   \n"
+	    "  sw %[_this], %[new_float]            \n"
 	    "  .endif                               \n"
 	    "                                       \n"
 	    "  .if %A2                              \n"
-	    "  mtc1 this, new_float                 \n"
+	    "  mtc1 %[_this], %[new_float]          \n"
 	    "  .endif                               \n"
 	    "                                       \n"
 	    "  .if %A3                              \n"
-	    "  qmfc2 new_float, this                \n"
+	    "  qmfc2 %[new_float], %[_this]         \n"
 	    "  .endif                               \n"
-	    : "=r,m,f,r new_float" (new_float)
-	    : "r,r,r,j this" (*this)
+	    : [new_float] "=r,m,f,r" (new_float)
+	    : [_this] "r,r,r,j" (*this)
 	    );
 	 return new_float;
       }
@@ -324,9 +324,9 @@ class vec_x : public vec_template<x_base>
       inline void print( void ) const {
 	 float x;
 	 asm volatile (
-	   "mtc1 vec, x   # x = value.x  \n"
-	   : "=f x" (x)
-	   : "r vec" (vec128)
+	   "mtc1 %[vec], %[x]   # x = value.x  \n"
+	   : [x] "=f" (x)
+	   : [vec] "r" (vec128)
 	   );
 
 	   printf("(%f * * *)\n", x);
@@ -352,11 +352,11 @@ class vec_y : public vec_template<y_base>
       inline vec_y( float y ) {
 	 asm (
 	    " ### init vec_y with a float ### \n"
-	    "ctc2	f_y, $vi21 \n"
+	    "ctc2	%[f_y], $vi21 \n"
 	    "vnop \n"
-	    "vaddi.y	this, vf00, I \n"
-	    : "=j this" (vec128)
-	    : "r f_y" (y)
+	    "vaddi.y	%[_this], vf00, I \n"
+	    : [_this] "=j" (vec128)
+	    : [f_y] "r" (y)
 	    );
       }
 
@@ -369,9 +369,9 @@ class vec_y : public vec_template<y_base>
 	 float new_float;
 	 asm (
 	    " ### vec_y to float ### \n"
-	    "prot3w	new_float, this \n"
-	    : "=r new_float" (new_float)
-	    : "r this" (*this)
+	    "prot3w	%[new_float], %[_this] \n"
+	    : [new_float] "=r" (new_float)
+	    : [_this] "r" (*this)
 	    );
 	 return new_float;
       }
@@ -428,11 +428,11 @@ class vec_y : public vec_template<y_base>
 	 float y;
 	 vec128_t temp0;
 	 asm volatile (
-	    "mtsab $0, 4 # get ready to shift right 4 bytes \n"
-	    "qfsrv temp0, $0, vec    # temp0 = value >> 8 \n"
-	    "mtc1 temp0, y           # y = value.y        \n"
-	    : "=f y" (y), "=r temp0" (temp0)
-	    : "r vec" (vec128)
+	    "mtsab $0, 4    # get ready to shift right 4 bytes \n"
+	    "qfsrv %[temp0], $0, %[vec]   # temp0 = value >> 8 \n"
+	    "mtc1 %[temp0], %[y]          # y = value.y        \n"
+	    : [y] "=f" (y), [temp0] "=r" (temp0)
+	    : [vec] "r" (vec128)
 	    );
 
 	 printf("(* %f * *)\n", y);
@@ -458,11 +458,11 @@ class vec_z : public vec_template<z_base>
       inline vec_z( float z ) {
 	 asm (
 	    " ### init vec_z with a float ### \n"
-	    "ctc2	f_z, $vi21 \n"
+	    "ctc2	%[f_z], $vi21 \n"
 	    "vnop \n"
-	    "vaddi.z	this, vf00, I \n"
-	    : "=j this" (vec128)
-	    : "r f_z" (z)
+	    "vaddi.z	%[_this], vf00, I \n"
+	    : [_this] "=j" (vec128)
+	    : [f_z] "r" (z)
 	    );
       }
 
@@ -475,9 +475,9 @@ class vec_z : public vec_template<z_base>
 	 float new_float;
 	 asm (
 	    " ### vec_z to float ### \n"
-	    "pextuw	new_float, $0, this \n"
-	    : "=r new_float" (new_float)
-	    : "r this" (*this)
+	    "pextuw	%[new_float], $0, %[_this] \n"
+	    : [new_float] "=r" (new_float)
+	    : [_this] "r" (*this)
 	    );
 	 return new_float;
       }
@@ -534,11 +534,11 @@ class vec_z : public vec_template<z_base>
 	 float z;
 	 vec128_t temp0;
 	 asm volatile (
-			"mtsab	$0, 8		# get ready to shift right 8 bytes \n"
-			"qfsrv	temp0, $0, vec  # temp0 = value >> 8 \n"
-			"mtc1	temp0, z	# z = value.z \n"
-			: "=f z" (z), "=r temp0" (temp0)
-			: "r vec" (vec128)
+			"mtsab	$0, 8			# get ready to shift right 8 bytes \n"
+			"qfsrv	%[temp0], $0, %[vec]	# temp0 = value >> 8 \n"
+			"mtc1	%[temp0], %[z]		# z = value.z \n"
+			: [z] "=f" (z), [temp0] "=r" (temp0)
+			: [vec] "r" (vec128)
 			);
 
 	 printf("(* * %f *)\n", z);
@@ -564,11 +564,11 @@ class vec_w : public vec_template<w_base>
       inline vec_w( float w ) {
 	 asm (
 	    " ### init vec_w with a float ### \n"
-	    "ctc2		f_w, $vi21 \n"
+	    "ctc2		%[f_w], $vi21 \n"
 	    "vnop \n"
-	    "vmuli.w	this, vf00, I \n"
-	    : "=j this" (vec128)
-	    : "r f_w" (w)
+	    "vmuli.w	%[_this], vf00, I \n"
+	    : [_this] "=j" (vec128)
+	    : [f_w] "r" (w)
 	    );
       }
 
@@ -581,9 +581,9 @@ class vec_w : public vec_template<w_base>
 	 asm (
 	    " ### vec_w to float ### \n"
 	    "mtsab	$0, 12	# shift right 12 bytes \n"
-	    "qfsrv	new_float, $0, this \n"
-	    : "=r new_float" (new_float)
-	    : "r this" (*this)
+	    "qfsrv	%[new_float], $0, %[_this] \n"
+	    : [new_float] "=r" (new_float)
+	    : [_this] "r" (*this)
 	    );
 	 return new_float;
       }
@@ -640,11 +640,11 @@ class vec_w : public vec_template<w_base>
 	 float w;
 	 vec128_t temp0;
 	 asm volatile (
-			"mtsab	$0, 12		# get ready to shift right 12 bytes	\n"
-			"qfsrv	temp0, $0, vec  # temp0 = value >> 8	\n"
-			"mtc1	temp0, w	# w = value.w \n"
-			: "=f w" (w), "=r temp0" (temp0)
-			: "r vec" (vec128)
+			"mtsab	$0, 12			# get ready to shift right 12 bytes	\n"
+			"qfsrv	%[temp0], $0, %[vec]	# temp0 = value >> 8	\n"
+			"mtc1	%[temp0], %[w]		# w = value.w \n"
+			: [w] "=f" (w), [temp0] "=r" (temp0)
+			: [vec] "r" (vec128)
 			);
 
 	 printf("(* * * %f)\n", w);
@@ -777,12 +777,12 @@ class vec_xy : public vec_template<xy_base>
 	 asm (
 	    " ### init vec_xy with floats ### \n"
 	    ".balign	4 \n"
-	    "mfc1	this, f_x		# vec128.x = x \n"
-	    "mfc1	temp0, f_y		# temp0.x = y \n"
+	    "mfc1	%[_this], %[f_x]		# vec128.x = x \n"
+	    "mfc1	%[temp0], %[f_y]		# temp0.x = y \n"
 	    "nop \n"
-	    "pextlw	this, temp0, this	# vec128 = (temp0.x << 32) | vec128.x  \n"
-	    : "=r this" (vec128), "=r temp0" (temp0)
-	    : "f f_x" (x), "f f_y" (y)
+	    "pextlw	%[_this], %[temp0], %[_this]	# vec128 = (temp0.x << 32) | vec128.x  \n"
+	    : [_this] "=r" (vec128), [temp0] "=r" (temp0)
+	    : [f_x] "f" (x), [f_y] "f" (y)
 	    );
       }
 
@@ -845,12 +845,12 @@ class vec_xy : public vec_template<xy_base>
 	 float x, y;
 	 vec128_t temp0;
 	 asm volatile (
-	    "mtsab $0, 4  # get ready to shift right 4 bytes \n"
-	    "mtc1  vec, x # x = value.x	\n"
-	    "qfsrv temp0, $0, vec # temp0 = value >> 8	\n"
-	    "mtc1  temp0, y # y = value.y \n"
-	    : "=f x" (x), "=f y" (y), "=r temp0" (temp0)
-	    : "r vec" (vec128)
+	    "mtsab $0, 4		# get ready to shift right 4 bytes \n"
+	    "mtc1  %[vec], %[x]		# x = value.x	\n"
+	    "qfsrv %[temp0], $0, %[vec]	# temp0 = value >> 8	\n"
+	    "mtc1  %[temp0], %[y]	# y = value.y \n"
+	    : [x] "=f" (x), [y] "=f" (y), [temp0] "=r" (temp0)
+	    : [vec] "r" (vec128)
 	    );
 
 	    printf("(%f %f * *)\n", x, y);
@@ -867,10 +867,10 @@ class vec_xy : public vec_template<xy_base>
 	 vec128_t result;
 	 asm (
 	    " ### vec_xy dot vec_xy ### \n"
-	    "vmul     result, lhs, rhs \n"
-	    "vaddy.x  result, result, result \n"
-	    : "=j result" (result)
-	    : "j lhs" (*this), "j rhs" (rhs)
+	    "vmul     %[result], %[lhs], %[rhs] \n"
+	    "vaddy.x  %[result], %[result], %[result] \n"
+	    : [result] "=j" (result)
+	    : [lhs] "j" (*this), [rhs] "j" (rhs)
 	    );
 	 return vec_x(result);
       }
@@ -883,19 +883,19 @@ class vec_xy : public vec_template<xy_base>
       	 int cond;
 	 asm (
 	    "### vec_xy normalized ###\n"
-	    "vmul     dot, this, this \n"
-	    "vaddy.x  dot, dot, dot \n"
-	    "vrsqrt Q, vf00w, dotx\n"
-	    "cfc2 cond, $vi17\n"
-	    "vsub result, result, result\n"
-	    "andi cond, cond, 8\n"
-	    "bgtz cond, 0f \n"
+	    "vmul	%[dot], %[_this], %[_this] \n"
+	    "vaddy.x	%[dot], %[dot], %[dot] \n"
+	    "vrsqrt	Q, vf00w, %[dot]x\n"
+	    "cfc2	%[cond], $vi17\n"
+	    "vsub	%[result], %[result], %[result]\n"
+	    "andi	%[cond], %[cond], 8\n"
+	    "bgtz	%[cond], 0f \n"
 	    "nop\n"
 	    "vwaitq\n"
-	    "vmulq result, this, Q\n"
+	    "vmulq	%[result], %[_this], Q\n"
 	    "0:\n"
-	    : "=&j result" (result), "=&j dot" (dot), "=r cond" (cond)
-	    : "j this" (*this)
+	    : [result] "=&j" (result), [dot] "=&j" (dot), [cond] "=r" (cond)
+	    : [_this] "j" (*this)
 	    );
 	 return vec_xy(result);
       }
@@ -903,14 +903,14 @@ class vec_xy : public vec_template<xy_base>
       inline vec_xy one_over() const {
 	 vec128_t result;
 	 asm (	" ### reciprocal of vec_xy ### \n"
-		"vdiv Q, vf00w, thisx \n"
+		"vdiv		Q, vf00w, %[_this]x \n"
 		"vwaitq \n"
-		"vaddq.x result, vf00, Q \n"
-		"vdiv Q, vf00w, thisy \n"
+		"vaddq.x	%[result], vf00, Q \n"
+		"vdiv		Q, vf00w, %[_this]y \n"
 		"vwaitq \n"
-		"vaddq.y result, vf00, Q \n"
-		: "=&j result" (result)
-		: "j this" (*this)
+		"vaddq.y	%[result], vf00, Q \n"
+		: [result] "=&j" (result)
+		: [_this] "j" (*this)
 	    );
 	 return vec_xy(result);
       }
@@ -1036,14 +1036,14 @@ class vec_xyz : public vec_template<xyz_base>
 	 asm (
 	    " ### init vec_xyz with floats ### \n"
 	    ".balign	4 \n"
-	    "mfc1	this, f_x		# vec128.x = x \n"
-	    "mfc1	temp0, f_y		# temp0.x = y \n"
+	    "mfc1	%[_this], %[f_x]		# vec128.x = x \n"
+	    "mfc1	%[temp0], %[f_y]		# temp0.x = y \n"
 	    "nop \n"
-	    "pextlw	this, temp0, this	# vec128 = (temp0.x << 32) | vec128.x  \n"
-	    "mfc1	temp0, f_z		# temp0.x = z \n"
-	    "pcpyld	this, temp0, this	# vec128 |= (temp0 << 64) \n"
-	    : "=r this" (vec128), "=r temp0" (temp0)
-	    : "f f_x" (x), "f f_y" (y), "f f_z" (z)
+	    "pextlw	%[_this], %[temp0], %[_this]	# vec128 = (temp0.x << 32) | vec128.x  \n"
+	    "mfc1	%[temp0], %[f_z]		# temp0.x = z \n"
+	    "pcpyld	%[_this], %[temp0], %[_this]	# vec128 |= (temp0 << 64) \n"
+	    : [_this] "=r" (vec128), [temp0] "=r" (temp0)
+	    : [f_x] "f" (x), [f_y] "f" (y), [f_z] "f" (z)
 	    );
       }
 
@@ -1097,10 +1097,10 @@ class vec_xyz : public vec_template<xyz_base>
       inline vec_x max() const {
 	 vec128_t result;
 	 asm( 	"### vec_xyz max element ###\n"
-		"vmaxy.x result, this, this \n"
-		"vmaxz.x result, result, this \n"
-		: "=j result" (result)
-		: "j this" (*this)
+		"vmaxy.x	%[result], %[_this], %[_this] \n"
+		"vmaxz.x	%[result], %[result], %[_this] \n"
+		: [result] "=j" (result)
+		: [_this] "j" (*this)
 	    );
 	 return vec_x(result);
       }
@@ -1108,10 +1108,10 @@ class vec_xyz : public vec_template<xyz_base>
       inline vec_x min() const {
 	 vec128_t result;
 	 asm(	"### vec_xyz min element ###\n"
-		"vminiy.x result, this, this \n"
-		"vminiz.x result, result, this \n"
-		: "=j result" (result)
-		: "j this" (*this)
+		"vminiy.x	%[result], %[_this], %[_this] \n"
+		"vminiz.x	%[result], %[result], %[_this] \n"
+		: [result] "=j" (result)
+		: [_this] "j" (*this)
 	    );
 	 return vec_x(result);
       }
@@ -1119,17 +1119,17 @@ class vec_xyz : public vec_template<xyz_base>
       inline vec_xyz one_over() const {
 	 vec128_t result;
 	 asm (	" ### reciprocal of vec_xyz ### \n"
-		"vdiv Q, vf00w, thisx \n"
+		"vdiv		Q, vf00w, %[_this]x \n"
 		"vwaitq \n"
-		"vaddq.x result, vf00, Q \n"
-		"vdiv Q, vf00w, thisy \n"
+		"vaddq.x	%[result], vf00, Q \n"
+		"vdiv		Q, vf00w, %[_this]y \n"
 		"vwaitq \n"
-		"vaddq.y result, vf00, Q \n"
-		"vdiv Q, vf00w, thisz \n"
+		"vaddq.y	%[result], vf00, Q \n"
+		"vdiv		Q, vf00w, %[_this]z \n"
 		"vwaitq \n"
-		"vaddq.z result, vf00, Q \n"
-		: "=&j result" (result)
-		: "j this" (*this)
+		"vaddq.z	%[result], vf00, Q \n"
+		: [result] "=&j" (result)
+		: [_this] "j" (*this)
 	    );
 	 return vec_xyz(result);
       }
@@ -1150,12 +1150,12 @@ class vec_xyz : public vec_template<xyz_base>
 	 vec128_t result, one;
 	 asm (
 		" ### vec_xyz dot vec_xyz ### \n"
-		"vmul result, lhs, rhs \n"
-		"vaddw.x one, vf00, vf00 \n"
-		"vadday.x ACC, result, result \n"
-		"vmaddz.x result, one, result \n"
-	    : "=j result" (result), "=j one" (one)
-	    : "j lhs" (*this), "j rhs" (rhs)
+		"vmul		%[result], %[lhs], %[rhs] \n"
+		"vaddw.x	%[one], vf00, vf00 \n"
+		"vadday.x	ACC, %[result], %[result] \n"
+		"vmaddz.x	%[result], %[one], %[result] \n"
+	    : [result] "=j" (result), [one] "=j" (one)
+	    : [lhs] "j" (*this), [rhs] "j" (rhs)
 	    );
 	 return vec_x(result);
       }
@@ -1168,21 +1168,21 @@ class vec_xyz : public vec_template<xyz_base>
       	 int cond;
 	 asm (
 	    "### vec_xyz normalized ###\n"
-	    "vmul dot, this, this \n"
-	    "vaddw.x one, vf00, vf00 \n"
-	    "vadday.x ACC, dot, dot \n"
-	    "vmaddz.x dot, one, dot \n"
-	    "vrsqrt Q, vf00w, dotx\n"
-	    "cfc2 cond, $vi17\n"
-	    "vsub result, result, result\n"
-	    "andi cond, cond, 8\n"
-	    "bgtz cond, 0f \n"
+	    "vmul	%[dot], %[_this], %[_this] \n"
+	    "vaddw.x	%[one], vf00, vf00 \n"
+	    "vadday.x	ACC, %[dot], %[dot] \n"
+	    "vmaddz.x	%[dot], %[one], %[dot] \n"
+	    "vrsqrt	Q, vf00w, %[dot]x\n"
+	    "cfc2	%[cond], $vi17\n"
+	    "vsub	%[result], %[result], %[result]\n"
+	    "andi	%[cond], %[cond], 8\n"
+	    "bgtz	%[cond], 0f \n"
 	    "nop\n"
 	    "vwaitq\n"
-	    "vmulq result, this, Q\n"
+	    "vmulq	%[result], %[_this], Q\n"
 	    "0:\n"
-	    : "=&j result" (result), "=&j one" (one), "=&j dot" (dot), "=r cond" (cond)
-	    : "j this" (*this)
+	    : [result] "=&j" (result), [one] "=&j" (one), [dot] "=&j" (dot), [cond] "=r" (cond)
+	    : [_this] "j" (*this)
 	    );
 
 	 return vec_xyz(result);
@@ -1193,10 +1193,10 @@ class vec_xyz : public vec_template<xyz_base>
 	 vec128_t result;
 	 asm (
 		" ### vec_xyz cross vec_xyz ### \n"
-		"vopmula.xyz	ACC, lhs, rhs \n"
-		"vopmsub.xyz	result, rhs, lhs \n"
-		: "=j result" (result)
-		: "j lhs" (*this), "j rhs" (rhs)
+		"vopmula.xyz	ACC, %[lhs], %[rhs] \n"
+		"vopmsub.xyz	%[result], %[rhs], %[lhs] \n"
+		: [result] "=j" (result)
+		: [lhs] "j" (*this), [rhs] "j" (rhs)
 	     );
 	 return vec_xyz(result);
       }
@@ -1234,14 +1234,14 @@ class vec_xyz : public vec_template<xyz_base>
 	 float x, y, z;
 	 vec128_t temp0;
 	 asm volatile (
-	    "mtsab $0, 4  # get ready to shift right 4 bytes \n"
-	    "mtc1  vec, x # x = value.x	\n"
-	    "qfsrv temp0, $0, vec # temp0 = value >> 8	\n"
-	    "mtc1  temp0, y # y = value.y \n"
-	    "qfsrv temp0, $0, temp0 # temp0 >>= 8 \n"
-	    "mtc1  temp0, z # z = value.z \n"
-	    : "=f x" (x), "=f y" (y), "=f z" (z), "=r temp0" (temp0)
-	    : "r vec" (vec128)
+	    "mtsab	$0, 4			# get ready to shift right 4 bytes \n"
+	    "mtc1	%[vec], %[x]		# x = value.x	\n"
+	    "qfsrv	%[temp0], $0, %[vec]	# temp0 = value >> 8	\n"
+	    "mtc1	%[temp0], %[y]		# y = value.y \n"
+	    "qfsrv	%[temp0], $0, %[temp0]	# temp0 >>= 8 \n"
+	    "mtc1	%[temp0], %[z]		# z = value.z \n"
+	    : [x] "=f" (x), [y] "=f" (y), [z] "=f" (z), [temp0] "=r" (temp0)
+	    : [vec] "r" (vec128)
 	    );
 
 	    printf("(%f %f %f *)\n", x, y, z);
@@ -1371,23 +1371,23 @@ class vec_xyzw : public vec_template<xyzw_base>
 	 asm (
 	    " ### init vec_xyzw with floats ### \n"
 	    ".balign	4 \n"
-	    "mfc1	this, f_x		# vec128.x = x \n"
+	    "mfc1	%[_this], %[f_x]		# vec128.x = x \n"
 
-	    "mfc1	temp0, f_y		# temp0.x = y \n"
+	    "mfc1	%[temp0], %[f_y]		# temp0.x = y \n"
 	    "nop \n"
 
-	    "pextlw	this, temp0, this	# vec128 = (temp0.x << 32) | vec128.x  \n"
-	    "mfc1	temp0, f_z		# temp0.x = z \n"
+	    "pextlw	%[_this], %[temp0], %[_this]	# vec128 = (temp0.x << 32) | vec128.x  \n"
+	    "mfc1	%[temp0], %[f_z]		# temp0.x = z \n"
 
-	    "mfc1	temp1, f_w		# temp1.x = w \n"
+	    "mfc1	%[temp1], %[f_w]		# temp1.x = w \n"
 	    "nop \n"
 
-	    "pextlw	temp0, temp1, temp0	# temp0 = (temp1.x << 32) | temp0.x  \n"
+	    "pextlw	%[temp0], %[temp1], %[temp0]	# temp0 = (temp1.x << 32) | temp0.x  \n"
 	    "nop \n"
 
-	    "pcpyld	this, temp0, this	# vec128 |= (temp0 << 64) \n"
-	    : "=r this" (vec128), "=r temp0" (temp0), "=r temp1" (temp1)
-	    : "f f_x" (x), "f f_y" (y), "f f_z" (z), "f f_w" (w)
+	    "pcpyld	%[_this], %[temp0], %[_this]	# vec128 |= (temp0 << 64) \n"
+	    : [_this] "=r" (vec128), [temp0] "=r" (temp0), [temp1] "=r" (temp1)
+	    : [f_x] "f" (x), [f_y] "f" (y), [f_z] "f" (z), [f_w] "f" (w)
 	    );
 
       }
@@ -1442,11 +1442,11 @@ class vec_xyzw : public vec_template<xyzw_base>
       inline vec_x max() const {
 	 vec128_t result;
 	 asm(	"### vec_xyzw max element ###\n"
-		"vmaxy.x result, this, this \n"
-		"vmaxz.x result, result, this \n"
-		"vmaxw.x result, result, this \n"
-		: "=&j result" (result)
-		: "j this" (*this)
+		"vmaxy.x	%[result], %[_this],  %[_this] \n"
+		"vmaxz.x	%[result], %[result], %[_this] \n"
+		"vmaxw.x	%[result], %[result], %[_this] \n"
+		: [result] "=&j" (result)
+		: [_this] "j" (*this)
 	    );
 	 return vec_x(result);
       }
@@ -1454,11 +1454,11 @@ class vec_xyzw : public vec_template<xyzw_base>
       inline vec_x min() const {
 	 vec128_t result;
 	 asm(	"### vec_xyzw min element ###\n"
-		"vminiy.x result, this, this \n"
-		"vminiz.x result, result, this \n"
-		"vminiw.x result, result, this \n"
-		: "=&j result" (result)
-		: "j this" (*this)
+		"vminiy.x	%[result], %[_this],  %[_this] \n"
+		"vminiz.x	%[result], %[result], %[_this] \n"
+		"vminiw.x	%[result], %[result], %[_this] \n"
+		: [result] "=&j" (result)
+		: [_this] "j" (*this)
 	    );
 	 return vec_x(result);
       }
@@ -1466,20 +1466,20 @@ class vec_xyzw : public vec_template<xyzw_base>
       inline vec_xyzw one_over() const {
 	 vec128_t result;
 	 asm (	" ### reciprocal of vec_xyzw ### \n"
-		"vdiv Q, vf00w, thisx \n"
+		"vdiv		Q, vf00w, %[_this]x \n"
 		"vwaitq \n"
-		"vaddq.x result, vf00, Q \n"
-		"vdiv Q, vf00w, thisy \n"
+		"vaddq.x	%[result], vf00, Q \n"
+		"vdiv		Q, vf00w, %[_this]y \n"
 		"vwaitq \n"
-		"vaddq.y result, vf00, Q \n"
-		"vdiv Q, vf00w, thisz \n"
+		"vaddq.y	%[result], vf00, Q \n"
+		"vdiv		Q, vf00w, %[_this]z \n"
 		"vwaitq \n"
-		"vaddq.z result, vf00, Q \n"
-		"vdiv Q, vf00w, thisw \n"
+		"vaddq.z	%[result], vf00, Q \n"
+		"vdiv		Q, vf00w, %[_this]w \n"
 		"vwaitq \n"
-		"vmulq.w result, vf00, Q \n"
-		: "=&j result" (result)
-		: "j this" (*this)
+		"vmulq.w	%[result], vf00, Q \n"
+		: [result] "=&j" (result)
+		: [_this] "j" (*this)
 	    );
 	 return vec_xyzw(result);
       }
@@ -1503,13 +1503,13 @@ class vec_xyzw : public vec_template<xyzw_base>
 	 vec128_t result, one;
 	 asm (
 	    " ### vec_xyzw dot vec_xyzw ### \n"
-	    "vmul	result, lhs, rhs \n"
-	    "vaddw.x	one, vf00, vf00 \n"
-	    "vadday.x	ACC, result, result \n"
-	    "vmaddaz.x	ACC, one, result \n"
-	    "vmaddw.x	result, one, result \n"
-	    : "=j result" (result), "=j one" (one)
-	    : "j lhs" (*this), "j rhs" (rhs)
+	    "vmul	%[result], %[lhs], %[rhs] \n"
+	    "vaddw.x	%[one], vf00, vf00 \n"
+	    "vadday.x	ACC, %[result], %[result] \n"
+	    "vmaddaz.x	ACC, %[one], %[result] \n"
+	    "vmaddw.x	%[result], %[one], %[result] \n"
+	    : [result] "=j" (result), [one] "=j" (one)
+	    : [lhs] "j" (*this), [rhs] "j" (rhs)
 	    );
 	 return vec_x(result);
       }
@@ -1522,22 +1522,22 @@ class vec_xyzw : public vec_template<xyzw_base>
       	 int cond;
 	 asm (
 	    "### vec_xyzw normalized ###\n"
-	    "vmul	dot, this, this \n"
-	    "vaddw.x	one, vf00, vf00 \n"
-	    "vadday.x	ACC, dot, dot \n"
-	    "vmaddaz.x	ACC, one, dot \n"
-	    "vmaddw.x	dot, one, dot \n"
-	    "vrsqrt Q, vf00w, dotx\n"
-	    "cfc2 cond, $vi17\n"
-	    "vsub result, result, result\n"
-	    "andi cond, cond, 8\n"
-	    "bgtz cond, 0f \n"
+	    "vmul	%[dot], %[_this], %[_this] \n"
+	    "vaddw.x	%[one, vf00, vf00 \n"
+	    "vadday.x	ACC, %[dot], %[dot] \n"
+	    "vmaddaz.x	ACC, %[one], %[dot] \n"
+	    "vmaddw.x	%[dot, %[one, %[dot] \n"
+	    "vrsqrt	Q, vf00w, %[dot]x\n"
+	    "cfc2	%[cond], $vi17\n"
+	    "vsub	%[result], %[result], %[result]\n"
+	    "andi	%[cond], %[cond], 8\n"
+	    "bgtz	%[cond], 0f \n"
 	    "nop\n"
 	    "vwaitq\n"
-	    "vmulq result, this, Q\n"
+	    "vmulq	%[result], %[_this], Q\n"
 	    "0:\n"
-	    : "=&j result" (result), "=&j one" (one), "=&j dot" (dot), "=r cond" (cond)
-	    : "j this" (*this)
+	    : [result] "=&j" (result), [one] "=&j" (one), [dot] "=&j" (dot), [cond] "=r" (cond)
+	    : [_this] "j" (*this)
 	    );
 
 	 return vec_xyzw(result);
@@ -1553,11 +1553,11 @@ class vec_xyzw : public vec_template<xyzw_base>
 	 vec128_t result;
 	 asm (
 	    " ### vec_xyzw cross vec_xyzw ### \n"
-	    "vsub.w		result, result, result \n"
-	    "vopmula.xyz	ACC, lhs, rhs \n"
-	    "vopmsub.xyz	result, rhs, lhs \n"
-	    : "=j result" (result)
-	    : "j lhs" (*this), "j rhs" (rhs)
+	    "vsub.w		%[result], %[result], %[result] \n"
+	    "vopmula.xyz	ACC, %[lhs], %[rhs] \n"
+	    "vopmsub.xyz	%[result], %[rhs], %[lhs] \n"
+	    : [result] "=j" (result)
+	    : [lhs] "j" (*this), [rhs] "j" (rhs)
 	    );
 	 return vec_xyzw(result);
       }
@@ -1709,23 +1709,23 @@ class vector_t : public vec_template<vector_base>
 	 asm (
 		" ### init vector_t with floats ### \n"
 		".balign	4 \n"
-		"mfc1		this, f_x					# vec128.x = x \n"
+		"mfc1		%[_this], %[f_x]		# vec128.x = x \n"
 
-		"mfc1		_temp0, f_y				# temp0.x = y \n"
+		"mfc1		%[_temp0], %[f_y]		# temp0.x = y \n"
 		"nop \n"
 
-		"pextlw	this, _temp0, this		# vec128 = (temp0.x << 32) | vec128.x  \n"
-		"mfc1		_temp0, f_z				# temp0.x = z \n"
+		"pextlw		%[_this], %[_temp0], %[_this]	# vec128 = (temp0.x << 32) | vec128.x  \n"
+		"mfc1		%[_temp0], %[f_z]		# temp0.x = z \n"
 
-		"mfc1		_temp1, f_w				# temp1.x = w \n"
+		"mfc1		%[_temp1], %[f_w]		# temp1.x = w \n"
 		"nop \n"
 
-		"pextlw	_temp0, _temp1, _temp0	# temp0 = (temp1.x << 32) | temp0.x  \n"
+		"pextlw		%[_temp0], %[_temp1], %[_temp0]	# temp0 = (temp1.x << 32) | temp0.x  \n"
 		"nop \n"
 
-		"pcpyld	this, _temp0, this		# vec128 |= (temp0 << 64) \n"
-		: "=r this" (vec128), "=r _temp0" (temp0), "=r _temp1" (temp1)
-		: "f f_x" (x), "f f_y" (y), "f f_z" (z), "f f_w" (0.0f)
+		"pcpyld		%[_this], %[_temp0], %[_this]	# vec128 |= (temp0 << 64) \n"
+		: [_this] "=r" (vec128), [_temp0] "=r" (temp0), [_temp1] "=r" (temp1)
+		: [f_x] "f" (x), [f_y] "f" (y), [f_z] "f" (z), [f_w] "f" (0.0f)
 	    );
       }
 
@@ -1885,10 +1885,10 @@ class vector_t : public vec_template<vector_base>
       inline vec_x max() const {
 	 vec128_t result;
 	 asm( 	"### vector_t max element ###\n"
-		"vmaxy.x result, this, this \n"
-		"vmaxz.x result, result, this \n"
-		: "=j result" (result)
-		: "j this" (*this)
+		"vmaxy.x	%[result], %[_this],  %[_this] \n"
+		"vmaxz.x	%[result], %[result], %[_this] \n"
+		: [result] "=j" (result)
+		: [_this] "j" (*this)
 	    );
 	 return vec_x(result);
       }
@@ -1896,10 +1896,10 @@ class vector_t : public vec_template<vector_base>
       inline vec_x min() const {
 	 vec128_t result;
 	 asm(	"### vector_t min element ###\n"
-		"vminiy.x result, this, this \n"
-		"vminiz.x result, result, this \n"
-		: "=j result" (result)
-		: "j this" (*this)
+		"vminiy.x	%[result], %[_this],  %[_this] \n"
+		"vminiz.x	%[result], %[result], %[_this] \n"
+		: [result] "=j" (result)
+		: [_this] "j" (*this)
 	    );
 	 return vec_x(result);
       }
@@ -1909,12 +1909,12 @@ class vector_t : public vec_template<vector_base>
 	 vec128_t temp, result;
 	 asm (
 		" ### vector_t dot vector_t ### \n"
-		"vmul result, lhs, rhs \n"
-		"vaddw.x temp, vf00, vf00w \n"
-		"vadday.x ACC, result, result \n"
-		"vmaddz.x result, temp, result \n"
-		: "=j result" (result), "=j temp" (temp)
-		: "j lhs" (this->get128()), "j rhs" (rhs.get128())
+		"vmul		%[result], %[lhs], %[rhs] \n"
+		"vaddw.x	%[temp], vf00, vf00w \n"
+		"vadday.x	ACC, %[result], %[result] \n"
+		"vmaddz.x	%[result], %[temp], %[result] \n"
+		: [result] "=j" (result), [temp] "=j" (temp)
+		: [lhs] "j" (this->get128()), [rhs] "j" (rhs.get128())
 	    );
 	 return vec_x(result);
       }
@@ -1939,21 +1939,21 @@ class vector_t : public vec_template<vector_base>
       	 int cond;
 	 asm (
 	    "### vector_t normalized ###\n"
-	    "vmul dot, this, this \n"
-	    "vaddw.x one, vf00, vf00 \n"
-	    "vadday.x ACC, dot, dot \n"
-	    "vmaddz.x dot, one, dot \n"
-	    "vrsqrt Q, vf00w, dotx\n"
-	    "cfc2 cond, $vi17\n"
-	    "vsub result, result, result\n"
-	    "andi cond, cond, 8\n"
-	    "bgtz cond, 0f \n"
+	    "vmul	%[dot], %[_this], %[_this] \n"
+	    "vaddw.x	%[one], vf00, vf00 \n"
+	    "vadday.x	ACC, %[dot], %[dot] \n"
+	    "vmaddz.x	%[dot], %[one], %[dot] \n"
+	    "vrsqrt	Q, vf00w, %[dot]x\n"
+	    "cfc2	%[cond], $vi17\n"
+	    "vsub	%[result], %[result], %[result]\n"
+	    "andi	%[cond], %[cond], 8\n"
+	    "bgtz	%[cond], 0f \n"
 	    "nop\n"
 	    "vwaitq\n"
-	    "vmulq result, this, Q\n"
+	    "vmulq	%[result], %[_this], Q\n"
 	    "0:\n"
-	    : "=&j result" (result), "=&j one" (one), "=&j dot" (dot), "=r cond" (cond)
-	    : "j this" (*this)
+	    : [result] "=&j" (result), [one] "=&j" (one), [dot] "=&j" (dot), [cond] "=r" (cond)
+	    : [_this] "j" (*this)
 	    );
 
 	 return vector_t(result);
@@ -1970,10 +1970,10 @@ class vector_t : public vec_template<vector_base>
 	 vec128_t result;
 	 asm (
 		" ### vector_t cross vector_t ### \n"
-		"vopmula.xyz	ACC, lhs, rhs \n"
-		"vopmsub.xyz	result, rhs, lhs \n"
-		: "=j result" (result)
-		: "j lhs" (this->get128()), "j rhs" (rhs.get128())
+		"vopmula.xyz	ACC, %[lhs], %[rhs] \n"
+		"vopmsub.xyz	%[result], %[rhs], %[lhs] \n"
+		: [result] "=j" (result)
+		: [lhs] "j" (this->get128()), [rhs] "j" (rhs.get128())
 	    );
 	 return vector_t(result);
       }
@@ -1982,14 +1982,14 @@ class vector_t : public vec_template<vector_base>
 	 float x, y, z;
 	 vec128_t temp0;
 	 asm volatile (
-		"mtsab	$0, 4		# get ready to shift right 4 bytes	\n"
-		"mtc1		_vec, _x	# x = value.x	\n"
-		"qfsrv	_temp0, $0, _vec # temp0 = value >> 8	\n"
-		"mtc1		_temp0, _y	# y = value.y \n"
-		"qfsrv	_temp0, $0, _temp0 # temp0 >>= 8 \n"
-		"mtc1		_temp0, _z	# z = value.z \n"
-		: "=f _x" (x), "=f _y" (y), "=f _z" (z), "=r _temp0" (temp0)
-		: "r _vec" (vec128)
+		"mtsab		$0, 4				# get ready to shift right 4 bytes	\n"
+		"mtc1		%[_vec, %[_x]			# x = value.x	\n"
+		"qfsrv		%[_temp0], $0, %[_vec]		# temp0 = value >> 8	\n"
+		"mtc1		%[_temp0], %[_y]		# y = value.y \n"
+		"qfsrv		%[_temp0], $0, %[_temp0]	# temp0 >>= 8 \n"
+		"mtc1		%[_temp0], %[_z]		# z = value.z \n"
+		: [_x] "=f" (x), [_y] "=f" (y), [_z] "=f" (z), [_temp0] "=r" (temp0)
+		: [_vec] "r" (vec128)
 	    );
 
 	 printf("(%f %f %f (0.0))\n", x, y, z);
@@ -2023,23 +2023,23 @@ class point_t : public vec_template<point_base>
 	 asm (
 		" ### init point_t with floats ### \n"
 		".balign	4 \n"
-		"mfc1		this, f_x					# vec128.x = x \n"
+		"mfc1		%[_this], %[f_x]		# vec128.x = x \n"
 
-		"mfc1		_temp0, f_y				# temp0.x = y \n"
+		"mfc1		%[_temp0], %[f_y]		# temp0.x = y \n"
 		"nop \n"
 
-		"pextlw	this, _temp0, this		# vec128 = (temp0.x << 32) | vec128.x  \n"
-		"mfc1		_temp0, f_z				# temp0.x = z \n"
+		"pextlw		%[_this], %[_temp0], %[_this]	# vec128 = (temp0.x << 32) | vec128.x  \n"
+		"mfc1		%[_temp0], %[f_z]		# temp0.x = z \n"
 
-		"mfc1		_temp1, f_w				# temp1.x = w \n"
+		"mfc1		%[_temp1], %[f_w]		# temp1.x = w \n"
 		"nop \n"
 
-		"pextlw	_temp0, _temp1, _temp0	# temp0 = (temp1.x << 32) | temp0.x  \n"
+		"pextlw		%[_temp0], %[_temp1], %[_temp0]	# temp0 = (temp1.x << 32) | temp0.x  \n"
 		"nop \n"
 
-		"pcpyld	this, _temp0, this		# vec128 |= (temp0 << 64) \n"
-		: "=r this" (vec128), "=r _temp0" (temp0), "=r _temp1" (temp1)
-		: "f f_x" (x), "f f_y" (y), "f f_z" (z), "f f_w" (1.0f)
+		"pcpyld		%[_this], %[_temp0], %[_this]	# vec128 |= (temp0 << 64) \n"
+		: [_this] "=r" (vec128), [_temp0] "=r" (temp0), [_temp1] "=r" (temp1)
+		: [f_x] "f" (x), [f_y] "f" (y), [f_z] "f" (z), [f_w] "f" (1.0f)
 	    );
       }
 
@@ -2112,10 +2112,10 @@ class point_t : public vec_template<point_base>
       inline vec_x max() const {
 	 vec128_t result;
 	 asm( 	"### point_t max element ###\n"
-		"vmaxy.x result, this, this \n"
-		"vmaxz.x result, result, this \n"
-		: "=j result" (result)
-		: "j this" (*this)
+		"vmaxy.x	%[result], %[_this],  %[_this] \n"
+		"vmaxz.x	%[result], %[result], %[_this] \n"
+		: [result] "=j" (result)
+		: [_this] "j" (*this)
 	    );
 	 return vec_x(result);
       }
@@ -2123,10 +2123,10 @@ class point_t : public vec_template<point_base>
       inline vec_x min() const {
 	 vec128_t result;
 	 asm(	"### point_t min element ###\n"
-		"vminiy.x result, this, this \n"
-		"vminiz.x result, result, this \n"
-		: "=j result" (result)
-		: "j this" (*this)
+		"vminiy.x	%[result], %[_this],  %[_this] \n"
+		"vminiz.x	%[result], %[result], %[_this] \n"
+		: [result] "=j" (result)
+		: [_this] "j" (*this)
 	    );
 	 return vec_x(result);
       }
@@ -2136,12 +2136,12 @@ class point_t : public vec_template<point_base>
 	 vec128_t temp, result;
 	 asm (
 		" ### point_t projection onto vector_t ### \n"
-		"vmul result, lhs, rhs \n"
-		"vaddw.x temp, vf00, vf00w \n"
-		"vadday.x ACC, result, result \n"
-		"vmaddz.x result, temp, result \n"
-		: "=j result" (result), "=j temp" (temp)
-		: "j lhs" (this->get128()), "j rhs" (rhs.get128())
+		"vmul		%[result], %[lhs], %[rhs] \n"
+		"vaddw.x	%[temp], vf00, vf00w \n"
+		"vadday.x	ACC, %[result], %[result] \n"
+		"vmaddz.x	%[result], %[temp], %[result] \n"
+		: [result] "=j" (result), [temp] "=j" (temp)
+		: [lhs] "j" (this->get128()), [rhs] "j" (rhs.get128())
 	    );
 	 return vec_x(result);
       }
@@ -2167,14 +2167,14 @@ class point_t : public vec_template<point_base>
 	 float x, y, z;
 	 vec128_t temp0;
 	 asm volatile (
-		"mtsab	$0, 4		# get ready to shift right 4 bytes	\n"
-		"mtc1		_vec, _x	# x = value.x	\n"
-		"qfsrv	_temp0, $0, _vec # temp0 = value >> 8	\n"
-		"mtc1		_temp0, _y	# y = value.y \n"
-		"qfsrv	_temp0, $0, _temp0 # temp0 >>= 8 \n"
-		"mtc1		_temp0, _z	# z = value.z \n"
-		: "=f _x" (x), "=f _y" (y), "=f _z" (z), "=r _temp0" (temp0)
-		: "r _vec" (vec128)
+		"mtsab		$0, 4				# get ready to shift right 4 bytes	\n"
+		"mtc1		%[_vec], %[_x]			# x = value.x	\n"
+		"qfsrv		%[_temp0], $0, %[_vec]		# temp0 = value >> 8	\n"
+		"mtc1		%[_temp0], %[_y]		# y = value.y \n"
+		"qfsrv		%[_temp0], $0, %[_temp0]	# temp0 >>= 8 \n"
+		"mtc1		%[_temp0], %[_z]		# z = value.z \n"
+		: [_x] "=f" (x), [_y] "=f" (y), [_z] "=f" (z), [_temp0] "=r" (temp0)
+		: [_vec] "r" (vec128)
 	    );
 
 	 printf("(%f %f %f (1.0))\n", x, y, z);
@@ -2230,8 +2230,8 @@ vec_w::vec_w( const vector_t rhs )
 {
   asm (
 	" ### set vec_w to 0.0 ### \n"
-	" vsub.w this, this, this \n"
-	: "=j this" (*this)
+	" vsub.w	%[_this], %[_this], %[_this] \n"
+	: [_this] "=j" (*this)
       );
 }
 inline
@@ -2239,8 +2239,8 @@ vec_w::vec_w( const point_t rhs )
 {
   asm (
 	" ### set vec_w to 1.0 ### \n"
-	" vmove.w this, vf00 \n"
-	: "=j this" (*this)
+	" vmove.w	%[_this], vf00 \n"
+	: [_this] "=j" (*this)
       );
 }
 
@@ -2258,8 +2258,8 @@ vec_xyzw::vec_xyzw( const vector_t rhs )
   vec128 = rhs.vec128;
   asm (
 	" ### set w of vec_4 to 0.0 ### \n"
-	" vsub.w this, this, this \n"
-	: "+j this" (*this)
+	" vsub.w	%[_this], %[_this], %[_this] \n"
+	: [_this] "+j" (*this)
       );
 }
 inline
@@ -2268,8 +2268,8 @@ vec_xyzw::vec_xyzw( const point_t rhs )
   vec128 = rhs.vec128;
   asm (
 	" ### set w of vec_4 to 1.0 ### \n"
-	" vmove.w this, vf00 \n"
-	: "+j this" (*this)
+	" vmove.w	%[_this], vf00 \n"
+	: [_this] "+j" (*this)
       );
 }
 

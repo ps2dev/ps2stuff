@@ -48,14 +48,14 @@ class mat_33 : public mat_x3_template<vec_3>
 
       void set_identity( ) {
 	 asm ( " ### mat_33::set_identity ### \n"
-	       "vsub      col0, col0, col0 \n"
-	       "vsub      col1, col1, col1 \n"
-	       "vmr32    col2, vf00       \n"
-	       "vaddw.x    col0, vf00, vf00 \n"
-	       "vaddw.y    col1, vf00, vf00 \n"
-	       : "=j col0" (col0),
-	       "=j col1" (col1),
-	       "=j col2" (col2)
+	       "vsub		%[col0], %[col0], %[col0] \n"
+	       "vsub		%[col1], %[col1], %[col1] \n"
+	       "vmr32		%[col2], vf00             \n"
+	       "vaddw.x		%[col0], vf00, vf00       \n"
+	       "vaddw.y		%[col1], vf00, vf00       \n"
+	       : [col0] "=j" (col0),
+	       [col1] "=j" (col1),
+	       [col2] "=j" (col2)
 	    );
       }
 
@@ -73,43 +73,43 @@ class mat_33 : public mat_x3_template<vec_3>
 
 	 asm ( "### set rotation from unit quaternion ### \n"
 
-	       "vmr32.xy q_yzx, quat \n"
-	       "vaddx.z q_yzx, vf00, quat \n"
-	       "vaddz.x q_zxy, vf00, quat \n"
-	       "vaddx.y q_zxy, vf00, quat \n"
-	       "vaddy.z q_zxy, vf00, quat \n"
+	       "vmr32.xy	%[q_yzx], %[quat] \n"
+	       "vaddx.z		%[q_yzx], vf00, %[quat] \n"
+	       "vaddz.x		%[q_zxy], vf00, %[quat] \n"
+	       "vaddx.y		%[q_zxy], vf00, %[quat] \n"
+	       "vaddy.z		%[q_zxy], vf00, %[quat] \n"
 
-	       "vmula ACC, quat, q_yzx \n"
-	       "vmsubw.z col0, q_zxy, quat \n"
-	       "vmsubw.x col1, q_zxy, quat \n"
-	       "vmsubw.y col2, q_zxy, quat \n"
+	       "vmula		ACC, %[quat], %[q_yzx] \n"
+	       "vmsubw.z	%[col0], %[q_zxy], %[quat] \n"
+	       "vmsubw.x	%[col1], %[q_zxy], %[quat] \n"
+	       "vmsubw.y	%[col2], %[q_zxy], %[quat] \n"
 
-	       "vmula ACC, quat, q_zxy \n"
-	       "vmaddw.y col0, q_yzx, quat \n"
-	       "vmaddw.z col1, q_yzx, quat \n"
-	       "vmaddw.x col2, q_yzx, quat \n"
+	       "vmula		ACC, %[quat], %[q_zxy] \n"
+	       "vmaddw.y	%[col0], %[q_yzx], %[quat] \n"
+	       "vmaddw.z	%[col1], %[q_yzx], %[quat] \n"
+	       "vmaddw.x	%[col2], %[q_yzx], %[quat] \n"
 
-	       "vmula ACC, q_zxy, q_zxy \n"
-	       "vmadd.x col0, q_yzx, q_yzx \n"
-	       "vmadd.y col1, q_yzx, q_yzx \n"
-	       "vmadd.z col2, q_yzx, q_yzx \n"
+	       "vmula		ACC, %[q_zxy], %[q_zxy] \n"
+	       "vmadd.x		%[col0], %[q_yzx], %[q_yzx] \n"
+	       "vmadd.y		%[col1], %[q_yzx], %[q_yzx] \n"
+	       "vmadd.z		%[col2], %[q_yzx], %[q_yzx] \n"
 
-	       "vmaxw ones, vf00, vf00 \n"
-	       "vadd col0, col0, col0 \n"
-	       "vadd col1, col1, col1 \n"
-	       "vadd col2, col2, col2 \n"
+	       "vmaxw		%[ones], vf00, vf00 \n"
+	       "vadd		%[col0], %[col0], %[col0] \n"
+	       "vadd		%[col1], %[col1], %[col1] \n"
+	       "vadd		%[col2], %[col2], %[col2] \n"
 
-	       "vsub.x col0, ones, col0 \n"
-	       "vsub.y col1, ones, col1 \n"
-	       "vsub.z col2, ones, col2 \n"
+	       "vsub.x		%[col0], %[ones], %[col0] \n"
+	       "vsub.y		%[col1], %[ones], %[col1] \n"
+	       "vsub.z		%[col2], %[ones], %[col2] \n"
 
-	       : "=&j col0" (col0),
-	       "=&j col1" (col1),
-	       "=&j col2" (col2),
-	       "=&j q_yzx" (q_yzx),
-	       "=&j q_zxy" (q_zxy),
-	       "=&j ones" (ones), "=r" (vu0_ACC)
-	       : "j quat" (quat)
+	       : [col0] "=&j" (col0),
+	       [col1] "=&j" (col1),
+	       [col2] "=&j" (col2),
+	       [q_yzx] "=&j" (q_yzx),
+	       [q_zxy] "=&j" (q_zxy),
+	       [ones] "=&j" (ones), "=r" (vu0_ACC)
+	       : [quat] "j" (quat)
 	    );
       }
 
@@ -203,21 +203,21 @@ class mat_33 : public mat_x3_template<vec_3>
 	 vec128_t result, temp0, temp1, temp2, ones;
 
 	 asm ( "### mat_33 trans_mult vec_3 ### \n"
-	       "vmul temp0, col0, vec \n"
-	       "vmaxw ones, vf00, vf00 \n"
-	       "vmul temp1, col1, vec \n"
-	       "vmul temp2, col2, vec \n"
-	       "vadday.x ACC, temp0, temp0 \n"
-	       "vmaddz.x result, ones, temp0 \n"
-	       "vaddax.y ACC, temp1, temp1 \n"
-	       "vmaddz.y result, ones, temp1 \n"
-	       "vaddax.z ACC, temp2, temp2 \n"
-	       "vmaddy.z result, ones, temp2 \n"
-	       : "=&j result" (result),
-	       "=&j temp0" (temp0),
-	       "=&j temp1" (temp1),
-	       "=&j temp2" (temp2),
-	       "=&j ones" (ones), "=r" (vu0_ACC)
+	       "vmul		%[temp0], col0], %[vec] \n"
+	       "vmaxw		%[ones], vf00, vf00 \n"
+	       "vmul		%[temp1], %[col1], %[vec] \n"
+	       "vmul		%[temp2], %[col2], %[vec] \n"
+	       "vadday.x	ACC, %[temp0], %[temp0] \n"
+	       "vmaddz.x	%[result], %[ones], %[temp0] \n"
+	       "vaddax.y	ACC, %[temp1], %[temp1] \n"
+	       "vmaddz.y	%[result], %[ones], %[temp1] \n"
+	       "vaddax.z	ACC, %[temp2], %[temp2] \n"
+	       "vmaddy.z	%[result], %[ones], %[temp2] \n"
+	       : [result] "=&j" (result),
+	       [temp0] "=&j" (temp0),
+	       [temp1] "=&j" (temp1),
+	       [temp2] "=&j" (temp2),
+	       [ones] "=&j" (ones), "=r" (vu0_ACC)
 	       : "j col0" (col0),
 	       "j col1" (col1),
 	       "j col2" (col2),
@@ -355,25 +355,25 @@ class mat_43 : public mat_x3_template<vec_4>
 	 vec128_t result, temp0, temp1, temp2, ones;
 
 	 asm ( "### mat_43 trans_mult vec_4 ### \n"
-	       "vmul temp0, col0, vec \n"
-	       "vmaxw ones, vf00, vf00 \n"
-	       "vmul temp1, col1, vec \n"
-	       "vmul temp2, col2, vec \n"
-	       "vadday.x ACC, temp0, temp0 \n"
-	       "vmaddaz.x ACC, ones, temp0 \n"
-	       "vmaddw.x result, ones, temp0 \n"
-	       "vaddax.y ACC, temp1, temp1 \n"
-	       "vmaddaz.y ACC, ones, temp1 \n"
-	       "vmaddw.y result, ones, temp1 \n"
-	       "vaddax.z ACC, temp2, temp2 \n"
-	       "vmadday.z ACC, ones, temp2 \n"
-	       "vmaddw.z result, ones, temp2 \n"
-	       : "=&j result" (result),
-	       "=&j temp0" (temp0), "=&j temp1" (temp1), "=&j temp2" (temp2), "=&j ones" (ones), "=r" (vu0_ACC)
-	       : "j col0" (col0),
-	       "j col1" (col1),
-	       "j col2" (col2),
-	       "j vec" (vec)
+	       "vmul		%[temp0], %[col0], %[vec] \n"
+	       "vmaxw		%[ones], vf00, vf00 \n"
+	       "vmul		%[temp1], %[col1], %[vec] \n"
+	       "vmul		%[temp2], %[col2], %[vec] \n"
+	       "vadday.x	ACC, %[temp0], %[temp0] \n"
+	       "vmaddaz.x	ACC, %[ones], %[temp0] \n"
+	       "vmaddw.x	%[result], %[ones], %[temp0] \n"
+	       "vaddax.y	ACC, %[temp1], %[temp1] \n"
+	       "vmaddaz.y	ACC, %[ones], %[temp1] \n"
+	       "vmaddw.y	%[result], %[ones], %[temp1] \n"
+	       "vaddax.z	ACC, %[temp2], %[temp2] \n"
+	       "vmadday.z	ACC, %[ones], %[temp2] \n"
+	       "vmaddw.z	%[result], %[ones], %[temp2] \n"
+	       : [result] "=&j" (result),
+	       [temp0] "=&j" (temp0), [temp1] "=&j" (temp1), [temp2] "=&j" (temp2), [ones] "=&j" (ones), "=r" (vu0_ACC)
+	       : [col0] "j" (col0),
+	       [col1] "j" (col1),
+	       [col2] "j" (col2),
+	       [vec] "j" (vec)
 	    );
 
 	 return vec_3(result);
@@ -384,22 +384,22 @@ class mat_43 : public mat_x3_template<vec_4>
 	 vec128_t result, temp0, temp1, temp2, ones;
 
 	 asm ( "### mat_43 trans_mult vector_t ### \n"
-	       "vmul temp0, col0, vec \n"
-	       "vmaxw ones, vf00, vf00 \n"
-	       "vmul temp1, col1, vec \n"
-	       "vmul temp2, col2, vec \n"
-	       "vadday.x ACC, temp0, temp0 \n"
-	       "vmaddz.x result, ones, temp0 \n"
-	       "vaddax.y ACC, temp1, temp1 \n"
-	       "vmaddz.y result, ones, temp1 \n"
-	       "vaddax.z ACC, temp2, temp2 \n"
-	       "vmaddy.z result, ones, temp2 \n"
-	       : "=&j result" (result),
-	       "=&j temp0" (temp0), "=&j temp1" (temp1), "=&j temp2" (temp2), "=&j ones" (ones), "=r" (vu0_ACC)
-	       : "j col0" (col0),
-	       "j col1" (col1),
-	       "j col2" (col2),
-	       "j vec" (vec)
+	       "vmul		%[temp0], %[col0], %[vec] \n"
+	       "vmaxw		%[ones], vf00, vf00 \n"
+	       "vmul		%[temp1], %[col1], %[vec] \n"
+	       "vmul		%[temp2], %[col2], %[vec] \n"
+	       "vadday.x	ACC, %[temp0], %[temp0] \n"
+	       "vmaddz.x	%[result], %[ones], %[temp0] \n"
+	       "vaddax.y	ACC, %[temp1], %[temp1] \n"
+	       "vmaddz.y	%[result, %[ones], %[temp1] \n"
+	       "vaddax.z	ACC, %[temp2], %[temp2] \n"
+	       "vmaddy.z	%[result], %[ones], %[temp2] \n"
+	       : [result] "=&j" (result),
+	       [temp0] "=&j" (temp0), [temp1] "=&j" (temp1), [temp2] "=&j" (temp2), [ones] "=&j" (ones), "=r" (vu0_ACC)
+	       : [col0] "j" (col0),
+	       [col1] "j" (col1),
+	       [col2] "j" (col2),
+	       [vec] "j" (vec)
 	    );
 
 	 return vec_3(result);
@@ -410,22 +410,22 @@ class mat_43 : public mat_x3_template<vec_4>
 	 vec128_t result, temp0, temp1, temp2, ones;
 
 	 asm ( "### mat_43 trans_mult point_t ### \n"
-	       "vmul temp0, col0, vec \n"
-	       "vmaxw ones, vf00, vf00 \n"
-	       "vmul temp1, col1, vec \n"
-	       "vmul temp2, col2, vec \n"
-	       "vadday.x ACC, temp0, temp0 \n"
-	       "vmaddaz.x ACC, ones, temp0 \n"
-	       "vmaddw.x result, ones, col0 \n"
-	       "vaddax.y ACC, temp1, temp1 \n"
-	       "vmaddaz.y ACC, ones, temp1 \n"
-	       "vmaddw.y result, ones, col1 \n"
-	       "vaddax.z ACC, temp2, temp2 \n"
-	       "vmadday.z ACC, ones, temp2 \n"
-	       "vmaddw.z result, ones, col2 \n"
-	       : "=&j result" (result),
-	       "=&j temp0" (temp0), "=&j temp1" (temp1), "=&j temp2" (temp2), "=&j ones" (ones), "=r" (vu0_ACC)
-	       : "j col0" (col0), "j col1" (col1), "j col2" (col2), "j vec" (vec)
+	       "vmul		%[temp0], %[col0], %[vec] \n"
+	       "vmaxw		%[ones], vf00, vf00 \n"
+	       "vmul		%[temp1], %[col1], %[vec] \n"
+	       "vmul		%[temp2], %[col2], %[vec] \n"
+	       "vadday.x	ACC, %[temp0], %[temp0] \n"
+	       "vmaddaz.x	ACC, %[ones], %[temp0] \n"
+	       "vmaddw.x	%[result], %[ones], %[col0] \n"
+	       "vaddax.y	ACC, %[temp1], %[temp1] \n"
+	       "vmaddaz.y	ACC, %[ones], %[temp1] \n"
+	       "vmaddw.y	%[result], %[ones], %[col1] \n"
+	       "vaddax.z	ACC, %[temp2], %[temp2] \n"
+	       "vmadday.z	ACC, %[ones], %[temp2] \n"
+	       "vmaddw.z	%[result], %[ones], %[col2] \n"
+	       : [result] "=&j" (result),
+	       [temp0] "=&j" (temp0), [temp1] "=&j" (temp1), [temp2] "=&j" (temp2), [ones] "=&j" (ones), "=r" (vu0_ACC)
+	       : [col0] "j" (col0), [col1] "j" (col1), [col2] "j" (col2), [vec] "j" (vec)
 	    );
 
 	 return vec_3(result);
@@ -575,22 +575,22 @@ class mat_34 : public mat_x4_template<vec_3>
 	 vec128_t result, temp0, temp1, temp2, temp3;
 
 	 asm ( "### mat_34 trans_mult vec_3 ### \n"
-	       "vmul temp3, col3, vec \n"
-	       "vmul temp0, col0, vec \n"
-	       "vmul temp1, col1, vec \n"
-	       "vmul temp2, col2, vec \n"
-	       "vmulx.w temp3, vf00, temp3 \n"
-	       "vaddy.x temp0, temp0, temp0 \n"
-	       "vaddx.y temp1, temp1, temp1 \n"
-	       "vaddx.z temp2, temp2, temp2 \n"
-	       "vaddy.w temp3, temp3, temp3 \n"
-	       "vaddz.x result, temp0, temp0 \n"
-	       "vaddz.y result, temp1, temp1 \n"
-	       "vaddy.z result, temp2, temp2 \n"
-	       "vaddz.w result, temp3, temp3 \n"
-	       : "=&j result" (result),
-	       "=&j temp0" (temp0), "=&j temp1" (temp1), "=&j temp2" (temp2), "=&j temp3" (temp3)
-	       : "j col0" (col0), "j col1" (col1), "j col2" (col2), "j col3" (col3), "j vec" (vec)
+	       "vmul	%[temp3], %[col3], %[vec] \n"
+	       "vmul	%[temp0], %[col0], %[vec] \n"
+	       "vmul	%[temp1], %[col1], %[vec] \n"
+	       "vmul	%[temp2], %[col2], %[vec] \n"
+	       "vmulx.w	%[temp3], vf00, %[temp3] \n"
+	       "vaddy.x	%[temp0], %[temp0], %[temp0] \n"
+	       "vaddx.y	%[temp1], %[temp1], %[temp1] \n"
+	       "vaddx.z	%[temp2], %[temp2], %[temp2] \n"
+	       "vaddy.w	%[temp3], %[temp3], %[temp3] \n"
+	       "vaddz.x	%[result], %[temp0], %[temp0] \n"
+	       "vaddz.y	%[result], %[temp1], %[temp1] \n"
+	       "vaddy.z	%[result], %[temp2], %[temp2] \n"
+	       "vaddz.w	%[result], %[temp3], %[temp3] \n"
+	       : [result] "=&j" (result),
+	       [temp0] "=&j" (temp0), [temp1] "=&j" (temp1), [temp2] "=&j" (temp2), [temp3] "=&j" (temp3)
+	       : [col0] "j" (col0), [col1] "j" (col1), [col2] "j" (col2), [col3] "j" (col3), [vec] "j" (vec)
 	    );
 
 	 return vec_4(result);
@@ -684,16 +684,16 @@ class mat_44 : public mat_x4_template<vec_4>
 
       void set_identity( ) {
 	 asm ( " ### mat_44::set_identity ### \n"
-	       "vsub      col0, col0, col0 \n"
-	       "vsub      col1, col1, col1 \n"
-	       "vmr32    col2, vf00 \n"
-	       "vmove    col3, vf00 \n"
-	       "vaddw.x    col0, vf00, vf00 \n"
-	       "vaddw.y    col1, vf00, vf00 \n"
-	       : "=j col0" (col0),
-	       "=j col1" (col1),
-	       "=j col2" (col2),
-	       "=j col3" (col3)
+	       "vsub	%[col0], %[col0], %[col0] \n"
+	       "vsub	%[col1], %[col1], %[col1] \n"
+	       "vmr32	%[col2], vf00 \n"
+	       "vmove	%[col3], vf00 \n"
+	       "vaddw.x	%[col0], vf00, vf00 \n"
+	       "vaddw.y	%[col1], vf00, vf00 \n"
+	       : [col0] "=j" (col0),
+	       [col1] "=j" (col1),
+	       [col2] "=j" (col2),
+	       [col3] "=j" (col3)
 	    );
       }
 
@@ -812,29 +812,29 @@ class mat_44 : public mat_x4_template<vec_4>
 	 vec128_t result, temp0, temp1, temp2, temp3;
 
 	 asm ( "### mat_44 trans_mult vec_4 ### \n"
-	       "vmul temp0, col0, vec \n"
-	       "vmul temp1, col1, vec \n"
-	       "vmul temp2, col2, vec \n"
-	       "vmul temp3, col3, vec \n"
-	       "vaddy.x temp0, temp0, temp0 \n"
-	       "vaddx.y temp1, temp1, temp1 \n"
-	       "vaddx.z temp2, temp2, temp2 \n"
-	       "vaddx.w temp3, temp3, temp3 \n"
-	       "vaddz.x temp0, temp0, temp0 \n"
-	       "vaddz.y temp1, temp1, temp1 \n"
-	       "vaddy.z temp2, temp2, temp2 \n"
-	       "vaddy.w temp3, temp3, temp3 \n"
-	       "vaddw.x result, temp0, temp0 \n"
-	       "vaddw.y result, temp1, temp1 \n"
-	       "vaddw.z result, temp2, temp2 \n"
-	       "vaddz.w result, temp3, temp3 \n"
-	       : "=&j result" (result),
-	       "=&j temp0" (temp0), "=&j temp1" (temp1), "=&j temp2" (temp2), "=&j temp3" (temp3)
-	       : "j col0" (col0),
-	       "j col1" (col1),
-	       "j col2" (col2),
-	       "j col3" (col3),
-	       "j vec" (vec)
+	       "vmul	%[temp0], %[col0], %[vec] \n"
+	       "vmul	%[temp1], %[col1], %[vec] \n"
+	       "vmul	%[temp2], %[col2], %[vec] \n"
+	       "vmul	%[temp3], %[col3], %[vec] \n"
+	       "vaddy.x	%[temp0], %[temp0], %[temp0] \n"
+	       "vaddx.y	%[temp1], %[temp1], %[temp1] \n"
+	       "vaddx.z	%[temp2], %[temp2], %[temp2] \n"
+	       "vaddx.w	%[temp3], %[temp3], %[temp3] \n"
+	       "vaddz.x	%[temp0], %[temp0], %[temp0] \n"
+	       "vaddz.y	%[temp1], %[temp1], %[temp1] \n"
+	       "vaddy.z	%[temp2], %[temp2], %[temp2] \n"
+	       "vaddy.w	%[temp3], %[temp3], %[temp3] \n"
+	       "vaddw.x	%[result], %[temp0], %[temp0] \n"
+	       "vaddw.y	%[result], %[temp1], %[temp1] \n"
+	       "vaddw.z	%[result], %[temp2], %[temp2] \n"
+	       "vaddz.w	%[result], %[temp3], %[temp3] \n"
+	       : [result] "=&j" (result),
+	       [temp0] "=&j" (temp0), [temp1] "=&j" (temp1), [temp2] "=&j" (temp2), [temp3] "=&j" (temp3)
+	       : [col0] "j" (col0),
+	       [col1] "j" (col1),
+	       [col2] "j" (col2),
+	       [col3] "j" (col3),
+	       [vec] "j" (vec)
 	    );
 
 	 return vec_4(result);
@@ -845,26 +845,26 @@ class mat_44 : public mat_x4_template<vec_4>
 	 vec128_t result, temp0, temp1, temp2, temp3;
 
 	 asm ( "### mat_44 trans_mult vector_t ### \n"
-	       "vmul temp3, col3, vec \n"
-	       "vmul temp0, col0, vec \n"
-	       "vmul temp1, col1, vec \n"
-	       "vmul temp2, col2, vec \n"
-	       "vmulx.w temp3, vf00, temp3 \n"
-	       "vaddy.x temp0, temp0, temp0 \n"
-	       "vaddx.y temp1, temp1, temp1 \n"
-	       "vaddx.z temp2, temp2, temp2 \n"
-	       "vaddy.w temp3, temp3, temp3 \n"
-	       "vaddz.x result, temp0, temp0 \n"
-	       "vaddz.y result, temp1, temp1 \n"
-	       "vaddy.z result, temp2, temp2 \n"
-	       "vaddz.w result, temp3, temp3 \n"
-	       : "=&j result" (result),
-	       "=&j temp0" (temp0), "=&j temp1" (temp1), "=&j temp2" (temp2), "=&j temp3" (temp3)
-	       : "j col0" (col0),
-	       "j col1" (col1),
-	       "j col2" (col2),
-	       "j col3" (col3),
-	       "j vec" (vec)
+	       "vmul	%[temp3], %[col3], %[vec] \n"
+	       "vmul	%[temp0], %[col0], %[vec] \n"
+	       "vmul	%[temp1], %[col1], %[vec] \n"
+	       "vmul	%[temp2], %[col2], %[vec] \n"
+	       "vmulx.w	%[temp3], vf00, %[temp3] \n"
+	       "vaddy.x	%[temp0], %[temp0], %[temp0] \n"
+	       "vaddx.y	%[temp1], %[temp1], %[temp1] \n"
+	       "vaddx.z	%[temp2], %[temp2], %[temp2] \n"
+	       "vaddy.w	%[temp3], %[temp3], %[temp3] \n"
+	       "vaddz.x	%[result], %[temp0], %[temp0] \n"
+	       "vaddz.y	%[result], %[temp1], %[temp1] \n"
+	       "vaddy.z	%[result], %[temp2], %[temp2] \n"
+	       "vaddz.w	%[result], %[temp3], %[temp3] \n"
+	       : [result] "=&j" (result),
+	       [temp0] "=&j" (temp0), [temp1] "=&j" (temp1), [temp2] "=&j" (temp2), [temp3] "=&j" (temp3)
+	       : [col0] "j" (col0),
+	       [col1] "j" (col1),
+	       [col2] "j" (col2),
+	       [col3] "j" (col3),
+	       [vec] "j" (vec)
 	    );
 
 	 return vec_4(result);
@@ -875,29 +875,29 @@ class mat_44 : public mat_x4_template<vec_4>
 	 vec128_t result, temp0, temp1, temp2, temp3;
 
 	 asm ( "### mat_44 trans_mult point_t ### \n"
-	       "vmul temp0, col0, vec \n"
-	       "vmul temp1, col1, vec \n"
-	       "vmul temp2, col2, vec \n"
-	       "vmul temp3, col3, vec \n"
-	       "vaddy.x temp0, temp0, temp0 \n"
-	       "vaddx.y temp1, temp1, temp1 \n"
-	       "vaddx.z temp2, temp2, temp2 \n"
-	       "vaddx.w temp3, col3, temp3 \n"
-	       "vaddz.x temp0, temp0, temp0 \n"
-	       "vaddz.y temp1, temp1, temp1 \n"
-	       "vaddy.z temp2, temp2, temp2 \n"
-	       "vaddy.w temp3, temp3, temp3 \n"
-	       "vaddw.x result, temp0, col0 \n"
-	       "vaddw.y result, temp1, col1 \n"
-	       "vaddw.z result, temp2, col2 \n"
-	       "vaddz.w result, temp3, temp3 \n"
-	       : "=&j result" (result),
-	       "=&j temp0" (temp0), "=&j temp1" (temp1), "=&j temp2" (temp2), "=&j temp3" (temp3)
-	       : "j col0" (col0),
-	       "j col1" (col1),
-	       "j col2" (col2),
-	       "j col3" (col3),
-	       "j vec" (vec)
+	       "vmul	%[temp0], %[col0], %[vec] \n"
+	       "vmul	%[temp1], %[col1], %[vec] \n"
+	       "vmul	%[temp2], %[col2], %[vec] \n"
+	       "vmul	%[temp3], %[col3], %[vec] \n"
+	       "vaddy.x	%[temp0], %[temp0], %[temp0] \n"
+	       "vaddx.y	%[temp1], %[temp1], %[temp1] \n"
+	       "vaddx.z	%[temp2], %[temp2], %[temp2] \n"
+	       "vaddx.w	%[temp3], %[col3], %[temp3] \n"
+	       "vaddz.x	%[temp0], %[temp0], %[temp0] \n"
+	       "vaddz.y	%[temp1], %[temp1], %[temp1] \n"
+	       "vaddy.z	%[temp2], %[temp2], %[temp2] \n"
+	       "vaddy.w	%[temp3], %[temp3], %[temp3] \n"
+	       "vaddw.x	%[result], %[temp0], %[col0] \n"
+	       "vaddw.y	%[result], %[temp1], %[col1] \n"
+	       "vaddw.z	%[result], %[temp2], %[col2] \n"
+	       "vaddz.w	%[result], %[temp3], %[temp3] \n"
+	       : [result] "=&j" (result),
+	       [temp0] "=&j" (temp0), [temp1] "=&j" (temp1), [temp2] "=&j" (temp2), [temp3] "=&j" (temp3)
+	       : [col0] "j" (col0),
+	       [col1] "j" (col1),
+	       [col2] "j" (col2),
+	       [col3] "j" (col3),
+	       [vec] "j" (vec)
 	    );
 	 return vec_4(result);
       }
@@ -1051,29 +1051,29 @@ class transform_t
 
       void set_identity( ) {
 	 asm ( " ### transform_t::set_identity ### \n"
-	       "vsub      col0, col0, col0 \n"
-	       "vsub      col1, col1, col1 \n"
-	       "vmr32    col2, vf00 \n"
-	       "vmove    col3, vf00 \n"
-	       "vaddw.x    col0, vf00, vf00 \n"
-	       "vaddw.y    col1, vf00, vf00 \n"
-	       : "=j col0" (col0),
-	       "=j col1" (col1),
-	       "=j col2" (col2),
-	       "=j col3" (col3)
+	       "vsub	%[col0], %[col0], %[col0] \n"
+	       "vsub	%[col1], %[col1], %[col1] \n"
+	       "vmr32	%[col2], vf00 \n"
+	       "vmove	%[col3], vf00 \n"
+	       "vaddw.x	%[col0], vf00, vf00 \n"
+	       "vaddw.y	%[col1], vf00, vf00 \n"
+	       : [col0] "=j" (col0),
+	       [col1] "=j" (col1),
+	       [col2] "=j" (col2),
+	       [col3] "=j" (col3)
 	    );
       }
 
       void set_zero( ) {
 	 asm ( " ### transform_t::set_zero ### \n"
-	       "vsub    col0, col0, col0 \n"
-	       "vsub    col1, col1, col1 \n"
-	       "vsub    col2, col2, col2 \n"
-	       "vsub    col3, col3, col3 \n"
-	       : "=j col0" (col0),
-	       "=j col1" (col1),
-	       "=j col2" (col2),
-	       "=j col3" (col3)
+	       "vsub	%[col0], %[col0], %[col0] \n"
+	       "vsub	%[col1], %[col1], %[col1] \n"
+	       "vsub	%[col2], %[col2], %[col2] \n"
+	       "vsub	%[col3], %[col3], %[col3] \n"
+	       : [col0] "=j" (col0),
+	       [col1] "=j" (col1),
+	       [col2] "=j" (col2),
+	       [col3] "=j" (col3)
 	    );
       }
 
@@ -1115,45 +1115,45 @@ class transform_t
       void set_row0( vec_4 new_row ) {
 	 asm (
             " ### transform_t::set_row0 ### \n"
-            "vaddx.x       col0, vf00, new_row \n"
-            "vaddy.x       col1, vf00, new_row \n"
-            "vaddz.x       col2, vf00, new_row \n"
-            "vaddw.x       col3, vf00, new_row \n"
-	    : "+j col0" (col0),
-            "+j col1" (col1),
-            "+j col2" (col2),
-            "+j col3" (col3)
-	    : "j new_row" (new_row)
+            "vaddx.x	%[col0], vf00, %[new_row] \n"
+            "vaddy.x	%[col1], vf00, %[new_row] \n"
+            "vaddz.x	%[col2], vf00, %[new_row] \n"
+            "vaddw.x	%[col3], vf00, %[new_row] \n"
+	    : [col0] "+j" (col0),
+            [col1] "+j" (col1),
+            [col2] "+j" (col2),
+            [col3] "+j" (col3)
+	    : [new_row] "j" (new_row)
 	    );
       }
 
       void set_row1( vec_4 new_row ) {
 	 asm (
             " ### transform_t::set_row1 ### \n"
-            "vaddx.y       col0, vf00, new_row \n"
-            "vaddy.y       col1, vf00, new_row \n"
-            "vaddz.y       col2, vf00, new_row \n"
-            "vaddw.y       col3, vf00, new_row \n"
-	    : "+j col0" (col0),
-	    "+j col1" (col1),
-            "+j col2" (col2),
-            "+j col3" (col3)
-	    : "j new_row" (new_row)
+            "vaddx.y	%[col0], vf00, %[new_row] \n"
+            "vaddy.y	%[col1], vf00, %[new_row] \n"
+            "vaddz.y	%[col2], vf00, %[new_row] \n"
+            "vaddw.y	%[col3], vf00, %[new_row] \n"
+	    : [col0] "+j" (col0),
+            [col1] "+j" (col1),
+            [col2] "+j" (col2),
+            [col3] "+j" (col3)
+	    : [new_row] "j" (new_row)
 	    );
       }
 
       void set_row2( vec_4 new_row ) {
 	 asm (
 	    " ### transform_t::set_row2 ### \n"
-	    "vaddx.z        col0, vf00, new_row \n"
-	    "vaddy.z        col1, vf00, new_row \n"
-	    "vaddz.z        col2, vf00, new_row \n"
-	    "vaddw.z        col3, vf00, new_row \n"
-	    : "+j col0" (col0),
-	    "+j col1" (col1),
-	    "+j col2" (col2),
-	    "+j col3" (col3)
-	    : "j new_row" (new_row)
+	    "vaddx.z	%[col0], vf00, %[new_row] \n"
+	    "vaddy.z	%[col1], vf00, %[new_row] \n"
+	    "vaddz.z	%[col2], vf00, %[new_row] \n"
+	    "vaddw.z	%[col3], vf00, %[new_row] \n"
+	    : [col0] "+j" (col0),
+            [col1] "+j" (col1),
+            [col2] "+j" (col2),
+            [col3] "+j" (col3)
+	    : [new_row] "j" (new_row)
 	    );
       }
 
@@ -1165,15 +1165,15 @@ class transform_t
       vec_4 get_row0( ) const {
 	 vec128_t row;
 	 asm ( " ### transform_t::get_row0 ### \n"
-	       "vaddx.x row, vf00, col0 \n"
-	       "vaddx.y row, vf00, col1 \n"
-	       "vaddx.z row, vf00, col2 \n"
-	       "vmulx.w row, vf00, col3 \n"
-	       : "=&j row" (row)
-	       : "j col0" (col0),
-	       "j col1" (col1),
-	       "j col2" (col2),
-	       "j col3" (col3)
+	       "vaddx.x	%[row], vf00, %[col0] \n"
+	       "vaddx.y	%[row], vf00, %[col1] \n"
+	       "vaddx.z	%[row], vf00, %[col2] \n"
+	       "vmulx.w	%[row], vf00, %[col3] \n"
+	       : [row] "=&j" (row)
+	       : [col0] "j" (col0),
+	       [col1] "j" (col1),
+	       [col2] "j" (col2),
+	       [col3] "j" (col3)
 	    );
 	 return vec_4(row);
       }
@@ -1181,15 +1181,15 @@ class transform_t
       vec_4 get_row1( ) const {
 	 vec128_t row;
 	 asm ( " ### transform_t::get_row1 ### \n"
-	       "vaddy.x row, vf00, col0 \n"
-	       "vaddy.y row, vf00, col1 \n"
-	       "vaddy.z row, vf00, col2 \n"
-	       "vmuly.w row, vf00, col3 \n"
-	       : "=&j row" (row)
-	       : "j col0" (col0),
-	       "j col1" (col1),
-	       "j col2" (col2),
-	       "j col3" (col3)
+	       "vaddy.x %[row], vf00, %[col0] \n"
+	       "vaddy.y %[row], vf00, %[col1] \n"
+	       "vaddy.z %[row], vf00, %[col2] \n"
+	       "vmuly.w %[row], vf00, %[col3] \n"
+	       : [row] "=&j" (row)
+	       : [col0] "j" (col0),
+	       [col1] "j" (col1),
+	       [col2] "j" (col2),
+	       [col3] "j" (col3)
 	    );
 	 return vec_4(row);
       }
@@ -1197,15 +1197,15 @@ class transform_t
       vec_4 get_row2( ) const {
 	 vec128_t row;
 	 asm ( " ### transform_t::get_row2 ### \n"
-	       "vaddz.x row, vf00, col0 \n"
-	       "vaddz.y row, vf00, col1 \n"
-	       "vaddz.z row, vf00, col2 \n"
-	       "vmulz.w row, vf00, col3 \n"
-	       : "=&j row" (row)
-	       : "j col0" (col0),
-	       "j col1" (col1),
-	       "j col2" (col2),
-	       "j col3" (col3)
+	       "vaddz.x %[row], vf00, %[col0] \n"
+	       "vaddz.y %[row], vf00, %[col1] \n"
+	       "vaddz.z %[row], vf00, %[col2] \n"
+	       "vmulz.w %[row], vf00, %[col3] \n"
+	       : [row] "=&j" (row)
+	       : [col0] "j" (col0),
+	       [col1] "j" (col1),
+	       [col2] "j" (col2),
+	       [col3] "j" (col3)
 	    );
 	 return vec_4(row);
       }
@@ -1238,23 +1238,23 @@ class transform_t
 	 vec128_t temp;
 	 asm (
             "### transform_t::orthonormal_inverse_in_place ### \n"
-            "vadd.xz temp, vf00, col1 \n"
-            "vaddx.y temp, vf00, col2 \n"
-            "vaddy.x col1, vf00, col0 \n"
-            "vaddy.z col1, vf00, col2 \n"
-            "vaddz.x col2, vf00, col0 \n"
-            "vaddy.z col0, vf00, temp \n"
-            "vaddx.y col0, vf00, temp \n"
-            "vaddz.y col2, vf00, temp \n"
-            "vadda ACC, vf00, vf00 \n"
-            "vmsubay ACC, col1, col3 \n"
-            "vmsubax ACC, col0, col3 \n"
-            "vmsubz col3, col2, col3 \n"
-	    : "+j col0" (col0),
-            "+j col1" (col1),
-            "+j col2" (col2),
-            "+j col3" (col3),
-            "=j temp" (temp), "=r" (vu0_ACC)
+            "vadd.xz	%[temp], vf00, %[col1] \n"
+            "vaddx.y	%[temp], vf00, %[col2] \n"
+            "vaddy.x	%[col1], vf00, %[col0] \n"
+            "vaddy.z	%[col1], vf00, %[col2] \n"
+            "vaddz.x	%[col2], vf00, %[col0] \n"
+            "vaddy.z	%[col0], vf00, %[temp] \n"
+            "vaddx.y	%[col0], vf00, %[temp] \n"
+            "vaddz.y	%[col2], vf00, %[temp] \n"
+            "vadda	ACC, vf00, vf00 \n"
+            "vmsubay	ACC, %[col1], %[col3] \n"
+            "vmsubax	ACC, %[col0], %[col3] \n"
+            "vmsubz	%[col3], %[col2], %[col3] \n"
+	    : [col0] "+j" (col0),
+            [col1] "+j" (col1),
+            [col2] "+j" (col2),
+            [col3] "+j" (col3),
+            [temp] "=j" (temp), "=r" (vu0_ACC)
 	    );
       }
 
@@ -1265,15 +1265,15 @@ class transform_t
 	 vec128_t result;
 	 asm (
 	    " ### transform_t * vec_4 ### \n"
-	    "vmulax    ACC, col0, vec      \n"
-	    "vmadday    ACC, col1, vec      \n"
-	    "vmaddaz    ACC, col2, vec      \n"
-	    "vmaddw.xyz   result, col3, vec      \n"
-	    "vmove.w   result, vec     \n"
-	    : "=&j result" (result), "=r" (vu0_ACC)
-	    : "j vec" (vec),
-	    "j col0" (col0), "j col1" (col1),
-	    "j col2" (col2), "j col3" (col3)
+	    "vmulax	ACC, %[col0], %[vec]		\n"
+	    "vmadday	ACC, %[col1], %[vec]		\n"
+	    "vmaddaz	ACC, %[col2], %[vec]		\n"
+	    "vmaddw.xyz	%[result], %[col3], %[vec]	\n"
+	    "vmove.w	%[result], %[vec]		\n"
+	    : [result] "=&j" (result), "=r" (vu0_ACC)
+	    : [vec] "j" (vec),
+	    [col0] "j" (col0), [col1] "j" (col1),
+	    [col2] "j" (col2), [col3] "j" (col3)
 	    );
 	 return vec_4(result);
       }
@@ -1283,12 +1283,12 @@ class transform_t
 	 vec128_t result;
 	 asm (
 	    " ### transform_t * vector_t ### \n"
-	    "vmulax    ACC, col0, vec      \n"
-	    "vmadday    ACC, col1, vec    \n"
-	    "vmaddz    result, col2, vec  \n"
-	    : "=&j result" (result), "=r" (vu0_ACC)
-	    : "j vec" (vec),
-	    "j col0" (col0), "j col1" (col1), "j col2" (col2)
+	    "vmulax	ACC, %[col0], %[vec]		\n"
+	    "vmadday	ACC, %[col1], %[vec]		\n"
+	    "vmaddz	%[result], %[col2, %[vec]	\n"
+	    : [result] "=&j" (result), "=r" (vu0_ACC)
+	    : [vec] "j" (vec),
+	    [col0] "j" (col0), [col1] "j" (col1), [col2] "j" (col2)
 	    );
 	 return vector_t(result);
       }
@@ -1298,14 +1298,14 @@ class transform_t
 	 vec128_t result;
 	 asm (
 	    " ### transform_t * point_t ### \n"
-	    "vmulax    ACC, col0, pt      \n"
-	    "vmadday    ACC, col1, pt      \n"
-	    "vmaddaz    ACC, col2, pt      \n"
-	    "vmaddw    result, col3, vf00    \n"
-	    : "=&j result" (result), "=r" (vu0_ACC)
-	    : "j pt" (pt),
-	    "j col0" (col0), "j col1" (col1),
-	    "j col2" (col2), "j col3" (col3)
+	    "vmulax	ACC, %[col0], %[pt]		\n"
+	    "vmadday	ACC, %[col1], %[pt]		\n"
+	    "vmaddaz	ACC, %[col2], %[pt]		\n"
+	    "vmaddw	%[result], %[col3], vf00	\n"
+	    : [result] "=&j" (result), "=r" (vu0_ACC)
+	    : [pt] "j" (pt),
+	    [col0] "j" (col0), [col1] "j" (col1),
+	    [col2] "j" (col2), [col3] "j" (col3)
 	    );
 	 return point_t(result);
       }
@@ -1348,21 +1348,21 @@ vec_xyz::operator ~() const
 {
    mat_33 result;
    asm ( "### make tilde matrix from vec_xyz ### \n"
-	 "vsub res0, res0, res0 \n"
-	 "vsub res1, res1, res1 \n"
-	 "vmr32 res2, vf00 \n"
-	 "vaddw.x res0, vf00, vf00 \n"
-	 "vaddw.y res1, vf00, vf00 \n"
-	 "vopmula ACC, vec, res0 \n"
-	 "vopmsub res0, res0, vec \n"
-	 "vopmula ACC, vec, res1 \n"
-	 "vopmsub res1, res1, vec \n"
-	 "vopmula ACC, vec, res2 \n"
-	 "vopmsub res2, res2, vec \n"
-	 : "=&j res0" (result.col0),
-	 "=&j res1" (result.col1),
-	 "=&j res2" (result.col2), "=r" (vu0_ACC)
-	 : "j vec" (vec128)
+	 "vsub		%[res0], %[res0], %[res0] \n"
+	 "vsub		%[res1], %[res1], %[res1] \n"
+	 "vmr32		%[res2], vf00 \n"
+	 "vaddw.x	%[res0], vf00, vf00 \n"
+	 "vaddw.y	%[res1], vf00, vf00 \n"
+	 "vopmula	ACC, %[vec], %[res0] \n"
+	 "vopmsub	%[res0], %[res0], %[vec] \n"
+	 "vopmula	ACC, %[vec], %[res1] \n"
+	 "vopmsub	%[res1], %[res1], %[vec] \n"
+	 "vopmula	ACC, %[vec], %[res2] \n"
+	 "vopmsub	%[res2], %[res2], %[vec] \n"
+	 : [res0] "=&j" (result.col0),
+	 [res1] "=&j" (result.col1),
+	 [res2] "=&j" (result.col2), "=r" (vu0_ACC)
+	 : [vec] "j" (vec128)
       );
    return result;
 }
@@ -1397,24 +1397,24 @@ vec_xyz::operator * ( const mat_33& mat ) const
    vec128_t ones, temp0, temp1, temp2, result;
 
    asm ( "### vec_xyz (row) * mat_33 ## \n"
-	 "vmul temp0, vec, col0 \n"
-	 "vmaxw ones, vf00, vf00 \n"
-	 "vmul temp1, vec, col1 \n"
-	 "vmul temp2, vec, col2 \n"
-	 "vadday.x ACC, temp0, temp0 \n"
-	 "vmaddz.x res, ones, temp0 \n"
-	 "vaddax.y ACC, temp1, temp1 \n"
-	 "vmaddz.y res, ones, temp1 \n"
-	 "vaddax.z ACC, temp2, temp2 \n"
-	 "vmaddy.z res, ones, temp2 \n"
-	 : "=&j res" (result), "=&j ones" (ones),
-	 "=&j temp0" (temp0),
-	 "=&j temp1" (temp1),
-	 "=&j temp2" (temp2), "=r" (vu0_ACC)
-	 : "j col0" (mat.col0),
-	 "j col1" (mat.col1),
-	 "j col2" (mat.col2),
-	 "j vec" (vec128)
+	 "vmul		%[temp0], %[vec], %[col0] \n"
+	 "vmaxw		%[ones], vf00, vf00 \n"
+	 "vmul		%[temp1], %[vec], %[col1] \n"
+	 "vmul		%[temp2], %[vec], %[col2] \n"
+	 "vadday.x	ACC, %[temp0], %[temp0] \n"
+	 "vmaddz.x	%[res], %[ones], %[temp0] \n"
+	 "vaddax.y	ACC, %[temp1], %[temp1] \n"
+	 "vmaddz.y	%[res], %[ones], %[temp1] \n"
+	 "vaddax.z	ACC, %[temp2], %[temp2] \n"
+	 "vmaddy.z	%[res], %[ones], %[temp2] \n"
+	 : [res] "=&j" (result), [ones] "=&j" (ones),
+	 [temp0] "=&j" (temp0),
+	 [temp1] "=&j" (temp1),
+	 [temp2] "=&j" (temp2), "=r" (vu0_ACC)
+	 : [col0] "j" (mat.col0),
+	 [col1] "j" (mat.col1),
+	 [col2] "j" (mat.col2),
+	 [vec] "j" (vec128)
       );
    return vec_xyz(result);
 }
@@ -1426,38 +1426,38 @@ vec_xyz::operator * ( const mat_34& mat ) const
    vec128_t ones, temp0, temp1, temp2, temp3, result;
 
    asm ( "### vec_xyz (row) * mat_34 ## \n"
-	 "vmul temp0, vec, col0 \n"
-	 "vmaxw ones, vf00, vf00 \n"
-	 "vmul temp1, vec, col1 \n"
-	 "vmul temp2, vec, col2 \n"
-	 "vmul temp3, vec, col3 \n"
-	 : "=&j ones" (ones),
-	 "=&j temp0" (temp0),
-	 "=&j temp1" (temp1),
-	 "=&j temp2" (temp2),
-	 "=&j temp3" (temp3)
-	 : "j col0" (mat.col0),
-	 "j col1" (mat.col1),
-	 "j col2" (mat.col2),
-	 "j col3" (mat.col3),
-	 "j vec" (vec128)
+	 "vmul	%[temp0], %[vec], %[col0] \n"
+	 "vmaxw	%[ones], vf00, vf00 \n"
+	 "vmul	%[temp1], %[vec], %[col1] \n"
+	 "vmul	%[temp2], %[vec], %[col2] \n"
+	 "vmul	%[temp3], %[vec], %[col3] \n"
+	 : [ones] "=&j" (ones),
+	 [temp0] "=&j" (temp0),
+	 [temp1] "=&j" (temp1),
+	 [temp2] "=&j" (temp2),
+	 [temp3] "=&j" (temp3)
+	 : [col0] "j" (mat.col0),
+	 [col1] "j" (mat.col1),
+	 [col2] "j" (mat.col2),
+	 [col3] "j" (mat.col3),
+	 [vec] "j" (vec128)
       );
 
-   asm ( "vmulx.w temp3, vf00, temp3 \n"
-	 "vadday.x ACC, temp0, temp0 \n"
-	 "vmaddz.x res, ones, temp0 \n"
-	 "vaddax.y ACC, temp1, temp1 \n"
-	 "vmaddz.y res, ones, temp1 \n"
-	 "vaddax.z ACC, temp2, temp2 \n"
-	 "vmaddy.z res, ones, temp2 \n"
-	 "vadday.w ACC, temp3, temp3 \n"
-	 "vmaddz.w res, ones, temp3 \n"
-	 : "=&j res" (result), "=r" (vu0_ACC)
-	 : "j ones" (ones),
-	 "j temp0" (temp0),
-	 "j temp1" (temp1),
-	 "j temp2" (temp2),
-	 "j temp3" (temp3)
+   asm ( "vmulx.w	%[temp3], vf00, %[temp3] \n"
+	 "vadday.x	ACC, %[temp0], %[temp0] \n"
+	 "vmaddz.x	%[res], %[ones], %[temp0] \n"
+	 "vaddax.y	ACC, %[temp1], %[temp1] \n"
+	 "vmaddz.y	%[res], %[ones], %[temp1] \n"
+	 "vaddax.z	ACC, %[temp2], %[temp2] \n"
+	 "vmaddy.z	%[res], %[ones], %[temp2] \n"
+	 "vadday.w	ACC, %[temp3], %[temp3] \n"
+	 "vmaddz.w	%[res], %[ones], %[temp3] \n"
+	 : [res] "=&j" (result), "=r" (vu0_ACC)
+	 : [ones] "j" (ones),
+	 [temp0] "j" (temp0),
+	 [temp1] "j" (temp1),
+	 [temp2] "j" (temp2),
+	 [temp3] "j" (temp3)
       );
 
    return vec_xyzw(result);
@@ -1494,27 +1494,27 @@ vec_xyzw::operator * ( const mat_43& mat ) const
    vec128_t ones, temp0, temp1, temp2, result;
 
    asm ( "### vec_xyzw (row) * mat_43 ## \n"
-	 "vmul temp0, vec, col0 \n"
-	 "vmaxw ones, vf00, vf00 \n"
-	 "vmul temp1, vec, col1 \n"
-	 "vmul temp2, vec, col2 \n"
-	 "vadday.x ACC, temp0, temp0 \n"
-	 "vmaddaz.x ACC, ones, temp0 \n"
-	 "vmaddw.x res, ones, temp0 \n"
-	 "vaddax.y ACC, temp1, temp1 \n"
-	 "vmaddaz.y ACC, ones, temp1 \n"
-	 "vmaddw.y res, ones, temp1 \n"
-	 "vaddax.z ACC, temp2, temp2 \n"
-	 "vmadday.z ACC, ones, temp2 \n"
-	 "vmaddw.z res, ones, temp2 \n"
-	 : "=&j res" (result), "=&j ones" (ones),
-	 "=&j temp0" (temp0),
-	 "=&j temp1" (temp1),
-	 "=&j temp2" (temp2), "=r" (vu0_ACC)
-	 : "j col0" (mat.col0),
-	 "j col1" (mat.col1),
-	 "j col2" (mat.col2),
-	 "j vec" (vec128)
+	 "vmul		%[temp0], %[vec], %[col0] \n"
+	 "vmaxw		%[ones], vf00, vf00 \n"
+	 "vmul		%[temp1], %[vec], %[col1] \n"
+	 "vmul		%[temp2], %[vec], %[col2] \n"
+	 "vadday.x	ACC, %[temp0], %[temp0] \n"
+	 "vmaddaz.x	ACC, %[ones], %[temp0] \n"
+	 "vmaddw.x	%[res], %[ones], %[temp0] \n"
+	 "vaddax.y	ACC, %[temp1], %[temp1] \n"
+	 "vmaddaz.y	ACC, %[ones], %[temp1] \n"
+	 "vmaddw.y	%[res], %[ones], %[temp1] \n"
+	 "vaddax.z	ACC, %[temp2], %[temp2] \n"
+	 "vmadday.z	ACC, %[ones], %[temp2] \n"
+	 "vmaddw.z	%[res], %[ones], %[temp2] \n"
+	 : [res] "=&j" (result), [ones] "=&j" (ones),
+	 [temp0] "=&j" (temp0),
+	 [temp1] "=&j" (temp1),
+	 [temp2] "=&j" (temp2), "=r" (vu0_ACC)
+	 : [col0] "j" (mat.col0),
+	 [col1] "j" (mat.col1),
+	 [col2] "j" (mat.col2),
+	 [vec] "j" (vec128)
       );
 
    return vec_xyz(result);
@@ -1527,41 +1527,41 @@ vec_xyzw::operator * ( const mat_44& mat ) const
    vec128_t ones, temp0, temp1, temp2, temp3, result;
 
    asm ( "### vec_xyzw (row) * mat_44 ## \n"
-	 "vmaxw ones, vf00, vf00 \n"
-	 "vmul temp0, vec, col0 \n"
-	 "vmul temp1, vec, col1 \n"
-	 "vmul temp2, vec, col2 \n"
-	 "vmul temp3, vec, col3 \n"
-	 : "=&j ones" (ones),
-	 "=&j temp0" (temp0),
-	 "=&j temp1" (temp1),
-	 "=&j temp2" (temp2),
-	 "=&j temp3" (temp3)
-	 : "j col0" (mat.col0),
-	 "j col1" (mat.col1),
-	 "j col2" (mat.col2),
-	 "j col3" (mat.col3),
-	 "j vec" (vec128)
+	 "vmaxw	%[ones], vf00, vf00 \n"
+	 "vmul	%[temp0], %[vec], %[col0] \n"
+	 "vmul	%[temp1], %[vec], %[col1] \n"
+	 "vmul	%[temp2], %[vec], %[col2] \n"
+	 "vmul	%[temp3], %[vec], %[col3] \n"
+	 : [ones] "=&j" (ones),
+	 [temp0] "=&j" (temp0),
+	 [temp1] "=&j" (temp1),
+	 [temp2] "=&j" (temp2),
+	 [temp3] "=&j" (temp3)
+	 : [col0] "j" (mat.col0),
+	 [col1] "j" (mat.col1),
+	 [col2] "j" (mat.col2),
+	 [col3] "j" (mat.col3),
+	 [vec] "j" (vec128)
       );
 
-   asm ( "vadday.x ACC, temp0, temp0 \n"
-	 "vmaddaz.x ACC, ones, temp0 \n"
-	 "vmaddw.x res, ones, temp0 \n"
-	 "vaddax.y ACC, temp1, temp1 \n"
-	 "vmaddaz.y ACC, ones, temp1 \n"
-	 "vmaddw.y res, ones, temp1 \n"
-	 "vaddax.z ACC, temp2, temp2 \n"
-	 "vmadday.z ACC, ones, temp2 \n"
-	 "vmaddw.z res, ones, temp2 \n"
-	 "vaddax.w ACC, temp3, temp3 \n"
-	 "vmadday.w ACC, ones, temp3 \n"
-	 "vmaddz.w res, ones, temp3 \n"
-	 : "=&j res" (result), "=r" (vu0_ACC)
-	 : "j ones" (ones),
-	 "j temp0" (temp0),
-	 "j temp1" (temp1),
-	 "j temp2" (temp2),
-	 "j temp3" (temp3)
+   asm ( "vadday.x	ACC, %[temp0], %[temp0] \n"
+	 "vmaddaz.x	ACC, %[ones], %[temp0] \n"
+	 "vmaddw.x	%[res], %[ones], %[temp0] \n"
+	 "vaddax.y	ACC, %[temp1], %[temp1] \n"
+	 "vmaddaz.y	ACC, %[ones], %[temp1] \n"
+	 "vmaddw.y	%[res], %[ones], %[temp1] \n"
+	 "vaddax.z	ACC, %[temp2], %[temp2] \n"
+	 "vmadday.z	ACC, %[ones], %[temp2] \n"
+	 "vmaddw.z	%[res], %[ones], %[temp2] \n"
+	 "vaddax.w	ACC, %[temp3], %[temp3] \n"
+	 "vmadday.w	ACC, %[ones], %[temp3] \n"
+	 "vmaddz.w	%[res], %[ones], %[temp3] \n"
+	 : [res] "=&j" (result), "=r" (vu0_ACC)
+	 : [ones] "j" (ones),
+	 [temp0] "j" (temp0),
+	 [temp1] "j" (temp1),
+	 [temp2] "j" (temp2),
+	 [temp3] "j" (temp3)
       );
 
    return vec_xyzw(result);
@@ -1642,29 +1642,29 @@ mat_33::transpose() const
    vec128_t temp0, temp1, temp2, temp3;
 
    asm ( "### mat_33::transpose ### \n"
-	 "pextlw temp0, col1, col0 \n"
-	 "pextuw temp1, col1, col0 \n"
-	 "pextlw temp2, $0, col2 \n"
-	 "pextuw temp3, $0, col2 \n"
-	 : "=&r temp0" (temp0),
-	 "=&r temp1" (temp1),
-	 "=&r temp2" (temp2),
-	 "=&r temp3" (temp3)
-	 : "r col0" (col0),
-	 "r col1" (col1),
-	 "r col2" (col2)
+	 "pextlw	%[temp0], %[col1], %[col0] \n"
+	 "pextuw	%[temp1], %[col1], %[col0] \n"
+	 "pextlw	%[temp2], $0, %[col2] \n"
+	 "pextuw	%[temp3], $0, %[col2] \n"
+	 : [temp0] "=&r" (temp0),
+	 [temp1] "=&r" (temp1),
+	 [temp2] "=&r" (temp2),
+	 [temp3] "=&r" (temp3)
+	 : [col0] "r" (col0),
+	 [col1] "r" (col1),
+	 [col2] "r" (col2)
       );
 
-   asm ( "pcpyld res0, temp2, temp0 \n"
-	 "pcpyud res1, temp0, temp2 \n"
-	 "pcpyld res2, temp3, temp1 \n"
-	 : "=&r res0" (result.col0),
-	 "=&r res1" (result.col1),
-	 "=&r res2" (result.col2)
-	 : "r temp0" (temp0),
-	 "r temp1" (temp1),
-	 "r temp2" (temp2),
-	 "r temp3" (temp3)
+   asm ( "pcpyld	%[res0], %[temp2], %[temp0] \n"
+	 "pcpyud	%[res1], %[temp0], %[temp2] \n"
+	 "pcpyld	%[res2], %[temp3], %[temp1] \n"
+	 : [res0] "=&r" (result.col0),
+	 [res1] "=&r" (result.col1),
+	 [res2] "=&r" (result.col2)
+	 : [temp0] "r" (temp0),
+	 [temp1] "r" (temp1),
+	 [temp2] "r" (temp2),
+	 [temp3] "r" (temp3)
       );
    return result;
 }
@@ -1678,39 +1678,39 @@ mat_33::inverse() const
 
    asm ( "### mat_33::inverse ### \n"
 
-	 "vopmula.xyz ACC, col0, col1                # inv2 = crossproduct(col0, col1) \n"
-	 "vopmsub.xyz inv2, col1, col0 \n"
-	 "vopmula.xyz ACC, col1, col2                # inv0 = crossproduct(col1, col2) \n"
-	 "vopmsub.xyz inv0, col2, col1 \n"
-	 "                                           # stall \n"
-	 "vmul determinant, col2, inv2               # determinant(R) = dotproduct(col2, inv2) \n"
-	 "vaddw.x temp, vf00, vf00  \n"
-	 "vopmula.xyz ACC, col2, col0                # inv1 = crossproduct(col2, col0) \n"
-	 "vopmsub.xyz inv1, col0, col2  \n"
-	 "vadday.x ACCx, determinant, determinant \n"
-	 "vmaddz.x determinant, temp, determinant \n"
+	 "vopmula.xyz	ACC, %[col0], %[col1]			# inv2 = crossproduct(col0, col1) \n"
+	 "vopmsub.xyz	%[inv2], %[col1], %[col0] \n"
+	 "vopmula.xyz	ACC, %[col1], %[col2]			# inv0 = crossproduct(col1, col2) \n"
+	 "vopmsub.xyz	%[inv0], %[col2], %[col1] \n"
+	 "							# stall \n"
+	 "vmul		%[determinant], %[col2], %[inv2]	# determinant(R) = dotproduct(col2, inv2) \n"
+	 "vaddw.x	%[temp], vf00, vf00  \n"
+	 "vopmula.xyz	ACC, %[col2], %[col0]			# inv1 = crossproduct(col2, col0) \n"
+	 "vopmsub.xyz	%[inv1], %[col0], %[col2]  \n"
+	 "vadday.x	ACCx, %[determinant], %[determinant] \n"
+	 "vmaddz.x	%[determinant], %[temp], %[determinant] \n"
 
-	 "vaddx.y temp, vf00, inv2                   # Do an in-place transpose, produces determinant(R)*Rinv \n"
-	 "vadd.xz temp, vf00, inv1 \n"
-	 "vaddy.x inv1, vf00, inv0 \n"
-	 "vdiv Q, vf00w, determinantx                # Q = 1/determinant(R) \n"
-	 "vaddy.z inv1, vf00, inv2 \n"
-	 "vaddz.x inv2, vf00, inv0 \n"
-	 "vaddy.z inv0, vf00, temp \n"
-	 "vaddx.y inv0, vf00, temp \n"
-	 "vaddz.y inv2, vf00, temp \n"
+	 "vaddx.y	%[temp], vf00], %[inv2]			# Do an in-place transpose, produces determinant(R)*Rinv \n"
+	 "vadd.xz	%[temp], vf00], %[inv1] \n"
+	 "vaddy.x	%[inv1], vf00], %[inv0] \n"
+	 "vdiv		Q, vf00w, %[determinantx]		# Q = 1/determinant(R) \n"
+	 "vaddy.z	%[inv1], vf00, %[inv2] \n"
+	 "vaddz.x	%[inv2], vf00, %[inv0] \n"
+	 "vaddy.z	%[inv0], vf00, %[temp] \n"
+	 "vaddx.y	%[inv0], vf00, %[temp] \n"
+	 "vaddz.y	%[inv2], vf00, %[temp] \n"
 	 "vwaitq \n"
-	 "vmulq.xyz inv1, inv1, Q \n"
-	 "vmulq.xyz inv0, inv0, Q                    # Multiply by 1/determinant(R) \n"
-	 "vmulq.xyz inv2, inv2, Q \n"
+	 "vmulq.xyz	%[inv1], %[inv1], Q \n"
+	 "vmulq.xyz	%[inv0], %[inv0], Q			# Multiply by 1/determinant(R) \n"
+	 "vmulq.xyz	%[inv2], %[inv2], Q \n"
 
-	 : "=&j inv0" (result.col0),
-	 "=&j inv1" (result.col1),
-	 "=&j inv2" (result.col2),
-	 "=&j temp" (temp), "=&j determinant" (determinant), "=r" (vu0_ACC)
-	 : "j col0" (col0),
-	 "j col1" (col1),
-	 "j col2" (col2)
+	 : [inv0] "=&j" (result.col0),
+	 [inv1] "=&j" (result.col1),
+	 [inv2] "=&j" (result.col2),
+	 [temp] "=&j" (temp), [determinant] "=&j" (determinant), "=r" (vu0_ACC)
+	 : [col0] "j" (col0),
+	 [col1] "j" (col1),
+	 [col2] "j" (col2)
       );
    return result;
 }
@@ -1782,14 +1782,14 @@ mat_33::mult_tilde ( vec_3 vec ) const
 {
    mat_33 result;
    asm ( "### mat_33 mult_tilde vec_3 ### \n"
-	 "vmulaz ACC, col1, vec \n"
-	 "vmsuby res0, col2, vec \n"
-	 "vmulax ACC, col2, vec \n"
-	 "vmsubz res1, col0, vec \n"
-	 "vmulay ACC, col0, vec \n"
-	 "vmsubx res2, col1, vec \n"
-	 : "=&j res0" (result.col0), "=&j res1" (result.col1), "=&j res2" (result.col2), "=r" (vu0_ACC)
-	 : "j col0" (col0), "j col1" (col1), "j col2" (col2), "j vec" (vec)
+	 "vmulaz	ACC, %[col1], %[vec] \n"
+	 "vmsuby	%[res0], %[col2, %[vec] \n"
+	 "vmulax	ACC, %[col2, %[vec] \n"
+	 "vmsubz	%[res1], %[col0], %[vec] \n"
+	 "vmulay	ACC, %[col0, %[vec] \n"
+	 "vmsubx	%[res2], %[col1], %[vec] \n"
+	 : [res0] "=&j" (result.col0), [res1] "=&j" (result.col1), [res2] "=&j" (result.col2), "=r" (vu0_ACC)
+	 : [col0] "j" (col0), [col1] "j" (col1), [col2] "j" (col2), [vec] "j" (vec)
       );
    return result;
 }
@@ -1923,32 +1923,32 @@ mat_44::transpose() const
    vec128_t temp0, temp1, temp2, temp3;
 
    asm ( "### mat_44::transpose ### \n"
-	 "pextlw temp0, col1, col0 \n"
-	 "pextuw temp1, col1, col0 \n"
-	 "pextlw temp2, col3, col2 \n"
-	 "pextuw temp3, col3, col2 \n"
-	 : "=&r temp0" (temp0),
-	 "=&r temp1" (temp1),
-	 "=&r temp2" (temp2),
-	 "=&r temp3" (temp3)
-	 : "r col0" (col0),
-	 "r col1" (col1),
-	 "r col2" (col2),
-	 "r col3" (col3)
+	 "pextlw	%[temp0], %[col1], %[col0] \n"
+	 "pextuw	%[temp1], %[col1], %[col0] \n"
+	 "pextlw	%[temp2], %[col3], %[col2] \n"
+	 "pextuw	%[temp3], %[col3], %[col2] \n"
+	 : [temp0] "=&r" (temp0),
+	 [temp1] "=&r" (temp1),
+	 [temp2] "=&r" (temp2),
+	 [temp3] "=&r" (temp3)
+	 : [col0] "r" (col0),
+	 [col1] "r" (col1),
+	 [col2] "r" (col2),
+	 [col3] "r" (col3)
       );
 
-   asm ( "pcpyld res0, temp2, temp0 \n"
-	 "pcpyud res1, temp0, temp2 \n"
-	 "pcpyld res2, temp3, temp1 \n"
-	 "pcpyud res3, temp1, temp3 \n"
-	 : "=&r res0" (result.col0),
-	 "=&r res1" (result.col1),
-	 "=&r res2" (result.col2),
-	 "=&r res3" (result.col3)
-	 : "r temp0" (temp0),
-	 "r temp1" (temp1),
-	 "r temp2" (temp2),
-	 "r temp3" (temp3)
+   asm ( "pcpyld	%[res0], %[temp2], %[temp0] \n"
+	 "pcpyud	%[res1], %[temp0], %[temp2] \n"
+	 "pcpyld	%[res2], %[temp3], %[temp1] \n"
+	 "pcpyud	%[res3], %[temp1], %[temp3] \n"
+	 : [res0] "=&r" (result.col0),
+	 [res1] "=&r" (result.col1),
+	 [res2] "=&r" (result.col2),
+	 [res3] "=&r" (result.col3)
+	 : [temp0] "r" (temp0),
+	 [temp1] "r" (temp1),
+	 [temp2] "r" (temp2),
+	 [temp3] "r" (temp3)
       );
    return result;
 }
@@ -2171,31 +2171,31 @@ mat_43::transpose() const
    vec128_t temp0, temp1, temp2, temp3;
 
    asm ( "### mat_43::transpose ### \n"
-	 "pextlw temp0, col1, col0 \n"
-	 "pextuw temp1, col1, col0 \n"
-	 "pextlw temp2, $0, col2 \n"
-	 "pextuw temp3, $0, col2 \n"
-	 : "=&r temp0" (temp0),
-	 "=&r temp1" (temp1),
-	 "=&r temp2" (temp2),
-	 "=&r temp3" (temp3)
-	 : "r col0" (col0),
-	 "r col1" (col1),
-	 "r col2" (col2)
+	 "pextlw	%[temp0], %[col1], %[col0] \n"
+	 "pextuw	%[temp1], %[col1], %[col0] \n"
+	 "pextlw	%[temp2], $0, %[col2] \n"
+	 "pextuw	%[temp3], $0, %[col2] \n"
+	 : [temp0] "=&r" (temp0),
+	 [temp1] "=&r" (temp1),
+	 [temp2] "=&r" (temp2),
+	 [temp3] "=&r" (temp3)
+	 : [col0] "r" (col0),
+	 [col1] "r" (col1),
+	 [col2] "r" (col2)
       );
 
-   asm ( "pcpyld res0, temp2, temp0 \n"
-	 "pcpyud res1, temp0, temp2 \n"
-	 "pcpyld res2, temp3, temp1 \n"
-	 "pcpyud res3, temp1, temp3 \n"
-	 : "=&r res0" (result.col0),
-	 "=&r res1" (result.col1),
-	 "=&r res2" (result.col2),
-	 "=&r res3" (result.col3)
-	 : "r temp0" (temp0),
-	 "r temp1" (temp1),
-	 "r temp2" (temp2),
-	 "r temp3" (temp3)
+   asm ( "pcpyld	%[res0], %[temp2], %[temp0] \n"
+	 "pcpyud	%[res1], %[temp0], %[temp2] \n"
+	 "pcpyld	%[res2], %[temp3], %[temp1] \n"
+	 "pcpyud	%[res3], %[temp1], %[temp3] \n"
+	 : [res0] "=&r" (result.col0),
+	 [res1] "=&r" (result.col1),
+	 [res2] "=&r" (result.col2),
+	 [res3] "=&r" (result.col3)
+	 : [temp0] "r" (temp0),
+	 [temp1] "r" (temp1),
+	 [temp2] "r" (temp2),
+	 [temp3] "r" (temp3)
       );
    return result;
 }
@@ -2267,14 +2267,14 @@ mat_43::mult_tilde ( vec_3 vec ) const
 {
    mat_43 result;
    asm ( "### mat_43 mult_tilde vec_3 ### \n"
-	 "vmulaz ACC, col1, vec \n"
-	 "vmsuby res0, col2, vec \n"
-	 "vmulax ACC, col2, vec \n"
-	 "vmsubz res1, col0, vec \n"
-	 "vmulay ACC, col0, vec \n"
-	 "vmsubx res2, col1, vec \n"
-	 : "=&j res0" (result.col0), "=&j res1" (result.col1), "=&j res2" (result.col2), "=r" (vu0_ACC)
-	 : "j col0" (col0), "j col1" (col1), "j col2" (col2), "j vec" (vec)
+	 "vmulaz	ACC, %[col1], %[vec] \n"
+	 "vmsuby	%[res0], %[col2], %[vec] \n"
+	 "vmulax	ACC, %[col2], %[vec] \n"
+	 "vmsubz	%[res1], %[col0], %[vec] \n"
+	 "vmulay	ACC, %[col0], %[vec] \n"
+	 "vmsubx	%[res2], %[col1], %[vec] \n"
+	 : [res0] "=&j" (result.col0), [res1] "=&j" (result.col1), [res2] "=&j" (result.col2), "=r" (vu0_ACC)
+	 : [col0] "j" (col0), [col1] "j" (col1), [col2] "j" (col2), [vec] "j" (vec)
       );
    return result;
 }
@@ -2421,30 +2421,30 @@ mat_34::transpose() const
    vec128_t temp0, temp1, temp2, temp3;
 
    asm ( "### mat_34::transpose ### \n"
-	 "pextlw temp0, col1, col0 \n"
-	 "pextuw temp1, col1, col0 \n"
-	 "pextlw temp2, col3, col2 \n"
-	 "pextuw temp3, col3, col2 \n"
-	 : "=&r temp0" (temp0),
-	 "=&r temp1" (temp1),
-	 "=&r temp2" (temp2),
-	 "=&r temp3" (temp3)
-	 : "r col0" (col0),
-	 "r col1" (col1),
-	 "r col2" (col2),
-	 "r col3" (col3)
+	 "pextlw	%[temp0], %[col1], %[col0] \n"
+	 "pextuw	%[temp1], %[col1], %[col0] \n"
+	 "pextlw	%[temp2], %[col3], %[col2] \n"
+	 "pextuw	%[temp3], %[col3], %[col2] \n"
+	 : [temp0] "=&r" (temp0),
+	 [temp1] "=&r" (temp1),
+	 [temp2] "=&r" (temp2),
+	 [temp3] "=&r" (temp3)
+	 : [col0] "r" (col0),
+	 [col1] "r" (col1),
+	 [col2] "r" (col2),
+	 [col3] "r" (col3)
       );
 
-   asm ( "pcpyld res0, temp2, temp0 \n"
-	 "pcpyud res1, temp0, temp2 \n"
-	 "pcpyld res2, temp3, temp1 \n"
-	 : "=&r res0" (result.col0),
-	 "=&r res1" (result.col1),
-	 "=&r res2" (result.col2)
-	 : "r temp0" (temp0),
-	 "r temp1" (temp1),
-	 "r temp2" (temp2),
-	 "r temp3" (temp3)
+   asm ( "pcpyld	%[res0], %[temp2], %[temp0] \n"
+	 "pcpyud	%[res1], %[temp0], %[temp2] \n"
+	 "pcpyld	%[res2], %[temp3], %[temp1] \n"
+	 : [res0] "=&r" (result.col0),
+	 [res1] "=&r" (result.col1),
+	 [res2] "=&r" (result.col2)
+	 : [temp0] "r" (temp0),
+	 [temp1] "r" (temp1),
+	 [temp2] "r" (temp2),
+	 [temp3] "r" (temp3)
       );
    return result;
 }
@@ -2632,54 +2632,54 @@ transform_t::inverse() const
    vec128_t temp, determinant;
 
    asm ( "### transform_t::inverse, part I ### \n"
-	 "vopmula.xyz ACC, col0, col1                  # inv2 = crossproduct(col0, col1) \n"
-	 "vopmsub.xyz inv2, col1, col0 \n"
-	 "vopmula.xyz ACC, col1, col2                  # inv0 = crossproduct(col1, col2) \n"
-	 "vopmsub.xyz inv0, col2, col1 \n"
-	 "                                             # stall \n"
-	 "vmul determinant, col2, inv2                 # determinant(R) = dotproduct(col2, inv2) \n"
-	 "vaddw.x temp, vf00, vf00  \n"
-	 "vopmula.xyz ACC, col2, col0                  # inv1 = crossproduct(col2, col0) \n"
-	 "vopmsub.xyz inv1, col0, col2  \n"
-	 "vadday.x ACC, determinant, determinant \n"
-	 "vmaddz.x determinant, temp, determinant \n"
+	 "vopmula.xyz	ACC, %[col0], %[col1]			# inv2 = crossproduct(col0, col1) \n"
+	 "vopmsub.xyz	%[inv2], %[col1], %[col0] \n"
+	 "vopmula.xyz	ACC, %[col1], %[col2]			# inv0 = crossproduct(col1, col2) \n"
+	 "vopmsub.xyz	%[inv0], %[col2], %[col1] \n"
+	 "							# stall \n"
+	 "vmul		%[determinant], %[col2], %[inv2]	# determinant(R) = dotproduct(col2, inv2) \n"
+	 "vaddw.x	%[temp], vf00, vf00  \n"
+	 "vopmula.xyz	ACC, %[col2], %[col0]			# inv1 = crossproduct(col2, col0) \n"
+	 "vopmsub.xyz	%[inv1], %[col0], %[col2]  \n"
+	 "vadday.x	ACC, %[determinant], %[determinant] \n"
+	 "vmaddz.x	%[determinant], %[temp], %[determinant] \n"
 
-	 "vaddx.y temp, vf00, inv2                     # Do an in-place transpose, produces determinant(R)*Rinv \n"
-	 "vadd.xz temp, vf00, inv1 \n"
-	 "vaddy.x inv1, vf00, inv0 \n"
-	 "vdiv Q, vf00w, determinantx                  # Q = 1/determinant(R) \n"
-	 "vaddy.z inv1, vf00, inv2 \n"
-	 "vaddz.x inv2, vf00, inv0 \n"
-	 "vaddy.z inv0, vf00, temp \n"
-	 "vaddx.y inv0, vf00, temp \n"
-	 "vaddz.y inv2, vf00, temp \n"
-	 : "=&j inv0" (result.col0),
-	 "=&j inv1" (result.col1),
-	 "=&j inv2" (result.col2),
-	 "=&j temp" (temp),
-	 "=&j determinant" (determinant), "=r" (vu0_ACC), "=j" (vu0_Q)
-	 : "j col0" (col0),
-	 "j col1" (col1),
-	 "j col2" (col2)
+	 "vaddx.y	%[temp], vf00, %[inv2]			# Do an in-place transpose, produces determinant(R)*Rinv \n"
+	 "vadd.xz	%[temp], vf00, %[inv1] \n"
+	 "vaddy.x	%[inv1], vf00, %[inv0] \n"
+	 "vdiv		Q, vf00w, %[determinant]x		# Q = 1/determinant(R) \n"
+	 "vaddy.z	%[inv1], vf00, %[inv2] \n"
+	 "vaddz.x	%[inv2], vf00, %[inv0] \n"
+	 "vaddy.z	%[inv0], vf00, %[temp] \n"
+	 "vaddx.y	%[inv0], vf00, %[temp] \n"
+	 "vaddz.y	%[inv2], vf00, %[temp] \n"
+	 : [inv0] "=&j" (result.col0),
+	 [inv1] "=&j" (result.col1),
+	 [inv2] "=&j" (result.col2),
+	 [temp] "=&j" (temp),
+	 [determinant] "=&j" (determinant), "=r" (vu0_ACC), "=j" (vu0_Q)
+	 : [col0] "j" (col0),
+	 [col1] "j" (col1),
+	 [col2] "j" (col2)
       );
 
    asm ( "### transform_t::inverse, part II ### \n"
 
-	 "vadda ACC, vf00, vf00                        # Compute determinant(R)*Rinv -T \n"
-	 "vmsubay ACC, inv1, col3 \n"
-	 "vmsubax ACC, inv0, col3 \n"
-	 "vmsubz inv3, inv2, col3 \n"
+	 "vadda		ACC, vf00, vf00				# Compute determinant(R)*Rinv -T \n"
+	 "vmsubay	ACC, %[inv1], %[col3] \n"
+	 "vmsubax	ACC, %[inv0], %[col3] \n"
+	 "vmsubz	%[inv3], %[inv2], %[col3] \n"
 
-	 "vmulq.xyz inv0, inv0, Q                      # Multiply by 1/determinant(R) \n"
-	 "vmulq.xyz inv1, inv1, Q \n"
-	 "vmulq.xyz inv2, inv2, Q \n"
-	 "vmulq.xyz inv3, inv3, Q \n"
-	 : "+j inv0" (result.col0),
-	 "+j inv1" (result.col1),
-	 "+j inv2" (result.col2),
-	 "=&j inv3" (result.col3),
+	 "vmulq.xyz	%[inv0], %[inv0], Q			# Multiply by 1/determinant(R) \n"
+	 "vmulq.xyz	%[inv1], %[inv1], Q \n"
+	 "vmulq.xyz	%[inv2], %[inv2], Q \n"
+	 "vmulq.xyz	%[inv3], %[inv3], Q \n"
+	 : [inv0] "+j" (result.col0),
+	 [inv1] "+j" (result.col1),
+	 [inv2] "+j" (result.col2),
+	 [inv3] "=&j" (result.col3),
 	 "=r" (vu0_ACC)
-	 : "j col3" (col3), "j" (vu0_Q)
+	 : [col3] "j" (col3), "j" (vu0_Q)
       );
    return result;
 }
@@ -2690,27 +2690,27 @@ transform_t::orthonormal_inverse() const
 {
    transform_t result;
    asm ( "### transform_t::orthonormal_inverse ### \n"
-	 "vadd.x inv0, vf00, col0 \n"
-	 "vadd.y inv1, vf00, col1 \n"
-	 "vadd.z inv2, vf00, col2 \n"
-	 "vaddx.y inv0, vf00, col1 \n"
-	 "vaddy.x inv1, vf00, col0 \n"
-	 "vaddz.x inv2, vf00, col0 \n"
-	 "vaddx.z inv0, vf00, col2 \n"
-	 "vaddy.z inv1, vf00, col2 \n"
-	 "vaddz.y inv2, vf00, col1 \n"
-	 "vadda ACC, vf00, vf00 \n"
-	 "vmsubax ACC, inv0, col3 \n"
-	 "vmsubay ACC, inv1, col3 \n"
-	 "vmsubz inv3, inv2, col3 \n"
-	 : "=&j inv0" (result.col0),
-	 "=&j inv1" (result.col1),
-	 "=&j inv2" (result.col2),
-	 "=&j inv3" (result.col3), "=r" (vu0_ACC)
-	 : "j col0" (col0),
-	 "j col1" (col1),
-	 "j col2" (col2),
-	 "j col3" (col3)
+	 "vadd.x	%[inv0], vf00, %[col0] \n"
+	 "vadd.y	%[inv1], vf00, %[col1] \n"
+	 "vadd.z	%[inv2], vf00, %[col2] \n"
+	 "vaddx.y	%[inv0], vf00, %[col1] \n"
+	 "vaddy.x	%[inv1], vf00, %[col0] \n"
+	 "vaddz.x	%[inv2], vf00, %[col0] \n"
+	 "vaddx.z	%[inv0], vf00, %[col2] \n"
+	 "vaddy.z	%[inv1], vf00, %[col2] \n"
+	 "vaddz.y	%[inv2], vf00, %[col1] \n"
+	 "vadda		ACC, vf00, vf00 \n"
+	 "vmsubax	ACC, %[inv0], %[col3] \n"
+	 "vmsubay	ACC, %[inv1], %[col3] \n"
+	 "vmsubz	%[inv3], %[inv2], %[col3] \n"
+	 : [inv0] "=&j" (result.col0),
+	 [inv1] "=&j" (result.col1),
+	 [inv2] "=&j" (result.col2),
+	 [inv3] "=&j" (result.col3), "=r" (vu0_ACC)
+	 : [col0] "j" (col0),
+	 [col1] "j" (col1),
+	 [col2] "j" (col2),
+	 [col3] "j" (col3)
       );
    return result;
 }

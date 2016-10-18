@@ -328,11 +328,11 @@ cpu_vec_3::operator - ()
 #else
 
    asm ( " ### -cpu_vec_3 ### \n"
-	 "neg.s rx, vx \n"
-	 "neg.s ry, vy \n"
-	 "neg.s rz, vz \n"
-	 : "=&f rx" (result.x), "=&f ry" (result.y), "=&f rz" (result.z)
-	 : "f vx" (x), "f vy" (y), "f vz" (z)
+	 "neg.s %[rx], %[vx] \n"
+	 "neg.s %[ry], %[vy] \n"
+	 "neg.s %[rz], %[vz] \n"
+	 : [rx] "=&f" (result.x), [ry] "=&f" (result.y), [rz] "=&f" (result.z)
+	 : [vx] "f" (x), [vy] "f" (y), [vz] "f" (z)
       );
 
 #endif
@@ -353,11 +353,11 @@ cpu_vec_3::operator * (float scalar)
 #else
 
    asm ( " ### cpu_vec_3 * scalar ### \n"
-	 "mul.s rx, vx, scalar \n"
-	 "mul.s ry, vy, scalar \n"
-	 "mul.s rz, vz, scalar \n"
-	 : "=&f rx" (result.x), "=&f ry" (result.y), "=&f rz" (result.z)
-	 : "f vx" (x), "f vy" (y), "f vz" (z), "f scalar" (scalar)
+	 "mul.s %[rx], %[vx], %[scalar] \n"
+	 "mul.s %[ry], %[vy], %[scalar] \n"
+	 "mul.s %[rz], %[vz], %[scalar] \n"
+	 : [rx] "=&f" (result.x), [ry] "=&f" (result.y), [rz] "=&f" (result.z)
+	 : [vx] "f" (x), [vy] "f" (y), [vz] "f" (z), [scalar] "f" (scalar)
       );
 
 #endif
@@ -379,12 +379,12 @@ cpu_vec_3::dot(const cpu_vec_3 &vec) const
 #else
 
    asm ( " ### cpu_vec_3 dot product ### \n"
-	 "mula.s v0x, v1x \n"
-	 "madda.s v0y, v1y \n"
-	 "madd.s result, v0z, v1z \n"
-	 : "=&f result" (result)
-	 : "f v0x" (x), "f v0y" (y), "f v0z" (z),
-	 "f v1x" (vec.x), "f v1y" (vec.y), "f v1z" (vec.z)
+	 "mula.s  %[v0x], %[v1x] \n"
+	 "madda.s %[v0y], %[v1y] \n"
+	 "madd.s  %[result], %[v0z], %[v1z] \n"
+	 : [result] "=&f" (result)
+	 : [v0x] "f" (x), [v0y] "f" (y), [v0z] "f" (z),
+	 [v1x] "f" (vec.x), [v1y] "f" (vec.y), [v1z] "f" (vec.z)
       );
 
 #endif
@@ -406,15 +406,15 @@ cpu_vec_3::cross(const cpu_vec_3 &vec)
 #else
 
    asm ( " ### cpu_vec_3 cross product ### \n"
-	 "mula.s v0y, v1z \n"
-	 "msub.s rx, v0z, v1y \n"
-	 "mula.s v0z, v1x \n"
-	 "msub.s ry, v0x, v1z \n"
-	 "mula.s v0x, v1y \n"
-	 "msub.s rz, v0y, v1x \n"
-	 : "=&f rx" (result.x), "=&f ry" (result.y), "=&f rz" (result.z)
-	 : "f v0x" (x), "f v0y" (y), "f v0z" (z),
-	 "f v1x" (vec.x), "f v1y" (vec.y), "f v1z" (vec.z)
+	 "mula.s %[v0y], %[v1z] \n"
+	 "msub.s %[rx], %[v0z], %[v1y] \n"
+	 "mula.s %[v0z], %[v1x] \n"
+	 "msub.s %[ry], %[v0x], %[v1z] \n"
+	 "mula.s %[v0x], %[v1y] \n"
+	 "msub.s %[rz], %[v0y], %[v1x] \n"
+	 : [rx] "=&f" (result.x), [ry] "=&f" (result.y), [rz] "=&f" (result.z)
+	 : [v0x] "f" (x), [v0y] "f" (y), [v0z] "f" (z),
+	 [v1x] "f" (vec.x), [v1y] "f" (vec.y), [v1z] "f" (vec.z)
       );
 
 #endif
@@ -520,13 +520,13 @@ cpu_vec_4::dot(const cpu_vec_4 &vec) const
 #else
 
    asm ( " ### cpu_vec_4 dot product ### \n"
-	 "mula.s v0x, v1x \n"
-	 "madda.s v0y, v1y \n"
-	 "madda.s v0z, v1z \n"
-	 "madd.s result, v0w, v1w \n"
-	 : "=&f result" (result)
-	 : "f v0x" (x), "f v0y" (y), "f v0z" (z), "f v0w" (w),
-	 "f v1x" (vec.x), "f v1y" (vec.y), "f v1z" (vec.z), "f v1w" (vec.w)
+	 "mula.s  %[v0x], %[v1x] \n"
+	 "madda.s %[v0y], %[v1y] \n"
+	 "madda.s %[v0z], %[v1z] \n"
+	 "madd.s  %[result], %[v0w], %[v1w] \n"
+	 : [result] "=&f" (result)
+	 : [v0x] "f" (x), [v0y] "f" (y), [v0z] "f" (z), [v0w] "f" (w),
+	 [v1x] "f" (vec.x), [v1y] "f" (vec.y), [v1z] "f" (vec.z), [v1w] "f" (vec.w)
       );
 
 #endif
@@ -569,10 +569,10 @@ vec_xyz::vec_xyz( const cpu_vec_3 &rhs ) {
 
    vec128_t temp;
    asm("### construct vec_3 with cpu_vec_3 ### \n"
-       "pcpyld _temp, _y, _x \n"
-       "ppacw _result, _z, _temp \n"
-       : "=&r _result" (vec128), "=&r _temp" (temp)
-       : "r _x" (rhs.x), "r _y" (rhs.y), "r _z" (rhs.z)
+       "pcpyld %[_temp], %[_y], %[_x] \n"
+       "ppacw %[_result], %[_z], %[_temp] \n"
+       : [_result] "=&r" (vec128), [_temp] "=&r" (temp)
+       : [_x] "r" (rhs.x), [_y] "r" (rhs.y), [_z] "r" (rhs.z)
       );
 }
 
@@ -581,10 +581,10 @@ vector_t::vector_t( const cpu_vec_3 &rhs ) {
 
    vec128_t temp;
    asm("### construct vector_t with cpu_vec_3 ### \n"
-       "pcpyld _temp, _y, _x \n"
-       "ppacw _result, _z, _temp \n"
-       : "=&r _result" (vec128), "=&r _temp" (temp)
-       : "r _x" (rhs.x), "r _y" (rhs.y), "r _z" (rhs.z)
+       "pcpyld %[_temp], %[_y], %[_x] \n"
+       "ppacw %[_result], %[_z], %[_temp] \n"
+       : [_result] "=&r" (vec128), [_temp] "=&r" (temp)
+       : [_x] "r" (rhs.x), [_y] "r" (rhs.y), [_z] "r" (rhs.z)
       );
 }
 
@@ -593,10 +593,10 @@ point_t::point_t( const cpu_vec_3 &rhs ) {
 
    vec128_t temp;
    asm("### construct point_t with cpu_vec_3 ### \n"
-       "pcpyld _temp, _y, _x \n"
-       "ppacw _result, _z, _temp \n"
-       : "=&r _result" (vec128), "=&r _temp" (temp)
-       : "r _x" (rhs.x), "r _y" (rhs.y), "r _z" (rhs.z)
+       "pcpyld %[_temp], %[_y], %[_x] \n"
+       "ppacw %[_result], %[_z], %[_temp] \n"
+       : [_result] "=&r" (vec128), [_temp] "=&r" (temp)
+       : [_x] "r" (rhs.x), [_y] "r" (rhs.y), [_z] "r" (rhs.z)
       );
 }
 
@@ -605,11 +605,11 @@ vec_xyzw::vec_xyzw( const cpu_vec_4 &rhs ) {
    vec128_t tempxz, tempyw;
 
    asm("### construct vec_4 with cpu_vec_4 ### \n"
-       "pextlw tempxz, _z, _x \n"
-       "pextlw tempyw, _w, _y \n"
-       "pextlw result, tempyw, tempxz\n"
-       : "=&r result" (vec128), "=&r tempxz" (tempxz), "=&r tempyw" (tempyw)
-       : "r _x" (rhs.x), "r _y" (rhs.y), "r _z" (rhs.z), "r _w" (rhs.w)
+       "pextlw %[tempxz], %[_z], %[_x] \n"
+       "pextlw %[tempyw], %[_w], %[_y] \n"
+       "pextlw %[result], %[tempyw], %[tempxz]\n"
+       : [result] "=&r" (vec128), [tempxz] "=&r" (tempxz), [tempyw] "=&r" (tempyw)
+       : [_x] "r" (rhs.x), [_y] "r" (rhs.y), [_z] "r" (rhs.z), [_w] "r" (rhs.w)
       );
 }
 #endif // NO_VU0_VECTORS
