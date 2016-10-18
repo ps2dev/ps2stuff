@@ -94,9 +94,9 @@ namespace GS {
 
       // gs register defaults
 
-      gsrTexA.TA0 = 0x80; // identity
-      gsrTexA.TA1 = 0x80; // identity
-      gsrTexA.AEM = 0;
+      gsrTexA.alpha_0 = 0x80; // identity
+      gsrTexA.alpha_1 = 0x80; // identity
+      gsrTexA.alpha_method = 0;
 
       // don't use SetWrapMode() here!
       // make this default to clamp because I want to issue an error when
@@ -104,29 +104,29 @@ namespace GS {
       // of the form (2^x -1).  If I start this off as repeat and the user wants to
       // use clamp mode then they will have to call SetWrapMode before SetRegion, which
       // isn't good.
-      gsrClamp.WMS = TexWrapMode::kClamp;
-      gsrClamp.WMT = TexWrapMode::kClamp;
+      gsrClamp.wrap_mode_s = TexWrapMode::kClamp;
+      gsrClamp.wrap_mode_t = TexWrapMode::kClamp;
 
-      // gsrTex0.TBP0 = 0;
-      // gsrTex0.TBW = 0x3f; // invalid setting
-      gsrTex0.PSM = GS::kPsm32;
-      // gsrTex0.TW = 0xf; // invalid setting
-      // gsrTex0.TH = 0xf; // invalid setting
-      gsrTex0.TCC = 1; // use texture alpha
-      gsrTex0.TFX = TexMode::kModulate;
-      //	gsrTex0.CBP = 0x3fff;
-      //	gsrTex0.CPSM = SCE_GS_PSMCT32;
-      gsrTex0.CSM = 0; // csm1 storage mode (don't reference texclut)
-      gsrTex0.CSA = 0; // talk about a weird addressing mode...  I'm not even going to mess with this now...
-      gsrTex0.CLD = 4; // load clut to buffer if cbp0 != cbp
+      // gsrTex0.tb_addr = 0;
+      // gsrTex0.tb_width = 0x3f; // invalid setting
+      gsrTex0.psm = GS::kPsm32;
+      // gsrTex0.tex_width = 0xf; // invalid setting
+      // gsrTex0.tex_height = 0xf; // invalid setting
+      gsrTex0.tex_cc = 1; // use texture alpha
+      gsrTex0.tex_funtion = TexMode::kModulate;
+      //	gsrTex0.cb_addr = 0x3fff;
+      //	gsrTex0.clut_pixmode = SCE_GS_PSMCT32;
+      gsrTex0.clut_smode = 0; // csm1 storage mode (don't reference texclut)
+      gsrTex0.clut_offset = 0; // talk about a weird addressing mode...  I'm not even going to mess with this now...
+      gsrTex0.clut_loadmode = 4; // load clut to buffer if cbp0 != cbp
 
-      gsrTex1.LCM = 1; // fixed LOD
-      gsrTex1.MXL = 0; // max mip map level
+      gsrTex1.lcm = 1; // fixed LOD
+      gsrTex1.mxl = 0; // max mip map level
       SetMagMode( MagMode::kLinear );
-      gsrTex1.MMIN = 1; // linear
-      gsrTex1.MTBA = 0; // use miptbp1/2
-      gsrTex1.L = 0;
-      gsrTex1.K = 0;
+      gsrTex1.mmin = 1; // linear
+      gsrTex1.mtba = 0; // use miptbp1/2
+      gsrTex1.l = 0;
+      gsrTex1.k = 0;
 
       // make sure things are qword aligned (I don't trust the compiler...)
       mAssert( ((tU32)&SettingsGifTag & 0xf) == 0 );
@@ -144,13 +144,13 @@ namespace GS {
    void
    CTexEnv::SetImageGsAddr( tU32 gsMemWordAddress )
    {
-      gsrTex0.TBP0 = gsMemWordAddress/64;
+      gsrTex0.tb_addr = gsMemWordAddress/64;
    }
 
    void
    CTexEnv::SetClutGsAddr( tU32 gsMemWordAddress )
    {
-      gsrTex0.CBP = gsMemWordAddress/64;
+      gsrTex0.cb_addr = gsMemWordAddress/64;
    }
 
    void
@@ -219,21 +219,21 @@ namespace GS {
       if ( ((tU32)1 << logH) != h )
 	 logH++;
 
-      gsrTex0.TW = logW;
-      gsrTex0.TH = logH;
+      gsrTex0.tex_width = logW;
+      gsrTex0.tex_height = logH;
 
       // the width of the texture buffer should be a multiple of the page size for
       // perspective tex mapping (but what about plain old (u,v)?? -- FIXME)
 
       int page_width = 64;
-      unsigned int bpp = GS::GetBitsPerPixel( (enum GS::tPSM)gsrTex0.PSM );
+      unsigned int bpp = GS::GetBitsPerPixel( (enum GS::tPSM)gsrTex0.psm );
       if ( bpp == 8 || bpp == 4 ) page_width = 128;
 
-      gsrTex0.TBW = ((w + page_width - 1) / page_width) * page_width / 64;
+      gsrTex0.tb_width = ((w + page_width - 1) / page_width) * page_width / 64;
 
       // if we're using bi- or tri-linear filtering the tex needs to be at least 8x8
-      mAssert( (gsrTex1.MMAG == MagMode::kNearest) || (logW >= 3 && logH >= 3) );
-      mAssert( (gsrTex1.MMIN == MinMode::kNearest) || (gsrTex1.MMIN == MinMode::kNearestMipmapNearest) || (logW >= 3 && logH >= 3) );
+      mAssert( (gsrTex1.mmag == MagMode::kNearest) || (logW >= 3 && logH >= 3) );
+      mAssert( (gsrTex1.mmin == MinMode::kNearest) || (gsrTex1.mmin == MinMode::kNearestMipmapNearest) || (logW >= 3 && logH >= 3) );
    }
 
    // Caution about regions:  Note that in 3.4.5 "Texture Wrap Modes" REPEAT, CLAMP, and REGION_CLAMP, are
@@ -244,47 +244,47 @@ namespace GS {
    CTexEnv::SetRegion( tU32 originU, tU32 originV, tU32 w, tU32 h )
    {
       tTexWrapMode sMode, tMode;
-      sMode = (gsrClamp.WMS & 2) ? (tTexWrapMode)(3 - gsrClamp.WMS) : (tTexWrapMode)gsrClamp.WMS;
-      tMode = (gsrClamp.WMT & 2) ? (tTexWrapMode)(3 - gsrClamp.WMT) : (tTexWrapMode)gsrClamp.WMT;
+      sMode = (gsrClamp.wrap_mode_s & 2) ? (tTexWrapMode)(3 - gsrClamp.wrap_mode_s) : (tTexWrapMode)gsrClamp.wrap_mode_s;
+      tMode = (gsrClamp.wrap_mode_t & 2) ? (tTexWrapMode)(3 - gsrClamp.wrap_mode_t) : (tTexWrapMode)gsrClamp.wrap_mode_t;
 
       // the meaning of MIN/MAX in gsrClamp differs in clamp and repeat modes
 
       using namespace TexWrapMode;
       if ( sMode == kClamp ) {
-	 gsrClamp.MINU = originU; gsrClamp.MAXU = originU + w - 1;
+	 gsrClamp.min_clamp_u = originU; gsrClamp.max_clamp_u = originU + w - 1;
       }
       else {
-	 gsrClamp.MINU = w - 1; gsrClamp.MAXU = originU;
+	 gsrClamp.min_clamp_u = w - 1; gsrClamp.max_clamp_u = originU;
       }
 
       if ( tMode == kClamp ) {
-	 gsrClamp.MINV = originV; gsrClamp.MAXV = originV + h - 1;
+	 gsrClamp.min_clamp_v = originV; gsrClamp.max_clamp_v = originV + h - 1;
       }
       else {
-	 gsrClamp.MINV = h - 1; gsrClamp.MAXV = originV;
+	 gsrClamp.min_clamp_v = h - 1; gsrClamp.max_clamp_v = originV;
       }
 
-      gsrClamp.WMS = 3 - (tU32)sMode; gsrClamp.WMT = 3 - (tU32)tMode;
+      gsrClamp.wrap_mode_s = 3 - (tU32)sMode; gsrClamp.wrap_mode_t = 3 - (tU32)tMode;
 
       // see note above this method
-      mAssert( (sMode == kClamp) || (((gsrClamp.MAXU & gsrClamp.MINU) == 0) && Math::IsPow2(gsrClamp.MINU + 1)) );
-      mAssert( (tMode == kClamp) || (((gsrClamp.MAXV & gsrClamp.MINV) == 0) && Math::IsPow2(gsrClamp.MINV + 1)) );
+      mAssert( (sMode == kClamp) || (((gsrClamp.max_clamp_u & gsrClamp.min_clamp_u) == 0) && Math::IsPow2(gsrClamp.min_clamp_u + 1)) );
+      mAssert( (tMode == kClamp) || (((gsrClamp.max_clamp_v & gsrClamp.min_clamp_v) == 0) && Math::IsPow2(gsrClamp.min_clamp_v + 1)) );
    }
 
    void
    CTexEnv::SetPSM( GS::tPSM newPSM )
    {
-      gsrTex0.PSM = newPSM;
+      gsrTex0.psm = newPSM;
 
       switch ( newPSM ) {
 	 case kPsm8:
 	 case kPsm8h:
-	    gsrTex0.CPSM = kPsm32;
+	    gsrTex0.clut_pixmode = kPsm32;
 	    break;
 	 case kPsm4:
 	 case kPsm4hl:
 	 case kPsm4hh:
-	    gsrTex0.CPSM = kPsm16;
+	    gsrTex0.clut_pixmode = kPsm16;
 	    break;
 	 default:
 	    break;
@@ -299,27 +299,27 @@ namespace GS {
       // so if we're using a region and
       // the old mode is not the new mode we need to convert the region data
       tTexWrapMode oldMode =
-	 (gsrClamp.WMS & 2) ? (tTexWrapMode)(3 - gsrClamp.WMS) : (tTexWrapMode)sMode;
+	 (gsrClamp.wrap_mode_s & 2) ? (tTexWrapMode)(3 - gsrClamp.wrap_mode_s) : (tTexWrapMode)sMode;
       if ( oldMode != sMode ) {
 	 if ( oldMode == kRepeat ) {
-	    tU32 temp = gsrClamp.MINU;
-	    gsrClamp.MINU = gsrClamp.MAXU;
-	    gsrClamp.MAXU += temp;
+	    tU32 temp = gsrClamp.min_clamp_u;
+	    gsrClamp.min_clamp_u = gsrClamp.max_clamp_u;
+	    gsrClamp.max_clamp_u += temp;
 	 }
 	 else {
-	    tU32 temp = gsrClamp.MINU;
-	    gsrClamp.MINU = gsrClamp.MAXU - gsrClamp.MINU;
-	    gsrClamp.MAXU = temp;
+	    tU32 temp = gsrClamp.min_clamp_u;
+	    gsrClamp.min_clamp_u = gsrClamp.max_clamp_u - gsrClamp.min_clamp_u;
+	    gsrClamp.max_clamp_u = temp;
 	 }
       }
       // are we using a region?
-      if ( gsrClamp.WMS & 2 )
+      if ( gsrClamp.wrap_mode_s & 2 )
 	 sMode = (tTexWrapMode)(3 - sMode);
 
-      gsrClamp.WMS = sMode;
+      gsrClamp.wrap_mode_s = sMode;
 
       // see note above SetRegion()
-      mAssert( (gsrClamp.WMS <= 2) || (((gsrClamp.MAXU & gsrClamp.MINU) == 0) && Math::IsPow2(gsrClamp.MINU + 1)) );
+      mAssert( (gsrClamp.wrap_mode_s <= 2) || (((gsrClamp.max_clamp_u & gsrClamp.min_clamp_u) == 0) && Math::IsPow2(gsrClamp.min_clamp_u + 1)) );
    }
 
    void
@@ -328,27 +328,27 @@ namespace GS {
       using namespace TexWrapMode;
       // see note in SetWrapModeU
       tTexWrapMode oldMode =
-	 (gsrClamp.WMT & 2) ? (tTexWrapMode)(3 - gsrClamp.WMT) : (tTexWrapMode)tMode;
+	 (gsrClamp.wrap_mode_t & 2) ? (tTexWrapMode)(3 - gsrClamp.wrap_mode_t) : (tTexWrapMode)tMode;
       if ( oldMode != tMode ) {
 	 if ( oldMode == kRepeat ) {
-	    tU32 temp = gsrClamp.MINV;
-	    gsrClamp.MINV = gsrClamp.MAXV;
-	    gsrClamp.MAXV += temp;
+	    tU32 temp = gsrClamp.min_clamp_v;
+	    gsrClamp.min_clamp_v = gsrClamp.max_clamp_v;
+	    gsrClamp.max_clamp_v += temp;
 	 }
 	 else {
-	    tU32 temp = gsrClamp.MINV;
-	    gsrClamp.MINV = gsrClamp.MAXV - gsrClamp.MINV;
-	    gsrClamp.MAXV = temp;
+	    tU32 temp = gsrClamp.min_clamp_v;
+	    gsrClamp.min_clamp_v = gsrClamp.max_clamp_v - gsrClamp.min_clamp_v;
+	    gsrClamp.max_clamp_v = temp;
 	 }
       }
       // are we using a region?
-      if ( gsrClamp.WMT & 2 )
+      if ( gsrClamp.wrap_mode_t & 2 )
 	 tMode = (tTexWrapMode)(3 - tMode);
 
-      gsrClamp.WMT = tMode;
+      gsrClamp.wrap_mode_t = tMode;
 
       // see note above SetRegion()
-      mAssert( (gsrClamp.WMT <= 2) || (((gsrClamp.MAXV & gsrClamp.MINV) == 0) && Math::IsPow2(gsrClamp.MINV + 1)) );
+      mAssert( (gsrClamp.wrap_mode_t <= 2) || (((gsrClamp.max_clamp_v & gsrClamp.min_clamp_v) == 0) && Math::IsPow2(gsrClamp.min_clamp_v + 1)) );
    }
 
    /********************************************
@@ -423,11 +423,11 @@ namespace GS {
       /*
       // width of the area in gs mem (64 pixel units) to use
       tU32 gsBufWidth = ( (w % 64) != 0 ) ? w/64 + 1 : w/64;
-      gsBufWidth = Math::Max( ((tU32)1 << gsrTex0.TW) / 64, gsBufWidth );
-      gsrTex0.TBW = gsBufWidth;
+      gsBufWidth = Math::Max( ((tU32)1 << gsrTex0.tex_width) / 64, gsBufWidth );
+      gsrTex0.tb_width = gsBufWidth;
       */
 
-      unsigned int gsBufWidth = gsrTex0.TBW * 64;
+      unsigned int gsBufWidth = gsrTex0.tb_width * 64;
       pImageUploadPkt->SetGsBufferWidth( gsBufWidth );
       // width and height of the region to xfer
       pImageUploadPkt->SetImage( imagePtr, w, h, psm );

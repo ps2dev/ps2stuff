@@ -31,15 +31,15 @@ CSprite::CSprite( GS::tContext context, tU32 minX, tU32 minY, tU32 width, tU32 h
    DrawGifTag.REGS2 = 0x4; // xyzf2
    DrawGifTag.REGS3 = 0xf; // nop
    DrawGifTag.REGS4 = 0x4; // xyzf2
-   prim.PRIM = 6; // sprite
-   prim.IIP = 1; // flat shading
-   prim.TME = 0; // no texture mapping
-   prim.FGE = 0; // no fog
-   prim.ABE = 0; // no alpha
-   prim.AA1 = 0; // no aa
-   prim.FST = 0; // stq coords
-   prim.CTXT = (tU64)context;
-   prim.FIX = 0; // what the hell does this do?
+   prim.prim_type = 6; // sprite
+   prim.iip = 1; // flat shading
+   prim.tme = 0; // no texture mapping
+   prim.fge = 0; // no fog
+   prim.abe = 0; // no alpha
+   prim.aa1 = 0; // no aa
+   prim.fst = 0; // stq coords
+   prim.ctxt = (tU64)context;
+   prim.fix = 0; // what the hell does this do?
    DrawGifTag.PRIM = *(tU64*)&prim;
 
    SetVertices( minX, minY, width, height );
@@ -52,7 +52,7 @@ CSprite::SetSTQs( float minS, float minT, float width, float height )
 {
 	GS::tPrim prim;
 	*(tU64*)&prim = DrawGifTag.PRIM;
-	prim.FST = 0; // stq
+	prim.fst = 0; // stq
 	DrawGifTag.PRIM = *(tU64*)&prim;
 	DrawGifTag.REGS1 = 0x2;
 	DrawGifTag.REGS3 = 0x2;
@@ -68,7 +68,7 @@ CSprite::SetUVs( float minU, float minV, float width, float height )
 {
 	GS::tPrim prim;
 	*(tU64*)&prim = DrawGifTag.PRIM;
-	prim.FST = 1; // uv
+	prim.fst = 1; // uv
 	DrawGifTag.PRIM = *(tU64*)&prim;
 	DrawGifTag.REGS1 = 0x3;
 	DrawGifTag.REGS3 = 0x3;
@@ -84,7 +84,7 @@ CSprite::SetUVs( tU16 minU, tU16 minV, tU16 width, tU16 height )
 {
 	GS::tPrim prim;
 	*(tU64*)&prim = DrawGifTag.PRIM;
-	prim.FST = 1; // uv
+	prim.fst = 1; // uv
 	DrawGifTag.PRIM = *(tU64*)&prim;
 	DrawGifTag.REGS1 = 0x3;
 	DrawGifTag.REGS3 = 0x3;
@@ -100,7 +100,7 @@ CSprite::SetUVsFix4( tU16 minU, tU16 minV, tU16 maxU, tU16 maxV )
 {
 	GS::tPrim prim;
 	*(tU64*)&prim = DrawGifTag.PRIM;
-	prim.FST = 1; // uv
+	prim.fst = 1; // uv
 	DrawGifTag.PRIM = *(tU64*)&prim;
 	DrawGifTag.REGS1 = 0x3;
 	DrawGifTag.REGS3 = 0x3;

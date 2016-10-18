@@ -109,47 +109,47 @@ namespace GS {
 
 	 void SetContext( GS::tContext context );
 
-	 inline void EnableAlphaTest( void ) { gsrTest.ATE = 1; }
-	 inline void DisableAlphaTest( void ) { gsrTest.ATE = 0; }
-	 inline void SetAlphaTestPassMode( tAlphaTestPassMode mode ) { gsrTest.ATST = (tU64)mode; }
-	 inline void SetAlphaTestFailAction( tAlphaTestFailAction action ) { gsrTest.AFAIL = (tU64)action; }
-	 inline void SetAlphaRefVal( tU8 refVal ) { gsrTest.AREF = refVal; }
+	 inline void EnableAlphaTest( void ) { gsrTest.atest_enable = 1; }
+	 inline void DisableAlphaTest( void ) { gsrTest.atest_enable = 0; }
+	 inline void SetAlphaTestPassMode( tAlphaTestPassMode mode ) { gsrTest.atest_method = (tU64)mode; }
+	 inline void SetAlphaTestFailAction( tAlphaTestFailAction action ) { gsrTest.atest_fail_method = (tU64)action; }
+	 inline void SetAlphaRefVal( tU8 refVal ) { gsrTest.atest_reference = refVal; }
 
-	 inline void EnableSelectiveAlphaBlend( void ) { gsrPABE.PABE = 1; }
-	 inline void DisableSelectiveAlphaBlend( void ) { gsrPABE.PABE = 0; }
+	 inline void EnableSelectiveAlphaBlend( void ) { gsrPABE.enable = 1; }
+	 inline void DisableSelectiveAlphaBlend( void ) { gsrPABE.enable = 0; }
 
 	 inline void SetAlphaBlendFunc( tAlphaBlendVal a, tAlphaBlendVal b, tAlphaBlendVal c, tAlphaBlendVal d, tU32 fix );
 
-	 inline void EnableColorClamp( void ) { gsrColClamp.CLAMP = 1; }
-	 inline void DisableColorClamp( void ) { gsrColClamp.CLAMP = 0; }
+	 inline void EnableColorClamp( void ) { gsrColClamp.clamp = 1; }
+	 inline void DisableColorClamp( void ) { gsrColClamp.clamp = 0; }
 
-	 inline void EnableDestAlphaTest( void ) { gsrTest.DATE = 1; }
-	 inline void DisableDestAlphaTest( void ) { gsrTest.DATE = 0; }
-	 inline void SetDestAlpha0Pass( void ) { gsrTest.DATM = 0; }
-	 inline void SetDestAlpha1Pass( void ) { gsrTest.DATM = 1; }
+	 inline void EnableDestAlphaTest( void ) { gsrTest.datest_enable = 1; }
+	 inline void DisableDestAlphaTest( void ) { gsrTest.datest_enable = 0; }
+	 inline void SetDestAlpha0Pass( void ) { gsrTest.datest_mode = 0; }
+	 inline void SetDestAlpha1Pass( void ) { gsrTest.datest_mode = 1; }
 
-	 inline void SetDepthTestPassMode( tZTestPassMode passMode ) { gsrTest.ZTST = (tU64)passMode; eZTestPassMode = passMode; }
-	 inline void SetDepthBufferAddr( tU32 wordAddress ) { gsrZBuf.ZBP = wordAddress/2048; }
-	 inline void SetDepthBufferPSM( tU32 psm ) { gsrZBuf.PSM = (tU64)psm; }
-	 inline void EnableDepthTest( void ) { gsrZBuf.ZMSK = 0; SetDepthTestPassMode(eZTestPassMode); }
-	 inline void DisableDepthTest( void ) { gsrZBuf.ZMSK = 1; gsrTest.ZTST = (tU64)ZTest::kAlways; }
-	 inline void SetDepthWriteEnabled( bool write ) { gsrZBuf.ZMSK = ! write; }
+	 inline void SetDepthTestPassMode( tZTestPassMode passMode ) { gsrTest.ztest_enable = (tU64)passMode; eZTestPassMode = passMode; }
+	 inline void SetDepthBufferAddr( tU32 wordAddress ) { gsrZBuf.fb_addr = wordAddress/2048; }
+	 inline void SetDepthBufferPSM( tU32 psm ) { gsrZBuf.psm = (tU64)psm; }
+	 inline void EnableDepthTest( void ) { gsrZBuf.update_mask = 0; SetDepthTestPassMode(eZTestPassMode); }
+	 inline void DisableDepthTest( void ) { gsrZBuf.update_mask = 1; gsrTest.ztest_enable = (tU64)ZTest::kAlways; }
+	 inline void SetDepthWriteEnabled( bool write ) { gsrZBuf.update_mask = ! write; }
 
-	 inline void SetFrameBufferAddr( tU32 wordAddress ) { mAssert( (wordAddress & 2047) == 0 ); gsrFrame.FBP = wordAddress/2048; }
-	 inline void SetFrameBufferDrawMask( tU32 drawMask ) { gsrFrame.FBMSK = drawMask; }
+	 inline void SetFrameBufferAddr( tU32 wordAddress ) { mAssert( (wordAddress & 2047) == 0 ); gsrFrame.fb_addr = wordAddress/2048; }
+	 inline void SetFrameBufferDrawMask( tU32 drawMask ) { gsrFrame.draw_mask = drawMask; }
 	 void SetFrameBufferDim( tU32 pixelW, tU32 pixelH );
-	 inline void SetFrameBufferPSM( tU32 psm ) { gsrFrame.PSM = psm; }
+	 inline void SetFrameBufferPSM( tU32 psm ) { gsrFrame.psm = psm; }
 	 float GetInterlacedPixelOffset() const { return InterlacedOffset; }
 	 void SetInterlacedPixelOffset( float offset ) { InterlacedOffset = offset; }
 	 void CalculateClippedFBXYOffsets( bool addHalfPixel );
-	 inline void SetXYOffsets( tU16 offsetX, tU16 offsetY ) { gsrXYOffset.OFX = offsetX << 4; gsrXYOffset.OFY = offsetY << 4; }
-	 inline void SetXYOffsetsFix4( tU16 offsetX, tU16 offsetY ) { gsrXYOffset.OFX = offsetX; gsrXYOffset.OFY = offsetY; }
+	 inline void SetXYOffsets( tU16 offsetX, tU16 offsetY ) { gsrXYOffset.offset_x = offsetX << 4; gsrXYOffset.offset_y = offsetY << 4; }
+	 inline void SetXYOffsetsFix4( tU16 offsetX, tU16 offsetY ) { gsrXYOffset.offset_x = offsetX; gsrXYOffset.offset_y = offsetY; }
 
-	 inline void SetFrameBufAlphaORMask( tU32 mask ) { gsrFBA.FBA = mask; }
-	 inline void SetFogColor( tU32 r, tU32 g, tU32 b ) { gsrFogCol.FCR = r; gsrFogCol.FCG = g; gsrFogCol.FCB = b; }
+	 inline void SetFrameBufAlphaORMask( tU32 mask ) { gsrFBA.alpha = mask; }
+	 inline void SetFogColor( tU32 r, tU32 g, tU32 b ) { gsrFogCol.r = r; gsrFogCol.g = g; gsrFogCol.b = b; }
 
-	 inline void EnableDither( void ) {  gsrDTHE.DTHE = 1; }
-	 inline void DisableDither( void ) { gsrDTHE.DTHE = 0; }
+	 inline void EnableDither( void ) {  gsrDTHE.enable = 1; }
+	 inline void DisableDither( void ) { gsrDTHE.enable = 0; }
 	 inline void SetDitherMatrix( tDitherVal dm00, tDitherVal dm01, tDitherVal dm02, tDitherVal dm03,
 				      tDitherVal dm10, tDitherVal dm11, tDitherVal dm12, tDitherVal dm13,
 				      tDitherVal dm20, tDitherVal dm21, tDitherVal dm22, tDitherVal dm23,
@@ -162,7 +162,7 @@ namespace GS {
 	 void SendSettings( CVifSCDmaPacket& packet );
 
 	 // accessors
-	 tU32 GetFrameBufferAddr( void ) { return gsrFrame.FBP * 2048; }
+	 tU32 GetFrameBufferAddr( void ) { return gsrFrame.fb_addr * 2048; }
 
 	 inline void* operator new( size_t size ) {
 	    return Core::New16(size);
@@ -205,11 +205,11 @@ namespace GS {
    inline void
    CDrawEnv::SetAlphaBlendFunc( tAlphaBlendVal a, tAlphaBlendVal b, tAlphaBlendVal c, tAlphaBlendVal d, tU32 fix )
    {
-      gsrAlpha.A = a;
-      gsrAlpha.B = b;
-      gsrAlpha.C = c;
-      gsrAlpha.D = d;
-      gsrAlpha.FIX = fix;
+      gsrAlpha.a = a;
+      gsrAlpha.b = b;
+      gsrAlpha.c = c;
+      gsrAlpha.d = d;
+      gsrAlpha.alpha = fix;
    }
 
    inline void
@@ -227,8 +227,8 @@ namespace GS {
    inline void
    CDrawEnv::SetScissorArea( tU32 scX, tU32 scY, tU32 scWidth, tU32 scHeight )
    {
-      gsrScissor.SCAX0 = scX; gsrScissor.SCAY0 = scY;
-      gsrScissor.SCAX1 = scX + scWidth - 1; gsrScissor.SCAY1 = scY + scHeight - 1;
+      gsrScissor.clip_x0 = scX; gsrScissor.clip_y0 = scY;
+      gsrScissor.clip_x1 = scX + scWidth - 1; gsrScissor.clip_y1 = scY + scHeight - 1;
    }
 
 } // namespace GS

@@ -31,16 +31,16 @@ class CImageUploadPkt : protected CVifSCDmaPacket
 
       // call these before trying to xfer the image!
       virtual void SetGsAddr( tU32 gsMemWordAddress ) {
-	 gsrBitBltBuf.DBP = gsMemWordAddress/64;
+	 gsrBitBltBuf.dest_addr = gsMemWordAddress/64;
       }
       void SetGsBufferWidth( tU32 gsBufWidth ) {
 	 mAssert( gsBufWidth >= 64 );
-	 gsrBitBltBuf.DBW = gsBufWidth / 64;
+	 gsrBitBltBuf.dest_width = gsBufWidth / 64;
       }
 
       /// Use this to change between 8/8h 4/4hh/4hl
       void ChangePsm( GS::tPSM psm ) {
-	 gsrBitBltBuf.DPSM = psm;
+	 gsrBitBltBuf.dest_pixmode = psm;
       }
 
       // if you use this constructor you need to call these functions before
@@ -50,8 +50,8 @@ class CImageUploadPkt : protected CVifSCDmaPacket
       void SetImage( tU128* imagePtr, tU32 w, tU32 h, GS::tPSM psm ) {
 	 mAssert( ((tU32)imagePtr & 0xf) == 0 );
 	 pImage = imagePtr;
-	 gsrBitBltBuf.DPSM = psm;
-	 gsrTrxReg.RRW = w; gsrTrxReg.RRH = h;
+	 gsrBitBltBuf.dest_pixmode = psm;
+	 gsrTrxReg.trans_w = w; gsrTrxReg.trans_h = h;
 
 	 BuildXferTags();
       }

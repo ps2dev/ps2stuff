@@ -81,27 +81,27 @@ namespace GS {
 
 	 // accessors
 
-	 inline tU32 GetImageGsAddr( void ) const { return gsrTex0.TBP0 * 64; }
-	 inline tU32 GetClutGsAddr( void ) const { return gsrTex0.CBP * 64; }
+	 inline tU32 GetImageGsAddr( void ) const { return gsrTex0.tb_addr * 64; }
+	 inline tU32 GetClutGsAddr( void ) const { return gsrTex0.cb_addr * 64; }
 	 inline GS::tContext GetContext( void ) const;
-	 inline GS::tPSM GetPSM( void ) const { return (GS::tPSM)gsrTex0.PSM; }
+	 inline GS::tPSM GetPSM( void ) const { return (GS::tPSM)gsrTex0.psm; }
 	 inline tU32 GetW( void ) const { return uiTexPixelWidth; }
 	 inline tU32 GetH( void ) const { return uiTexPixelHeight; }
 
 	 // mutators
 
 	 inline void ClearRegion( void );
-	 inline void SetClutLoadConditions( int mode ) { gsrTex0.CLD = mode; }
+	 inline void SetClutLoadConditions( int mode ) { gsrTex0.clut_loadmode = mode; }
 	 virtual void SetClutGsAddr( tU32 gsMemWordAddress );
 	 void SetContext( GS::tContext context );
 	 virtual void SetDimensions( tU32 w, tU32 h );
 	 inline void SetFlush( bool flush );
 	 virtual void SetImageGsAddr( tU32 gsMemWordAddress );
-	 inline void SetMagMode( tMagMode newMode ) { gsrTex1.MMAG = (tU64)newMode; }
-	 inline void SetMinMode( tMinMode newMode ) { gsrTex1.MMIN = (tU64)newMode; }
+	 inline void SetMagMode( tMagMode newMode ) { gsrTex1.mmag = (tU64)newMode; }
+	 inline void SetMinMode( tMinMode newMode ) { gsrTex1.mmin = (tU64)newMode; }
 	 void SetPSM( GS::tPSM newPSM );
 	 void SetRegion( tU32 originU, tU32 originV, tU32 w, tU32 h );
-	 inline void SetTexMode( tTexMode newMode ) { gsrTex0.TFX = (tU64)newMode; }
+	 inline void SetTexMode( tTexMode newMode ) { gsrTex0.tex_funtion = (tU64)newMode; }
 	 void SetWrapModeS( tTexWrapMode sMode );
 	 void SetWrapModeT( tTexWrapMode tMode );
 	 inline void SetWrapMode( tTexWrapMode sMode, tTexWrapMode tMode ) {
@@ -261,16 +261,16 @@ namespace GS {
 
    inline void
    CTexEnv::SetUseTexAlpha( bool useTexAlpha ) {
-      gsrTex0.TCC = useTexAlpha;
+      gsrTex0.tex_cc = useTexAlpha;
    }
 
    inline void
    CTexEnv::ClearRegion( void )
    {
-      if ( gsrClamp.WMS & 2 )
-	 gsrClamp.WMS = 3 - gsrClamp.WMS;
-      if ( gsrClamp.WMT & 2 )
-	 gsrClamp.WMT = 3 - gsrClamp.WMT;
+      if ( gsrClamp.wrap_mode_s & 2 )
+	 gsrClamp.wrap_mode_s = 3 - gsrClamp.wrap_mode_s;
+      if ( gsrClamp.wrap_mode_t & 2 )
+	 gsrClamp.wrap_mode_t = 3 - gsrClamp.wrap_mode_t;
    }
 
 } // namespace GS

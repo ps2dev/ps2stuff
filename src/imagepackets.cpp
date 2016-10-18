@@ -45,25 +45,25 @@ CImageUploadPkt::InitCommon( void )
    TrxDirAddr = GS::RegAddrs::trxdir;
 
    // source info
-   // gsrBitBltBuf.SBP = 0x3fff; // invalid?
-   // gsrBitBltBuf.SBW = 0x3f; // invalid
-   // gsrBitBltBuf.SPSM = SCE_GS_PSMCT32;
+   // gsrBitBltBuf.src_addr = 0x3fff; // invalid?
+   // gsrBitBltBuf.src_width = 0x3f; // invalid
+   // gsrBitBltBuf.src_pixmode = SCE_GS_PSMCT32;
 
    // dest info
-   gsrBitBltBuf.DBP = 0x3fff; // invalid?
-   gsrBitBltBuf.DBW = 0x3f; // invalid
-   gsrBitBltBuf.DPSM = GS::kPsm32;
+   gsrBitBltBuf.dest_addr = 0x3fff; // invalid?
+   gsrBitBltBuf.dest_width = 0x3f; // invalid
+   gsrBitBltBuf.dest_pixmode = GS::kPsm32;
 
-   gsrTrxDir.XDR = 0; // host -> local (main mem -> gs)
+   gsrTrxDir.trans_dir = 0; // host -> local (main mem -> gs)
 
    // offsets within the source/dest buffers (in pixels)
-   gsrTrxPos.SSAX = 0;  gsrTrxPos.SSAY = 0;
-   gsrTrxPos.DSAX = 0;  gsrTrxPos.DSAY = 0;
-   gsrTrxPos.DIR = 0; // upper-left -> lower-right (only for xfers within gs mem)
+   gsrTrxPos.src_x = 0;  gsrTrxPos.src_y = 0;
+   gsrTrxPos.dest_x = 0;  gsrTrxPos.dest_y = 0;
+   gsrTrxPos.direction = 0; // upper-left -> lower-right (only for xfers within gs mem)
 
    // dimensions of xfer area
-   gsrTrxReg.RRW = 0;
-   gsrTrxReg.RRH = 0;
+   gsrTrxReg.trans_w = 0;
+   gsrTrxReg.trans_h = 0;
 
    // setup the giftag for sending image transfer settings to the gs
    ImageXferSettingsGifTag.NLOOP = uiNumXferGSRegs;
@@ -111,8 +111,8 @@ CImageUploadPkt::BuildXferTags( void )
    }
 #endif
 
-   tU32 width = gsrTrxReg.RRW, height = gsrTrxReg.RRH;
-   tU32 bytesInImage = width * height * GS::GetBitsPerPixel((GS::tPSM)gsrBitBltBuf.DPSM) / 8;
+   tU32 width = gsrTrxReg.trans_w, height = gsrTrxReg.trans_h;
+   tU32 bytesInImage = width * height * GS::GetBitsPerPixel((GS::tPSM)gsrBitBltBuf.dest_pixmode) / 8;
 
    tU32 numQuadsInImage = ( (bytesInImage & 0xf) == 0 ) ? bytesInImage / 16 : bytesInImage / 16 + 1;
    tU32 numQuadsLeft = numQuadsInImage;

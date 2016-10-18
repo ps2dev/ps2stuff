@@ -112,7 +112,7 @@ namespace GS {
 
       SetContext( context );
 
-      gsrPrModeCont.AC = 1; // use PRIM register
+      gsrPrModeCont.control = 1; // use PRIM register
       EnableColorClamp();
       DisableSelectiveAlphaBlend();
       SetFrameBufAlphaORMask( 0 );
@@ -129,24 +129,24 @@ namespace GS {
       SetFrameBufferPSM( GS::kPsm32 );
       SetFrameBufferDrawMask( 0 );  // enable write to frame buffer
 
-      gsrZBuf.ZBP = 0; // after two 640x224 frame buffers
-      gsrZBuf.PSM = 0; // KPSMZ32
-      gsrZBuf.ZMSK = 0; // enable write to z-buffer
+      gsrZBuf.fb_addr = 0; // after two 640x224 frame buffers
+      gsrZBuf.psm = 0; // KPSMZ32
+      gsrZBuf.update_mask = 0; // enable write to z-buffer
 
-      gsrXYOffset.OFX = 0; // probably won't make a lot of sense later...
-      gsrXYOffset.OFY = 0;
+      gsrXYOffset.offset_x = 0; // probably won't make a lot of sense later...
+      gsrXYOffset.offset_y = 0;
 
-      gsrScissor.SCAX0 = 0; gsrScissor.SCAY0 = 0;
-      gsrScissor.SCAX1 = 0x7ff; gsrScissor.SCAY1 = 0x7ff;
+      gsrScissor.clip_x0 = 0; gsrScissor.clip_y0 = 0;
+      gsrScissor.clip_x1 = 0x7ff; gsrScissor.clip_y1 = 0x7ff;
 
-      gsrTest.ATE = 0; // disable alpha test
-      gsrTest.ATST = 0; // never
-      gsrTest.AREF = 0x80; // identity
-      gsrTest.AFAIL = 0; // keep - ?
-      gsrTest.DATE = 0; // disable destination alpha test
-      gsrTest.DATM = 0; // 0 = pass
-      gsrTest.ZTE = 1; // enable z-test
-      gsrTest.ZTST = (tU64)eZTestPassMode;
+      gsrTest.atest_enable = 0; // disable alpha test
+      gsrTest.atest_method = 0; // never
+      gsrTest.atest_reference = 0x80; // identity
+      gsrTest.atest_fail_method = 0; // keep - ?
+      gsrTest.datest_enable = 0; // disable destination alpha test
+      gsrTest.datest_mode = 0; // 0 = pass
+      gsrTest.ztest_enable = 1; // enable z-test
+      gsrTest.ztest_method = (tU64)eZTestPassMode;
 
       // make sure things are qword aligned (I don't trust the compiler...)
       mAssert( ((tU32)&SettingsGifTag & 0xf) == 0 );
@@ -164,8 +164,8 @@ namespace GS {
 
       if ( addHalfPixel ) gsOffsetY += InterlacedOffset;
 
-      gsrXYOffset.OFX = (tU16)Core::FToI4( gsOffsetX );
-      gsrXYOffset.OFY = (tU16)Core::FToI4( gsOffsetY );
+      gsrXYOffset.offset_x = (tU16)Core::FToI4( gsOffsetX );
+      gsrXYOffset.offset_y = (tU16)Core::FToI4( gsOffsetY );
    }
 
    void
@@ -217,11 +217,11 @@ namespace GS {
       if ( pixelW < 64 ) pixelW = 64;
       mAssert( (pixelW & 63) == 0 );
 
-      gsrFrame.FBW = pixelW/64;
+      gsrFrame.fb_width = pixelW/64;
       uiFBWidth = pixelW; uiFBHeight = pixelH;
 
-      gsrScissor.SCAX0 = 0; gsrScissor.SCAY0 = 0;
-      gsrScissor.SCAX1 = pixelW - 1; gsrScissor.SCAY1 = pixelH - 1;
+      gsrScissor.clip_x0 = 0; gsrScissor.clip_y0 = 0;
+      gsrScissor.clip_x1 = pixelW - 1; gsrScissor.clip_y1 = pixelH - 1;
    }
 
    void
