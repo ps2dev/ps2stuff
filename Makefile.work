@@ -558,7 +558,7 @@ ifeq ($(empty),$(findstring clean, $(MAKECMDGOALS)))
 endif
 
 # the rule to generate prebuilddone
-prebuilddone : ; @echo -e "PREBUILD = done\\nMakefile: rmPrebuilddone.phony" > prebuilddone
+prebuilddone : ; @echo "PREBUILD = done\\nMakefile: rmPrebuilddone.phony" > prebuilddone
 # a rule to delete the file 'prebuilddone'
 rmPrebuilddone.phony : ; @rm -f prebuilddone
 
