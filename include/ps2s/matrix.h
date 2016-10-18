@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -77,8 +77,8 @@ class mat_33 : public mat_x3_template<vec_3>
 	       "vaddx.z q_yzx, vf00, quat \n"
 	       "vaddz.x q_zxy, vf00, quat \n"
 	       "vaddx.y q_zxy, vf00, quat \n"
-	       "vaddy.z q_zxy, vf00, quat \n"  
-    
+	       "vaddy.z q_zxy, vf00, quat \n"
+
 	       "vmula ACC, quat, q_yzx \n"
 	       "vmsubw.z col0, q_zxy, quat \n"
 	       "vmsubw.x col1, q_zxy, quat \n"
@@ -88,7 +88,7 @@ class mat_33 : public mat_x3_template<vec_3>
 	       "vmaddw.y col0, q_yzx, quat \n"
 	       "vmaddw.z col1, q_yzx, quat \n"
 	       "vmaddw.x col2, q_yzx, quat \n"
-    
+
 	       "vmula ACC, q_zxy, q_zxy \n"
 	       "vmadd.x col0, q_yzx, q_yzx \n"
 	       "vmadd.y col1, q_yzx, q_yzx \n"
@@ -2190,8 +2190,8 @@ mat_43::operator + ( const mat_43& mat ) const return result;
    result.col0 = col0 + mat.get_col0();
    result.col1 = col1 + mat.get_col1();
    result.col2 = col2 + mat.get_col2();
-}    
-    
+}
+
 inline
 mat_43
 mat_43::operator - ( const mat_43& mat ) const return result;
@@ -2199,8 +2199,8 @@ mat_43::operator - ( const mat_43& mat ) const return result;
    result.col0 = col0 - mat.get_col0();
    result.col1 = col1 - mat.get_col1();
    result.col2 = col2 - mat.get_col2();
-}    
-    
+}
+
 inline
 mat_43
 mat_43::operator * ( const mat_33& mat ) const return result;
@@ -2393,7 +2393,7 @@ mat_34::operator + ( const mat_34& mat ) const return result;
    result.col1 = col1 + mat.get_col1();
    result.col2 = col2 + mat.get_col2();
    result.col3 = col3 + mat.get_col3();
-}    
+}
 
 inline
 mat_34
@@ -2403,7 +2403,7 @@ mat_34::operator - ( const mat_34& mat ) const return result;
    result.col1 = col1 - mat.get_col1();
    result.col2 = col2 - mat.get_col2();
    result.col3 = col3 - mat.get_col3();
-}    
+}
 
 inline
 mat_33
@@ -2432,7 +2432,7 @@ mat_34::operator * ( const transform_t& mat ) const return result;
    result.col1 = *this * mat.get_col1();
    result.col2 = *this * mat.get_col2();
    result.col3 = *this * mat.get_col3();
-}    
+}
 
 inline
 mat_43
@@ -2462,7 +2462,7 @@ mat_34::mult_trans ( const mat_34& mat ) const return result;
    result.col2 = this->mult_trans_col2(mat);
 }
 
-inline    
+inline
 mat_34
 mat_34::mult_trans ( const mat_44& mat ) const return result;
 {
@@ -2562,7 +2562,7 @@ transform_t::orthonormal_inverse() const return result;
 	 "j col3" (col3)
       );
 }
-    
+
 // matrix/matrix operations
 
 inline

@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -154,7 +154,7 @@ namespace GS {
    }
 
    void
-   CTexEnv::SetContext( GS::tContext context ) 
+   CTexEnv::SetContext( GS::tContext context )
    {
       // set the context-dependent registers
       if ( context == GS::kContext1 ) {
@@ -218,7 +218,7 @@ namespace GS {
 	 logW++;
       if ( ((tU32)1 << logH) != h )
 	 logH++;
-	
+
       gsrTex0.TW = logW;
       gsrTex0.TH = logH;
 

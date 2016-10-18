@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -35,7 +35,7 @@ namespace GS {
  	 unsigned DH  :11;	//
  	 unsigned p1  : 9;
    } tGS_DISPLAY1;
- 
+
    typedef struct {
  	 unsigned FBP: 9;	// Base pointer
  	 unsigned FBW: 6;	// Buffer width
@@ -45,7 +45,7 @@ namespace GS {
  	 unsigned DBY:11;	//
  	 unsigned p1 :10;
    } tGS_DISPFB1;
- 
+
    typedef struct {
  	 unsigned EN1     : 1;	//
  	 unsigned EN2     : 1;	//
@@ -55,9 +55,9 @@ namespace GS {
  	 unsigned SLBG    : 1;	//
  	 unsigned ALP     : 8;	//
  	 unsigned p0      :16;	//
- 	 unsigned int p1;	
+ 	 unsigned int p1;
    } tGS_PMODE;
- 
+
    typedef struct {
  	 unsigned R : 8;		// Background color Bulue
  	 unsigned G : 8;		// Background color Green
@@ -65,7 +65,7 @@ namespace GS {
  	 unsigned p0: 8;
  	 unsigned int p1;
    } tGS_BGCOLOR;
- 
+
    // this list will certainly need to be expanded sooner or
    // later...
 

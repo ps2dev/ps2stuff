@@ -70,7 +70,7 @@ incdirs			:= $(PS2STUFF)/linux/kernel_module
 libdirs			:= /usr/lib
 debug_flags		:= -D_DEBUG -g
 defines			:= PS2_LINUX NO_VU0_VECTORS
-optflags		:= -ffast-math -O2 
+optflags		:= -ffast-math -O2
 
 # linux
 BUILDNAMES		+= linux
@@ -87,7 +87,7 @@ linux_debug_INCDIRS	:= $(incdirs)
 linux_debug_LIBDIRS	:= $(libdirs)
 linux_debug_DEFINES	:= $(defines)
 linux_debug_DEBUGFLAGS	:= $(debug_flags)
-linux_debug_OPTFLAGS	:= 
+linux_debug_OPTFLAGS	:=
 linux_debug_PLATFORM	:= linux
 
 # linux_release
@@ -95,7 +95,7 @@ BUILDNAMES		+= linux_release
 linux_release_INCDIRS	:= $(incdirs)
 linux_release_LIBDIRS	:= $(libdirs)
 linux_release_DEFINES	:= $(defines)
-linux_release_DEBUGFLAGS= 
+linux_release_DEBUGFLAGS=
 linux_release_OPTFLAGS	:= $(optflags)
 linux_release_PLATFORM	:= linux
 

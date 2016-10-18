@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -14,7 +14,7 @@
 class	PerfTest
 {
 
-#define	PERF_PROCESSOR_CYCLE		 			0			
+#define	PERF_PROCESSOR_CYCLE		 			0
 #define	PERF_INSTRUCTION_COMPLETED		  		1
 #define	PERF_NON_BDS_INSTRUCTION_COMPLETED			2
 #define	PERF_COP1_INSTRUCTION_COMPLETED	    			3
@@ -55,7 +55,7 @@ private:
 
 
 public:
-			  	PerfTest();	
+			  	PerfTest();
 			  	~PerfTest();
 
 	inline 	void		StartSampling()
@@ -73,7 +73,7 @@ public:
 						m_testVals[m_iCurrentTest[1]]=Core::ReadPerfCounter1();
 						StepTests();
 					}
-	
+
 		void 		DumpBusStats(int	nLoops);
  		void   		DumpCycleCount(int	nLoops);
  		void   		DumpStats(int	nLoops);
@@ -90,12 +90,12 @@ public:
 
 
 		void	DebugState();
-       	
+
 		int	getNumTests()	{	return	m_nTests;	};
-		int    	m_CycleCount;		
+		int    	m_CycleCount;
 private:
 		int	m_nTests;
-       		int    	m_iCurrentTest[Core::COP0_NUM_PERF_COUNTERS];    		// 
+       		int    	m_iCurrentTest[Core::COP0_NUM_PERF_COUNTERS];    		//
 static	  	prfDef	prfTable[NUM_PRF_TESTS];
        		int    	m_Prev_testVals[NUM_PRF_TESTS];
        		int    	m_testVals[NUM_PRF_TESTS];

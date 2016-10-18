@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -151,7 +151,7 @@ namespace GS {
 
    // this class is meant to be subclassed, so it cannot
    // be instanciated.
- 
+
    // this needs a lot of work, but it's pretty useful so I'll leave it
    // in here.  In particular the *UploadPkts might not have been a good
    // idea...

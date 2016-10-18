@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -84,7 +84,7 @@ inline vec_xyz vec_xyz::operator - ( const zero_3 zero ) const { return *this; }
 inline vec_xyz& vec_xyz::operator = ( const zero_3 zero ) { set_zero(); return *this; }
 
                                                                       // vec_xyzw
-    
+
 inline vec_xyzw vec_xyzw::operator + ( const zero_4 zero ) const { return *this; }
 inline vec_xyzw vec_xyzw::operator - ( const zero_4 zero ) const { return *this; }
 inline vec_xyzw& vec_xyzw::operator = ( const zero_4 zero ) { set_zero(); return *this; }

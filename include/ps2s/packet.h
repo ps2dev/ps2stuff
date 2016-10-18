@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -123,7 +123,7 @@ class CDmaPacket
 
 #ifdef PS2_LINUX
       static int	VU0_fd, VU1_fd, GS_fd, PGL_fd;
- 
+
       int* GetChannelFd( tDmaChannelId channel ) {
  	 if (channel == DMAC::Channels::vif0)
  	    return &VU0_fd;
@@ -140,7 +140,7 @@ class CDmaPacket
 
    private:
       // And on the third day it was proclaimed: "Thou shalt not copy dma packets!"
-      // For those who lack faith, the reason is that although a copy constructor 
+      // For those who lack faith, the reason is that although a copy constructor
       // might occasionally be useful, making it illegal will more often catch
       // unexpected temporaries.
       CDmaPacket( const CDmaPacket& pktToCopy );
@@ -478,7 +478,7 @@ CSCDmaPacket::AddDmaTag( tU32 QWC, tU32 PCE, tU32 ID, tU32 IRQ, const tU128 *ADD
 #  define xlateAddr( __va )			\
    (__va) = (__typeof__(__va))GetPhysAddr(__va)
 #else
-#  define xlateAddr( __va ) 
+#  define xlateAddr( __va )
 #endif
 
 inline CSCDmaPacket&

@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -44,23 +44,23 @@ class cpu_vec_3
 	 vec128_t temp0;
 	 asm volatile (
 	    ".if %A0 \n "
-      
+
 	    "mtsab  $0, 4                # get ready to shift right 4 bytes  \n"
 	    "move    _x, _vec            # x = value.x  \n"
 	    "qfsrv  _temp0, $0, _vec    # temp0 = value >> 32  \n"
 	    "move    _y, _temp0          # y = value.y \n"
 	    "qfsrv  _temp0, $0, _temp0  # temp0 >>= 32 \n"
 	    "move    _z, _temp0          # z = value.z \n"
-      
+
 	    ".else \n"
-        
+
 	    "mtsab  $0, 4                # get ready to shift right 4 bytes  \n"
 	    "mtc1    _vec, _x            # x = value.x  \n"
 	    "qfsrv  _temp0, $0, _vec    # temp0 = value >> 32  \n"
 	    "mtc1    _temp0, _y          # y = value.y \n"
 	    "qfsrv  _temp0, $0, _temp0  # temp0 >>= 32 \n"
 	    "mtc1    _temp0, _z          # z = value.z \n"
-        
+
 	    ".endif \n"
 	    : "=&r,f _x" (x), "=&r,f _y" (y), "=&r,f _z" (z), "=&r,&r _temp0" (temp0)
 	    : "r,r _vec" (vec)
@@ -158,9 +158,9 @@ class cpu_vec_4
       {
 	 vec128_t temp0;
 	 asm volatile (
-      
+
 	    ".if %A0 \n "
-      
+
 	    "mtsab  $0, 4                # get ready to shift right 4 bytes  \n"
 	    "move    _x, _vec            # x = value.x  \n"
 	    "qfsrv  _temp0, $0, _vec    # temp0 = value >> 32  \n"
@@ -169,9 +169,9 @@ class cpu_vec_4
 	    "move    _z, _temp0          # z = value.z \n"
 	    "qfsrv  _temp0, $0, _temp0  # temp0 >>= 32 \n"
 	    "move    _w, _temp0          # w = value.w \n"
-      
+
 	    ".else \n"
-        
+
 	    "mtsab  $0, 4                # get ready to shift right 4 bytes  \n"
 	    "mtc1    _vec, _x            # x = value.x  \n"
 	    "qfsrv  _temp0, $0, _vec    # temp0 = value >> 32  \n"
@@ -180,7 +180,7 @@ class cpu_vec_4
 	    "mtc1    _temp0, _z          # z = value.z \n"
 	    "qfsrv  _temp0, $0, _temp0  # temp0 >>= 32 \n"
 	    "mtc1    _temp0, _w          # w = value.w \n"
-        
+
 	    ".endif \n"
 	    : "=&r,f _x" (x), "=&r,f _y" (y), "=&r,f _z" (z), "=&r,f _w" (w), "=&r,&r _temp0" (temp0)
 	    : "r,r _vec" (vec)
@@ -564,7 +564,7 @@ point_t::point_t( const cpu_vec_3 &rhs ) {
        "ppacw _result, _z, _temp \n"
        : "=&r _result" (vec128), "=&r _temp" (temp)
        : "r _x" (rhs.x), "r _y" (rhs.y), "r _z" (rhs.z)
-      );    
+      );
 }
 
 inline

@@ -1,6 +1,6 @@
 ##########################################################################
 ##########################################################################
-### You shouldn't need to change anything below here from project 
+### You shouldn't need to change anything below here from project
 ### to project.  If you do, let me know so I can fold it back into the
 ### template! -Bret
 ##########################################################################
@@ -87,7 +87,7 @@ endif
 
 ifeq ($(PLATFORM),linux_cross)
 PREFIX		= $(PS2DEVDIR)/bin/ee-
-BINLOADER	= 
+BINLOADER	=
 endif
 
 AR		= $(SILENCE)$(PREFIX)ar
@@ -224,7 +224,7 @@ CXXFLAGS	= $(DEBUGFLAGS) $(OPTFLAGS) $(INCFLAGS) $(DEFFLAGS)
 
 # Flags for the assemblers.
 ASFLAGS		= -c -xassembler-with-cpp -Wa,-al $(INCFLAGS)
-DVPASMFLAGS	= 
+DVPASMFLAGS	=
 
 # Flags for the linker.
 
@@ -300,7 +300,7 @@ endif
 ### Rules
 ##########################################################################
 
-# This line lets us properly have files called "clean" or "tags"  in the 
+# This line lets us properly have files called "clean" or "tags"  in the
 # directory if we really want to.
 .PHONY: clean clean_all tags preBuild.phony rmPrebuilddone.phony checkError.phony $(BUILDNAMES)
 .SUFFIXES:
@@ -452,7 +452,7 @@ xrun: all
 # Optional: generate source-browsing tags for Emacs
 tags: TAGS
 TAGS: $(SRCS)
-	etags -C -S $(addsuffix /*.h,$(INCDIRS)) $^ 
+	etags -C -S $(addsuffix /*.h,$(INCDIRS)) $^
 
 # Get rid of intermediate files.
 clean:
@@ -546,7 +546,7 @@ endif
 ifdef ERROR
 checkError.phony: ; $(PRINTMSG) $(ERROR) ; exit -1
 else
-checkError.phony: ; 
+checkError.phony: ;
 endif
 
 # this is here as a lousy hack to prevent recent versions of make from executing the rule to

@@ -1,19 +1,19 @@
 ##########################################################################
 ### Copyright (c) 1999, 2000, 2001, 2002 Sony Computer Entertainment America Inc.
 ###	All rights reserved.
-### 
+###
 ### Boilerplate Makefile by Bret Mogilefsky (mogul@playstation.sony.com)
 ### 	and Tyler Daniel (tyler_daniel@playstation.sony.com)
 ###
 ###	Use this makefile as a template for new projects!
-### 
+###
 ### General Features:
 ###
 ###	Just specify SRCS and go!
 ###	Automatic and minimal (fast!) dependency generation (for vu microcode as well)
 ###	Allows keeping source and headers from src and include dirs, or elsewhere.
 ###	Builds in a subdirectory.
-###	Allows additional defines, include dirs, and lib dirs without 
+###	Allows additional defines, include dirs, and lib dirs without
 ###		specifying -D, -I, and -L
 ###	Easy to specify parallel builds (debug, optimized, release, etc)
 ###	Easy to add flags on a per-file, per-build, or per-file-build basis
@@ -73,16 +73,16 @@ SRCS		+= $(wildcard *.cpp)
 SRCS		+= $(foreach DIR,$(SRCDIRS),$(subst $(DIR)/,,$(wildcard $(DIR)/*.cpp)))
 
 # Additional objects to link. Only add things that aren't built from SRCS!
-OBJS		= 
+OBJS		=
 
 # Additional libs to link with. (sce libs are listed in the section below)
-LIBS		= 
+LIBS		=
 
 # Additional locations for header files
 INCDIRS		= include
 
 # Additional locations for library files
-LIBDIRS		= 
+LIBDIRS		=
 
 # Additional locations for source files
 SRCDIRS		= src
@@ -97,7 +97,7 @@ DEPDIRBASE	= deps
 
 # If this project depends on another (a ps2 rendering library for example) that should
 # be built with make before making this one, list the directory here.
-MAKEPARENTS	= 
+MAKEPARENTS	=
 
 # Where to find PSX2 development stuff.
 SCEDIR		= /usr/local/sce
@@ -111,13 +111,13 @@ PS2STUFF	= .
 ##########################################################################
 
 # find ps2 headers
-INCDIRS		+= 
+INCDIRS		+=
 
 # find sce libraries
 LIBDIRS		+= $(SCEDIR)/ee/lib
 
 # Additional preprocessor definitions
-DEFINES		= 
+DEFINES		=
 
 # Compiler optimization options
 OPTFLAGS	= -fno-rtti -G 0
@@ -136,7 +136,7 @@ DEBUGFLAGS	+= -fno-exceptions
 DEBUGFLAGS	+= -fno-common
 
 # Command-line arguments to be passed to the target when we run it
-RUNARGS		= 
+RUNARGS		=
 
 
 ##########################################################################

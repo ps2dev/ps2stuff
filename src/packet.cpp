@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -261,7 +261,7 @@ CVifSCDmaPacket::CloseUnpack( void )
    tU32 vl = pOpenVifCode->cmd & 0x3;
 
    // the goal here is to find the num field of the open unpack, which is the number of
-   // qwords ACTUALLY WRITTEN to vu memory (it does not count quads that are skipped in 
+   // qwords ACTUALLY WRITTEN to vu memory (it does not count quads that are skipped in
    // "skipping write" mode.)  But first forget about skipping/filling writes and compute the number
    // of qwords that the data in this packet will expand to.
    tU32 numBytes = (tU32)pNext - (tU32)pOpenVifCode - 4;
@@ -286,7 +286,7 @@ CVifSCDmaPacket::CloseUnpack( void )
       if ( lastBlockQuads == uiCL ) lastBlockQuads = uiWL;
       numQuads = numWLBlocks * uiWL + lastBlockQuads;
    }
-	
+
    return CloseUnpack( numQuads );
 }
 

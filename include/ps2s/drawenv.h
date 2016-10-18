@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -38,7 +38,7 @@ namespace GS {
    // available from the GS namespace (ie, so you can say "GS::tAlphaBlendVal")
 
    namespace ABlend {
-      typedef enum { 
+      typedef enum {
 	 kSourceRGB = 0,
 	 kDestRGB = 1,
 	 kSourceAlpha = 0,
@@ -83,9 +83,9 @@ namespace GS {
 
    namespace Dither {
      typedef enum {
-       kMinusFour = 0x4, 
+       kMinusFour = 0x4,
        kMinusThree = 0x5,
-       kMinusTwo = 0x6, 
+       kMinusTwo = 0x6,
        kMinusOne = 0x7,
        kZero = 0,
        kOne = 1,
@@ -150,9 +150,9 @@ namespace GS {
 
 	 inline void EnableDither( void ) {  gsrDTHE.DTHE = 1; }
 	 inline void DisableDither( void ) { gsrDTHE.DTHE = 0; }
-	 inline void SetDitherMatrix( tDitherVal dm00, tDitherVal dm01, tDitherVal dm02, tDitherVal dm03, 
-				      tDitherVal dm10, tDitherVal dm11, tDitherVal dm12, tDitherVal dm13, 
-				      tDitherVal dm20, tDitherVal dm21, tDitherVal dm22, tDitherVal dm23, 
+	 inline void SetDitherMatrix( tDitherVal dm00, tDitherVal dm01, tDitherVal dm02, tDitherVal dm03,
+				      tDitherVal dm10, tDitherVal dm11, tDitherVal dm12, tDitherVal dm13,
+				      tDitherVal dm20, tDitherVal dm21, tDitherVal dm22, tDitherVal dm23,
 				      tDitherVal dm30, tDitherVal dm31, tDitherVal dm32, tDitherVal dm33 );
 
 	 inline void SetScissorArea( tU32 scX, tU32 scY, tU32 scWidth, tU32 scHeight ); // must be after SetFrameBufferDim() to have effect
@@ -211,20 +211,20 @@ namespace GS {
       gsrAlpha.D = d;
       gsrAlpha.FIX = fix;
    }
-   
-   inline void 
-   CDrawEnv::SetDitherMatrix( tDitherVal dm00, tDitherVal dm01, tDitherVal dm02, tDitherVal dm03, 
-			      tDitherVal dm10, tDitherVal dm11, tDitherVal dm12, tDitherVal dm13, 
-			      tDitherVal dm20, tDitherVal dm21, tDitherVal dm22, tDitherVal dm23, 
+
+   inline void
+   CDrawEnv::SetDitherMatrix( tDitherVal dm00, tDitherVal dm01, tDitherVal dm02, tDitherVal dm03,
+			      tDitherVal dm10, tDitherVal dm11, tDitherVal dm12, tDitherVal dm13,
+			      tDitherVal dm20, tDitherVal dm21, tDitherVal dm22, tDitherVal dm23,
 			      tDitherVal dm30, tDitherVal dm31, tDitherVal dm32, tDitherVal dm33 )
    {
       gsrDIMX.DIMX00 = (tU64)dm00; gsrDIMX.DIMX01 = (tU64)dm01; gsrDIMX.DIMX02 = (tU64)dm02; gsrDIMX.DIMX03 = (tU64)dm03;
-      gsrDIMX.DIMX10 = (tU64)dm10; gsrDIMX.DIMX11 = (tU64)dm11; gsrDIMX.DIMX12 = (tU64)dm12; gsrDIMX.DIMX13 = (tU64)dm13;  
-      gsrDIMX.DIMX20 = (tU64)dm20; gsrDIMX.DIMX21 = (tU64)dm21; gsrDIMX.DIMX22 = (tU64)dm22; gsrDIMX.DIMX23 = (tU64)dm23;  
-      gsrDIMX.DIMX30 = (tU64)dm30; gsrDIMX.DIMX31 = (tU64)dm31; gsrDIMX.DIMX32 = (tU64)dm32; gsrDIMX.DIMX33 = (tU64)dm33;  
-   }	   
+      gsrDIMX.DIMX10 = (tU64)dm10; gsrDIMX.DIMX11 = (tU64)dm11; gsrDIMX.DIMX12 = (tU64)dm12; gsrDIMX.DIMX13 = (tU64)dm13;
+      gsrDIMX.DIMX20 = (tU64)dm20; gsrDIMX.DIMX21 = (tU64)dm21; gsrDIMX.DIMX22 = (tU64)dm22; gsrDIMX.DIMX23 = (tU64)dm23;
+      gsrDIMX.DIMX30 = (tU64)dm30; gsrDIMX.DIMX31 = (tU64)dm31; gsrDIMX.DIMX32 = (tU64)dm32; gsrDIMX.DIMX33 = (tU64)dm33;
+   }
 
-   inline void 
+   inline void
    CDrawEnv::SetScissorArea( tU32 scX, tU32 scY, tU32 scWidth, tU32 scHeight )
    {
       gsrScissor.SCAX0 = scX; gsrScissor.SCAY0 = scY;

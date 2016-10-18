@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -55,7 +55,7 @@ CImageUploadPkt::InitCommon( void )
    gsrBitBltBuf.DPSM = GS::kPsm32;
 
    gsrTrxDir.XDR = 0; // host -> local (main mem -> gs)
-   
+
    // offsets within the source/dest buffers (in pixels)
    gsrTrxPos.SSAX = 0;  gsrTrxPos.SSAY = 0;
    gsrTrxPos.DSAX = 0;  gsrTrxPos.DSAY = 0;

@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -53,7 +53,7 @@ static int ps2stuff_major = 60;
 typedef struct {
       unsigned int user_start, user_end, phys_start;
 } pgl_mmapped_region_t;
-	
+
 static int num_mmapped_regions = 0;
 static pgl_mmapped_region_t mmapped_regions[MAX_MMAPPED_REGIONS];
 
@@ -257,7 +257,7 @@ int ps2stuff_mmap(struct file *filp, struct vm_area_struct *vma)
 	eprintf("failed to remap timers");
        return -EAGAIN;
      }
-     
+
      dprintf("mapped timers to 0x%08x",
 	    vma->vm_start );
 
@@ -435,7 +435,7 @@ wait_for_vif1()
       sti();
 
       eprintf("tag_bits = 0x%04x", tag_bits );
-      
+
       eprintf("madr = 0x%08x: 0x%08x 0x%08x 0x%08x 0x%08x",
 	     madr,
 	     ((u32*)madr_p)[0],

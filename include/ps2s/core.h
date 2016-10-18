@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -87,7 +87,7 @@ namespace Core {
    // fpu
 
    inline tU32 FToI4( float flp );
-	
+
    // cop0 performance counter
 
    static const	tU32	COP0_NUM_PERF_COUNTERS	= 2;
@@ -95,18 +95,18 @@ namespace Core {
 
    void		SetupPerfCounters(tU32 evt_0,tU32 evt_1);	// set up,also zero + halt
 
-   inline	void	HaltPerfCounters();				// stop both counters	
+   inline	void	HaltPerfCounters();				// stop both counters
    inline	void	ZeroStartPerfCounters();			// clear and start both counters
 
    inline	tU32	ReadPerfCounter0();				// read counter 0
    inline	tU32	ReadPerfCounter1();				// read counter 1
-		
+
    // names of the events for people
 
    extern		const	char   	*ev0_Name[COP0_NUM_PERF_EVENTS];
    extern		const	char   	*ev1_Name[COP0_NUM_PERF_EVENTS];
 
-} 
+}
 
 /********************************************
  * Core inlines
@@ -144,12 +144,12 @@ Core::FToI4( float flp ) {
 
 // performance counter inlines
 
-inline	void	Core::HaltPerfCounters()	
+inline	void	Core::HaltPerfCounters()
 {
    asm ("mtps	$0,0	\n"
 	"sync.p		");
 };
-																						
+
 inline	void	Core::ZeroStartPerfCounters()
 {
    asm	__volatile__("	mtps	$0,0			# halt performance counters \n"
@@ -169,8 +169,8 @@ inline	tU32	Core::ReadPerfCounter0()
    tU32	ret;
    asm	__volatile__("	mfpc	%0,0	\n"
 		     "	sync.p		"
-		     : "=r" (ret) );	
-   return	ret;	
+		     : "=r" (ret) );
+   return	ret;
 }
 
 inline	tU32	Core::ReadPerfCounter1()
@@ -179,7 +179,7 @@ inline	tU32	Core::ReadPerfCounter1()
    asm	__volatile__("	mfpc	%0,1	\n"
 		     "	sync.p		"
 		     : "=r" (ret) );
-   return	ret;	
+   return	ret;
 }
-	
+
 #endif // ps2s_core_h

@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -26,7 +26,7 @@ namespace Timers {
 	 unsigned COUNT: 16;	// Counter Value
 	 unsigned p0   : 16;
    } tCount;
- 
+
    typedef struct {
 	 unsigned CLKS: 2;	// Clock Select
 	 unsigned GATE: 1;	// Gate Function
@@ -88,7 +88,7 @@ class CEETimer
       inline unsigned int GetTicks( void ) const {	return *pCount; }
       inline tResolution GetResolution( void ) const { return Resolution; }
       inline unsigned int GetTicksPerFrame( void ) const { return TicksPerFrame[Resolution]; }
-		
+
       inline bool HasReachedCompValue() const {
 	 Timers::tMode mode = *(Timers::tMode*)pMode;
 	 return (mode.EQUF == 1);

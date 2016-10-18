@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -8,7 +8,7 @@
 #include	"ps2s/core.h"
 #include	"ps2s/perfmon.h"
 
-// private stuff for perf class, yeah yeah they're #defines.. 
+// private stuff for perf class, yeah yeah they're #defines..
 
 #define	PRF_D(_id,_val)	{_id,_val }
 #define	MPRF_NOT_READY	-1
@@ -19,7 +19,7 @@
 #define	PRFEVT_0_BTAC_MISS		      		4
 #define	PRFEVT_0_TLB_MISS		   		5
 #define	PRFEVT_0_ICACHE_MISS		     		6
-#define	PRFEVT_0_DTLB_ACCESSED		       		7  	
+#define	PRFEVT_0_DTLB_ACCESSED		       		7
 #define	PRFEVT_0_NON_BLOCK_LOAD		      		8
 #define	PRFEVT_0_WBB_SINGLE_REQUEST	      		9
 #define	PRFEVT_0_WBB_BURST_REQUEST	   		10
@@ -52,7 +52,7 @@
 
 PerfTest::prfDef	PerfTest::prfTable[NUM_PRF_TESTS]=
 {
-	PRF_D(0,PRFEVT_0_PROCESSOR_CYCLE),				
+	PRF_D(0,PRFEVT_0_PROCESSOR_CYCLE),
 	PRF_D(0,PRFEVT_0_INSTRUCTION_COMPLETED),
 	PRF_D(0,PRFEVT_0_NON_BDS_INSTRUCTION_COMPLETED),
 	PRF_D(1,PRFEVT_1_COP1_INSTRUCTION_COMPLETED),
@@ -70,8 +70,8 @@ PerfTest::prfDef	PerfTest::prfTable[NUM_PRF_TESTS]=
 
 	PRF_D(0,PRFEVT_0_TLB_MISS),
 	PRF_D(1,PRFEVT_1_DTLB_MISS),
-	PRF_D(0,PRFEVT_0_DTLB_ACCESSED), 	
-	PRF_D(1,PRFEVT_1_DCACHE_MISS),		     	
+	PRF_D(0,PRFEVT_0_DTLB_ACCESSED),
+	PRF_D(1,PRFEVT_1_DCACHE_MISS),
 	PRF_D(0,PRFEVT_0_ICACHE_MISS),
 
 	PRF_D(0,PRFEVT_0_WBB_SINGLE_REQUEST),
@@ -93,7 +93,7 @@ PerfTest::prfDef	PerfTest::prfTable[NUM_PRF_TESTS]=
 // constructor - does nothing that could fault
 
 PerfTest::PerfTest()
-{	
+{
 	tU32	n;
 	int	n0=0;
 	int	n1=0;
@@ -149,7 +149,7 @@ void	PerfTest::DumpCycleCount(int	nLoops)
 	{
 	 	printf(" %7d ",(m_CycleCount+(nLoops>>1))/nLoops);
 	}
-	
+
 	DumpBusStats(nLoops);
 }
 
@@ -233,7 +233,7 @@ void	PerfTest::DumpStats(int	nLoops)
 		{
 		 	printf(" CPU_CLOCKS=%d",lval*2);
 		}
-		
+
 		printf("\n");
 	}
 	if(m_testVals[PERF_DTLB_ACCESSED])

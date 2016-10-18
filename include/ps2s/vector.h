@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -48,7 +48,7 @@
  * One thing to BE CAREFUL about:  'xyzw += x' is a broadcast
  * (xyzw.xyzw = xyzw.xzyw + x.x)!!!
  *
- * See the libps2stuff/examples directory for more examples. 
+ * See the libps2stuff/examples directory for more examples.
  * (bezier_patch.h)
  *
  * Caveats:
@@ -113,7 +113,7 @@
  *
  * These types enforce the mathematical distinctions between 3d points
  * and vectors.  They mainly interact with each other and transform_t.
- * 
+ *
  * 4d types:
  *
  * When mixed with vec_* and mat_* types, vector_t and point_t are 4d
@@ -126,7 +126,7 @@
  * guaranteed to be anything in particular.  Don't, for example, use
  * the 4th element after a cast to a float array.  Note that casts to
  * vec_4 or cpu_vec_4 will explicitly set w to 0 or 1.
- * 
+ *
  * Not requiring a particular w value means that casts to and from
  * vec_xyz or between vector_t and point_t are defined as a move of a
  * 128bit type, without any modification of the data.  Thus, these
@@ -143,7 +143,7 @@
  *
  * pnt = pnt * scale // error - result w would be scale
  * pnt = pnt + pnt   // error - result w would be 2
- * pnt = pnt + vec   // ok - result w is 1 
+ * pnt = pnt + vec   // ok - result w is 1
  * vec = pnt - pnt   // ok - result w is 0
  *
  * However, not all legal math is defined.  For example, point
@@ -152,14 +152,14 @@
  * point_t average, pnt0, pnt1, pnt2;
  *
  * average = point_t((vec_xyz(pnt0) +
- *                    vec_xyz(pnt1) + 
- *                    vec_xyz(pnt2)) * (1.0f/3.0f)); 
- * 
+ *                    vec_xyz(pnt1) +
+ *                    vec_xyz(pnt2)) * (1.0f/3.0f));
+ *
  * Transformations:
  *
  * transform_t has a rotation/scale part and a translation part.  If
  * you apply it to a vector_t, only the rotation/scale is applied, but
- * if you apply it to a point_t, the translation is also added.  
+ * if you apply it to a point_t, the translation is also added.
  *
  * If you want to just rotate a point_t, rather than zero out the
  * translation part of a transform_t, you again need some casts:
@@ -168,11 +168,11 @@
  *
  * pnt = point_t(rot * vec_xyz(pnt));
  * pnt = point_t(xfrm * vector_t(pnt));
- *  
+ *
  * Clearly, the point_t and vector_t types aren't very convenient for
  * certain operations.  If you find they have too many restrictions,
  * consider using the vec_* types instead.
- *  
+ *
  */
 
 #include "ps2s/vector_common.h"
@@ -331,7 +331,7 @@ class vec_x : public vec_template<x_base>
 
 	   printf("(%f * * *)\n", x);
       }
-		
+
       inline void print( const char *vec_name ) const {
 	 printf("%s: ", vec_name);
 	 print();
@@ -365,7 +365,7 @@ class vec_y : public vec_template<y_base>
       explicit inline vec_y( const vector_t rhs );
       explicit inline vec_y( const point_t rhs );
 
-      inline operator float() const { 
+      inline operator float() const {
 	 float new_float;
 	 asm (
 	    " ### vec_y to float ### \n"
@@ -437,11 +437,11 @@ class vec_y : public vec_template<y_base>
 
 	 printf("(* %f * *)\n", y);
       }
-		
+
       inline void print( const char *vec_name ) const {
 	 printf("%s: ", vec_name);
 	 print();
-      }		
+      }
 };
 
 /********************************************
@@ -471,7 +471,7 @@ class vec_z : public vec_template<z_base>
       explicit inline vec_z( const vector_t rhs );
       explicit inline vec_z( const point_t rhs );
 
-      inline operator float() const { 
+      inline operator float() const {
 	 float new_float;
 	 asm (
 	    " ### vec_z to float ### \n"
@@ -529,7 +529,7 @@ class vec_z : public vec_template<z_base>
       template <class rhs_type> inline vec_z min(const rhs_type rhs) const {
 	 return vec_z(vec_template<z_base>::min(rhs));
       }
-		
+
       inline void print( void ) const {
 	 float z;
 	 vec128_t temp0;
@@ -543,7 +543,7 @@ class vec_z : public vec_template<z_base>
 
 	 printf("(* * %f *)\n", z);
       }
-		
+
       inline void print( const char *vec_name ) const {
 	 printf("%s: ", vec_name);
 	 print();
@@ -576,7 +576,7 @@ class vec_w : public vec_template<w_base>
       explicit inline vec_w( const vector_t rhs );
       explicit inline vec_w( const point_t rhs );
 
-      inline operator float() const { 
+      inline operator float() const {
 	 float new_float;
 	 asm (
 	    " ### vec_w to float ### \n"
@@ -649,7 +649,7 @@ class vec_w : public vec_template<w_base>
 
 	 printf("(* * * %f)\n", w);
       }
-		
+
       inline void print( const char *vec_name ) const {
 	 printf("%s: ", vec_name);
 	 print();
@@ -855,7 +855,7 @@ class vec_xy : public vec_template<xy_base>
 
 	    printf("(%f %f * *)\n", x, y);
       }
-		
+
       inline void print( const char *vec_name ) const {
 	 printf("%s: \n", vec_name);
 	 print();
@@ -881,7 +881,7 @@ class vec_xy : public vec_template<xy_base>
       normalized( ) const {
 	 vec128_t result, dot;
       	 int cond;
-	 asm (	
+	 asm (
 	    "### vec_xy normalized ###\n"
 	    "vmul     dot, this, this \n"
 	    "vaddy.x  dot, dot, dot \n"
@@ -898,7 +898,7 @@ class vec_xy : public vec_template<xy_base>
 	    : "j this" (*this)
 	    );
 	 return vec_xy(result);
-      }				
+      }
 
       inline vec_xy one_over() const {
 	 vec128_t result;
@@ -932,7 +932,7 @@ class vec_xy : public vec_template<xy_base>
       normalize() {
 	 *this = this->normalized();
 	 return *this;
-      }				
+      }
 
       // return parallel vector with given length
       inline vec_xy
@@ -1102,7 +1102,7 @@ class vec_xyz : public vec_template<xyz_base>
 		: "=j result" (result)
 		: "j this" (*this)
 	    );
-	 return vec_x(result);		
+	 return vec_x(result);
       }
 
       inline vec_x min() const {
@@ -1113,7 +1113,7 @@ class vec_xyz : public vec_template<xyz_base>
 		: "=j result" (result)
 		: "j this" (*this)
 	    );
-	 return vec_x(result);		
+	 return vec_x(result);
       }
 
       inline vec_xyz one_over() const {
@@ -1166,7 +1166,7 @@ class vec_xyz : public vec_template<xyz_base>
       normalized() const {
 	 vec128_t result, dot, one;
       	 int cond;
-	 asm (	
+	 asm (
 	    "### vec_xyz normalized ###\n"
 	    "vmul dot, this, this \n"
 	    "vaddw.x one, vf00, vf00 \n"
@@ -1184,9 +1184,9 @@ class vec_xyz : public vec_template<xyz_base>
 	    : "=&j result" (result), "=&j one" (one), "=&j dot" (dot), "=r cond" (cond)
 	    : "j this" (*this)
 	    );
-	
+
 	 return vec_xyz(result);
-      }				
+      }
 
       inline vec_xyz
       cross( const vec_xyz rhs ) const {
@@ -1199,7 +1199,7 @@ class vec_xyz : public vec_template<xyz_base>
 		: "j lhs" (*this), "j rhs" (rhs)
 	     );
 	 return vec_xyz(result);
-      }		
+      }
 
       // operations with matrix types
 
@@ -1213,7 +1213,7 @@ class vec_xyz : public vec_template<xyz_base>
 
       inline mat_33 tensor_mult( const vec_xyz vec ) const;
       inline mat_43 tensor_mult( const vec_xyzw vec ) const;
-				
+
       // operations with zero_vector and zero_matrix types
 
       inline vec_xyz operator + ( const zero_3 zero ) const;
@@ -1221,14 +1221,14 @@ class vec_xyz : public vec_template<xyz_base>
 
       inline zero_33 tilde_mult ( const zero_33 zero ) const;
       inline zero_34 tilde_mult ( const zero_34 zero ) const;
-				
+
       inline zero_3 operator * ( const zero_33 zero ) const;
       inline zero_4 operator * ( const zero_34 zero ) const;
 
       inline zero_33 tensor_mult( const zero_3 zero ) const;
       inline zero_43 tensor_mult( const zero_4 zero ) const;
-		
-      inline vec_xyz& operator = ( const zero_3 zero );		    				
+
+      inline vec_xyz& operator = ( const zero_3 zero );
 
       inline void print( void ) const {
 	 float x, y, z;
@@ -1246,7 +1246,7 @@ class vec_xyz : public vec_template<xyz_base>
 
 	    printf("(%f %f %f *)\n", x, y, z);
       }
-		
+
       inline void print( const char *vec_name ) const {
 	 printf("%s: \n", vec_name);
 	 print();
@@ -1269,7 +1269,7 @@ class vec_xyz : public vec_template<xyz_base>
       normalize() {
 	 *this = this->normalized();
 	 return *this;
-      }				
+      }
 
       // return parallel vector with given length
       inline vec_xyz
@@ -1448,7 +1448,7 @@ class vec_xyzw : public vec_template<xyzw_base>
 		: "=&j result" (result)
 		: "j this" (*this)
 	    );
-	 return vec_x(result);		
+	 return vec_x(result);
       }
 
       inline vec_x min() const {
@@ -1482,7 +1482,7 @@ class vec_xyzw : public vec_template<xyzw_base>
 		: "j this" (*this)
 	    );
 	 return vec_xyzw(result);
-      }	
+      }
 
       inline vec_xyzw & operator = ( const vec_x rhs ) { set(rhs); return *this; }
       inline vec_xyzw & operator = ( const vec_y rhs ) { set(rhs); return *this; }
@@ -1516,11 +1516,11 @@ class vec_xyzw : public vec_template<xyzw_base>
 
       // when square of length = 0, this returns zero vector
 
-      inline vec_xyzw  			
+      inline vec_xyzw
       normalized() const {
 	 vec128_t result, dot, one;
       	 int cond;
-	 asm (	
+	 asm (
 	    "### vec_xyzw normalized ###\n"
 	    "vmul	dot, this, this \n"
 	    "vaddw.x	one, vf00, vf00 \n"
@@ -1539,9 +1539,9 @@ class vec_xyzw : public vec_template<xyzw_base>
 	    : "=&j result" (result), "=&j one" (one), "=&j dot" (dot), "=r cond" (cond)
 	    : "j this" (*this)
 	    );
-	
+
 	 return vec_xyzw(result);
-      }				
+      }
 
       inline vec_xyzw normalize3( );
 
@@ -1563,24 +1563,24 @@ class vec_xyzw : public vec_template<xyzw_base>
       }
 
       // operations with matrix types
-		
+
       inline vec_xyz operator * ( const mat_43& mat ) const;
       inline vec_xyzw operator * ( const mat_44& mat ) const;
 
       inline mat_34 tensor_mult( const vec_xyz vec ) const;
       inline mat_44 tensor_mult( const vec_xyzw vec ) const;
-				
+
       // operations with zero_vector and zero_matrix types
 
       inline vec_xyzw operator + ( const zero_4 zero ) const;
       inline vec_xyzw operator - ( const zero_4 zero ) const;
-				
+
       inline zero_3 operator * ( const zero_43 zero ) const;
       inline zero_4 operator * ( const zero_44 zero ) const;
 
       inline zero_34 tensor_mult( const zero_3 vec ) const;
       inline zero_44 tensor_mult( const zero_4 vec ) const;
-								
+
       inline vec_xyzw& operator = ( const zero_4 zero );
 
       // ========== BEGIN BLOCK OF DUPLICATED GENERIC FUNCTIONS ==========
@@ -1600,7 +1600,7 @@ class vec_xyzw : public vec_template<xyzw_base>
       normalize() {
 	 *this = this->normalized();
 	 return *this;
-      }				
+      }
 
       // return parallel vector with given length
       inline vec_xyzw
@@ -1684,7 +1684,7 @@ typedef vec_xyzw vec_4;
 
 /********************************************
  * vector_t - a three-element "vector" (as opposed to a "point") designed
- * to interact mainly with the point_t and transform_t types.  
+ * to interact mainly with the point_t and transform_t types.
  *
  */
 
@@ -1730,7 +1730,7 @@ class vector_t : public vec_template<vector_base>
       }
 
       template <class rhs_type> inline void set( rhs_type rhs ) { vec_template<vector_base>::set(rhs); }
-		
+
       inline vector_t( float x, float y, float z ) { set(x, y, z); }
 
       inline vector_t & operator = ( const vec_x rhs ) { set(rhs); return *this; }
@@ -1740,7 +1740,7 @@ class vector_t : public vec_template<vector_base>
       inline void set_x( float rhs ) { *this = vec_x(rhs); }
       inline void set_y( float rhs ) { *this = vec_y(rhs); }
       inline void set_z( float rhs ) { *this = vec_z(rhs); }
-		
+
  private:
       // leave general template functions undefined.  See notes at beginning of file.
 
@@ -1759,10 +1759,10 @@ class vector_t : public vec_template<vector_base>
       template <class rhs_type> inline vector_t msub( rhs_type rhs ) const;
       template <class rhs_type> inline void madda ( rhs_type rhs ) const;
       template <class rhs_type> inline void msuba ( rhs_type rhs ) const;
-      		
- public:	
+
+ public:
       // define legal arithmetic.
-		
+
       inline point_t operator + (const point_t rhs) const;
       inline vector_t operator + (const vector_t rhs) const {
 	 return vector_t(vec_template<vector_base>::operator + (rhs));
@@ -1789,42 +1789,42 @@ class vector_t : public vec_template<vector_base>
 
       inline vector_t operator / (const vec_x rhs) const {
 	 return vector_t(vec_template<vector_base>::operator / (rhs));
-      }		
+      }
       inline vector_t operator / (const vec_y rhs) const {
 	 return vector_t(vec_template<vector_base>::operator / (rhs));
-      }		
+      }
       inline vector_t operator / (const vec_z rhs) const {
 	 return vector_t(vec_template<vector_base>::operator / (rhs));
-      }		
+      }
       inline vector_t operator / (const vec_w rhs) const {
 	 return vector_t(vec_template<vector_base>::operator / (rhs));
-      }		
+      }
       inline vector_t operator / (const float rhs) const {
 	 return vector_t(vec_template<vector_base>::operator / (rhs));
       }
 
       inline void operator += (const vector_t rhs) {
 	 *this = vector_t(vec_template<vector_base>::operator + (rhs));
-      }		
+      }
       inline void operator -= (const vector_t rhs) {
 	 *this = vector_t(vec_template<vector_base>::operator - (rhs));
-      }				
+      }
 
       inline void operator *= (const vec_x rhs) {
 	 *this = vector_t(vec_template<vector_base>::operator * (rhs));
-      }		
+      }
       inline void operator *= (const vec_y rhs) {
 	 *this = vector_t(vec_template<vector_base>::operator * (rhs));
-      }		
+      }
       inline void operator *= (const vec_z rhs) {
 	 *this = vector_t(vec_template<vector_base>::operator * (rhs));
-      }		
+      }
       inline void operator *= (const vec_w rhs) {
 	 *this = vector_t(vec_template<vector_base>::operator * (rhs));
-      }		
+      }
       inline void operator *= (const float rhs) {
 	 *this = vector_t(vec_template<vector_base>::operator * (vec_x(rhs)));
-      }		
+      }
 
       inline void operator /= (const vec_x rhs) {
 	 *this = vector_t(vec_template<vector_base>::operator / (rhs));
@@ -1845,7 +1845,7 @@ class vector_t : public vec_template<vector_base>
       inline vector_t operator - () const {
 	 return vector_t(vec_template<vector_base>::no_w_negate());
       }
-            	
+
       inline vector_t aadd( ) const { return vector_t(vec_template<vector_base>::aadd()); }
       inline vector_t asub( ) const { return vector_t(vec_template<vector_base>::asub()); }
       inline void adda(const vector_t rhs) const { vec_template<vector_base>::adda(rhs); }
@@ -1890,7 +1890,7 @@ class vector_t : public vec_template<vector_base>
 		: "=j result" (result)
 		: "j this" (*this)
 	    );
-	 return vec_x(result);		
+	 return vec_x(result);
       }
 
       inline vec_x min() const {
@@ -1901,7 +1901,7 @@ class vector_t : public vec_template<vector_base>
 		: "=j result" (result)
 		: "j this" (*this)
 	    );
-	 return vec_x(result);		
+	 return vec_x(result);
       }
 
       inline vec_x
@@ -1933,11 +1933,11 @@ class vector_t : public vec_template<vector_base>
 
       // when square of length = 0, this returns zero vector
 
-      inline vector_t  			
+      inline vector_t
       normalized() const {
 	 vec128_t result, dot, one;
       	 int cond;
-	 asm (	
+	 asm (
 	    "### vector_t normalized ###\n"
 	    "vmul dot, this, this \n"
 	    "vaddw.x one, vf00, vf00 \n"
@@ -1955,16 +1955,16 @@ class vector_t : public vec_template<vector_base>
 	    : "=&j result" (result), "=&j one" (one), "=&j dot" (dot), "=r cond" (cond)
 	    : "j this" (*this)
 	    );
-	
+
 	 return vector_t(result);
-      }				
+      }
 
       inline vector_t
       normalize() {
 	 *this = this->normalized();
 	 return *this;
-      }				
-				
+      }
+
       inline vector_t
       cross( const vector_t rhs ) const {
 	 vec128_t result;
@@ -1977,7 +1977,7 @@ class vector_t : public vec_template<vector_base>
 	    );
 	 return vector_t(result);
       }
-				
+
       inline void print( void ) const {
 	 float x, y, z;
 	 vec128_t temp0;
@@ -1994,11 +1994,11 @@ class vector_t : public vec_template<vector_base>
 
 	 printf("(%f %f %f (0.0))\n", x, y, z);
       }
-		
+
       inline void print( const char *vec_name ) const {
 	 printf("%s: \n", vec_name);
 	 print();
-      }		
+      }
 };
 
 /********************************************
@@ -2016,7 +2016,7 @@ class point_t : public vec_template<point_base>
       explicit inline point_t( const vec_template<vector_base> rhs ) { vec128 = rhs.vec128; }
       explicit inline point_t( const vec_template<xyz_base> rhs ) { vec128 = rhs.vec128; }
       explicit inline point_t( const cpu_vec_3 &rhs );
-      		
+
       inline void
       set( float x, float y, float z ) {
 	 vec128_t temp0, temp1;
@@ -2044,7 +2044,7 @@ class point_t : public vec_template<point_base>
       }
 
       template <class rhs_type> inline void set( rhs_type rhs ) { vec_template<point_base>::set(rhs); }
-		
+
       inline point_t( float x, float y, float z ) {
 	 set(x, y, z);
       }
@@ -2057,9 +2057,9 @@ class point_t : public vec_template<point_base>
       inline void set_y( float rhs ) { *this = vec_y(rhs); }
       inline void set_z( float rhs ) { *this = vec_z(rhs); }
 
- private:	  	
+ private:
       // leave general templates undefined.  See notes at beginning of file.
-		
+
       template <class rhs_type> inline point_t operator + (const rhs_type rhs) const;
       template <class rhs_type> inline point_t operator - (const rhs_type rhs) const;
       template <class rhs_type> inline point_t operator * (const rhs_type rhs) const;
@@ -2075,12 +2075,12 @@ class point_t : public vec_template<point_base>
       template <class rhs_type> inline vector_t msub( rhs_type rhs ) const;
       template <class rhs_type> inline void madda ( rhs_type rhs ) const;
       template <class rhs_type> inline void msuba ( rhs_type rhs ) const;
-		
+
       inline point_t operator - () const;
 
- public:		
+ public:
       // define legal arithmetic.
-		
+
       inline point_t operator + (const vector_t rhs) const {
 	 return point_t(vec_template<point_base>::operator + (rhs));
       }
@@ -2090,7 +2090,7 @@ class point_t : public vec_template<point_base>
       inline vector_t operator - (const point_t rhs) const {
 	 return vector_t(vec_template<point_base>::operator - (rhs));
       }
-		
+
       inline void operator += (const vector_t rhs) {
 	 *this = point_t(vec_template<point_base>::operator + (rhs));
       }
@@ -2117,7 +2117,7 @@ class point_t : public vec_template<point_base>
 		: "=j result" (result)
 		: "j this" (*this)
 	    );
-	 return vec_x(result);		
+	 return vec_x(result);
       }
 
       inline vec_x min() const {
@@ -2128,9 +2128,9 @@ class point_t : public vec_template<point_base>
 		: "=j result" (result)
 		: "j this" (*this)
 	    );
-	 return vec_x(result);		
+	 return vec_x(result);
       }
-      				
+
       inline vec_x
       dot( const vector_t rhs ) const {
 	 vec128_t temp, result;
@@ -2145,13 +2145,13 @@ class point_t : public vec_template<point_base>
 	    );
 	 return vec_x(result);
       }
-		
+
       inline vec_x
-      distance_sqr_from( const point_t rhs ) const {		
+      distance_sqr_from( const point_t rhs ) const {
 	 vector_t temp = *this - rhs;
 	 return temp.dot(temp);
       }
-		
+
       inline vec_x
       distance_from( const point_t rhs ) const {
 	 return sqrtf(this->distance_sqr_from(rhs));
@@ -2159,10 +2159,10 @@ class point_t : public vec_template<point_base>
 
       inline point_t
       midpoint( const point_t rhs ) { return point_t((vec_template<point_base>::operator + (rhs)) * vec_x(0.5f)); }
-		
+
       inline point_t
       fraction_to( const point_t rhs , vec_x fraction ) { return *this + (rhs - *this) * fraction; }
-		
+
       inline void print( void ) const {
 	 float x, y, z;
 	 vec128_t temp0;
@@ -2177,13 +2177,13 @@ class point_t : public vec_template<point_base>
 		: "r _vec" (vec128)
 	    );
 
-	 printf("(%f %f %f (1.0))\n", x, y, z);		
+	 printf("(%f %f %f (1.0))\n", x, y, z);
       }
-		
+
       inline void print( const char *vec_name ) const {
 	 printf("%s: \n", vec_name);
 	 print();
-      }		
+      }
 };
 
 /********************************************

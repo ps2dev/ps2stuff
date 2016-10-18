@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -14,21 +14,21 @@
 template <class column_type>
 class mat_x3_template
 {
-  public:  
+  public:
     column_type col0, col1, col2;
 
     mat_x3_template() { }
-    
+
     mat_x3_template( const mat_x3_template& mat )
     {
       col0 = mat.col0; col1 = mat.col1; col2 = mat.col2;
     }
-    
+
     mat_x3_template( const column_type col_0, const column_type col_1, const column_type col_2 )
     {
       col0 = col_0; col1 = col_1; col2 = col_2;
     }
-        
+
     void set_zero( ) {
       asm (
         " ### mat_x3::set_zero ### \n"
@@ -41,10 +41,10 @@ class mat_x3_template
         );
     }
 
-    void set_col0( column_type new_col ) { col0 = new_col; }  
-    void set_col1( column_type new_col ) { col1 = new_col; }    
+    void set_col0( column_type new_col ) { col0 = new_col; }
+    void set_col1( column_type new_col ) { col1 = new_col; }
     void set_col2( column_type new_col ) { col2 = new_col; }
-        
+
     void set_row0( vec_3 new_row ) {
       asm (
         " ### mat_x3::set_row0 ### \n"
@@ -57,7 +57,7 @@ class mat_x3_template
         : "j new_row" (new_row.vec128)
         );
     }
-    
+
     void set_row1( vec_3 new_row ) {
       asm (
         " ### mat_x3::set_row1 ### \n"
@@ -70,7 +70,7 @@ class mat_x3_template
         : "j new_row" (new_row.vec128)
         );
     }
-    
+
     void set_row2( vec_3 new_row ) {
       asm (
         " ### mat_x3::set_row2 ### \n"
@@ -83,7 +83,7 @@ class mat_x3_template
         : "j new_row" (new_row.vec128)
         );
     }
-    
+
     void set_row3( vec_3 new_row ) {
       asm (
         " ### mat_x3::set_row3 ### \n"
@@ -100,7 +100,7 @@ class mat_x3_template
     column_type get_col0( ) const { return col0; }
     column_type get_col1( ) const { return col1; }
     column_type get_col2( ) const { return col2; }
-    
+
     vec_3 get_row0( ) const {
       vec128_t row;
       asm (
@@ -113,9 +113,9 @@ class mat_x3_template
           "j col1" (col1.vec128),
           "j col2" (col2.vec128)
         );
-      return vec_3(row);    
-    }    
-    
+      return vec_3(row);
+    }
+
     vec_3 get_row1( ) const {
       vec128_t row;
       asm (
@@ -128,9 +128,9 @@ class mat_x3_template
           "j col1" (col1.vec128),
           "j col2" (col2.vec128)
         );
-      return vec_3(row);    
-    }    
-    
+      return vec_3(row);
+    }
+
     vec_3 get_row2( ) const {
       vec128_t row;
       asm (
@@ -143,9 +143,9 @@ class mat_x3_template
           "j col1" (col1.vec128),
           "j col2" (col2.vec128)
         );
-      return vec_3(row);    
-    }    
-    
+      return vec_3(row);
+    }
+
     vec_3 get_row3( ) const {
       vec128_t row;
       asm (
@@ -158,7 +158,7 @@ class mat_x3_template
           "j col1" (col1.vec128),
           "j col2" (col2.vec128)
         );
-      return vec_3(row);    
+      return vec_3(row);
     }
 
     column_type
@@ -559,7 +559,7 @@ class mat_x4_template
             "j mat1" (mat.col1.vec128),
             "j mat2" (mat.col2.vec128),
             "j mat3" (mat.col3.vec128)
-          );        
+          );
       return column_type(result);
     }
 };

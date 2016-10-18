@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -59,14 +59,14 @@ CHTimer::UpdateHierarchy( void )
    pRealTimer->Start();
 }
 
-void 
+void
 CHTimer::StartTimer( const char* name, bool enableDisplay = true )
 {
    CHTimer* timer;
    // is this the first time we have been called under the current node?
    if ( (timer = TimerStack->top()->GetChild(name)) == NULL )
       TimerStack->top()->AddChild( timer = new CHTimer(name, enableDisplay) );
-			
+
    // make this timer the current timer
    TimerStack->push(timer);
    timer->Start();

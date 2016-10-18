@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -17,7 +17,7 @@ namespace Core {
 		"PRFEVT_0_BTAC_MISS",
 		"PRFEVT_0_TLB_MISS",
 		"PRFEVT_0_ICACHE_MISS",
-		"PRFEVT_0_DTLB_ACCESSED",  	
+		"PRFEVT_0_DTLB_ACCESSED",
 		"PRFEVT_0_NON_BLOCK_LOAD",
 		"PRFEVT_0_WBB_SINGLE_REQUEST",
 		"PRFEVT_0_WBB_BURST_REQUEST",
@@ -37,7 +37,7 @@ namespace Core {
 		"PRFEVT_1_BRANCH_MISPREDICTED",
 		"PRFEVT_1_TLB_MISS",
 		"PRFEVT_1_DTLB_MISS",
-		"PRFEVT_1_DCACHE_MISS",		     	
+		"PRFEVT_1_DCACHE_MISS",
 		"PRFEVT_1_WBB_SINGLE_REQUEST_UNAVAILABLE",
 		"PRFEVT_1_WBB_BURST_REQUEST_UNAVAILABLE",
 		"PRFEVT_1_WBB_BURST_REQUEST_ALMOST_FULL",
@@ -83,12 +83,12 @@ namespace Core {
 		"sync.p									\n"
 
 		".set	reorder								\n"
-	
+
 		:	// no output
 		: "r" (evt_0),"r" (evt_1)
 		   );
 	}
-	
-	
-	
+
+
+
 };	// end core

@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -103,7 +103,7 @@ namespace GS {
       *(tU64*)dispfb2	= *(tU64*)&gsrDispFB2;
       *(tU64*)display1	= *(tU64*)&gsrDisplay1;
       *(tU64*)display2	= *(tU64*)&gsrDisplay2;
-      *(tU64*)bgcolor	= *(tU64*)&gsrBGColor; 
+      *(tU64*)bgcolor	= *(tU64*)&gsrBGColor;
    }
 #else
    void

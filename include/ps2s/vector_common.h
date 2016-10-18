@@ -1,5 +1,5 @@
 /*	  Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
-       	  
+
        	  This file is subject to the terms and conditions of the GNU Lesser
 	  General Public License Version 2.1. See the file "COPYING" in the
 	  main directory of this archive for more details.                             */
@@ -82,7 +82,7 @@ namespace fields {
 
 /********************************************
  * base classes
- * 
+ *
  * These store the attributes (traits) of the different
  * vector types and are used by vec_template (below).
  *
@@ -213,7 +213,7 @@ class vec_template : public base_vec
 		: "=r this" (*this)
 		: "r rhs" (rhs)
 	    );
-      }					
+      }
 
       inline void
       set_zero() {
@@ -375,7 +375,7 @@ class vec_template : public base_vec
 	    " ### negate vec_l_fields ### \n"
 	    "vsuba.mask ACC, vf00, vf00 \n"
 	    "vmsubw.mask result, this, vf00w \n"
-	    	
+
 	    : "=j result" (result), "=r" (vu0_ACC)
 	    : "j this" (*this),
 	    "vu_mask mask" (this->valid_fields),
@@ -392,7 +392,7 @@ class vec_template : public base_vec
 	 asm (
 	    " ### negate vec_l_fields (no w) ### \n"
 	    "vsub.mask result, vf00, this \n"
-	    	
+
 	    : "=j result" (result)
 	    : "j this" (*this),
 	    "vu_mask mask" (this->valid_fields),
@@ -478,7 +478,7 @@ class vec_template : public base_vec
 	 asm (
 		" ### ACC + vec_l_fields ### \n"
 		"vmaddw.mask result, this, vf00 \n"
-		
+
 		: "=j result" (result)
 		: "j this" (*this),
 		  "vu_mask mask" (this->valid_fields),
@@ -494,7 +494,7 @@ class vec_template : public base_vec
 	 asm (
 		" ### ACC - vec_l_fields ### \n"
 		"vmsubw.mask result, this, vf00 \n"
-		
+
 		: "=j result" (result)
 		: "j this" (*this),
 		  "vu_mask mask" (this->valid_fields),
@@ -576,7 +576,7 @@ class vec_template : public base_vec
 	 asm (
 		" ### ACC = ACC + vec_l_fields ### \n"
 		"vmaddaw.mask ACC, this, vf00 \n"
-		
+
 		: "+r" (vu0_ACC)
 		: "j this" (*this),
 		  "vu_mask mask" (this->valid_fields),
@@ -591,7 +591,7 @@ class vec_template : public base_vec
 	 asm (
 		" ### ACC = ACC - vec_l_fields ### \n"
 		"vmsubaw.mask ACC, this, vf00 \n"
-		
+
 		: "+r" (vu0_ACC)
 		: "j this" (*this),
 		  "vu_mask mask" (this->valid_fields),
@@ -610,7 +610,7 @@ class vec_template : public base_vec
 	 asm (
 		" ### ACC + vec_l_fields * vec_r_fields ### \n"
 		"vmadd_bc._mask result, this, rhs \n"
-		
+
 		: "=j result" (result)
 		: "j this" (*this), "j rhs" (rhs),
 		  "vu_binary _bc _mask" (this->fields << 8 | rhs.fields),
@@ -628,7 +628,7 @@ class vec_template : public base_vec
 		" ### ACC + vec_l_fields * float ### \n"
 		"ctc2	rhs, $vi21 \n"
 		"vnop \n"
-		"vmaddi._mask result, this, I \n"		
+		"vmaddi._mask result, this, I \n"
 		: "=j result" (result)
 		: "j this" (*this), "r rhs" (rhs),
 		  "vu_mask _mask" (this->valid_fields),
@@ -645,7 +645,7 @@ class vec_template : public base_vec
 	 asm (
 		" ### ACC - vec_l_fields * vec_r_fields ### \n"
 		"vmsub_bc._mask result, this, rhs \n"
-		
+
 		: "=j result" (result)
 		: "j this" (*this), "j rhs" (rhs),
 		  "vu_binary _bc _mask" (this->fields << 8 | rhs.fields),
@@ -663,7 +663,7 @@ class vec_template : public base_vec
 		" ### ACC - vec_l_fields * float ### \n"
 		"ctc2	rhs, $vi21 \n"
 		"vnop \n"
-		"vmsubi._mask result, this, I \n"		
+		"vmsubi._mask result, this, I \n"
 		: "=j result" (result)
 		: "j this" (*this), "r rhs" (rhs),
 		  "vu_mask _mask" (this->valid_fields),
@@ -781,11 +781,11 @@ class vec_template : public base_vec
 		: "j this" (*this), "j rhs" (rhs),
 		  "vu_binary _bc _mask" (this->fields << 8 | rhs.fields),
 		  "vu_mask l_fields" (this->valid_fields),
-		  "vu_mask r_fields" (rhs.valid_fields)		
+		  "vu_mask r_fields" (rhs.valid_fields)
 	 	);
 	 return lhs_type(result);
       }
-    		
+
       template <class rhs_type>
       inline lhs_type
       min(rhs_type rhs) const {
@@ -796,7 +796,7 @@ class vec_template : public base_vec
 		: "j this" (*this), "j rhs" (rhs),
 		  "vu_binary _bc _mask" (this->fields << 8 | rhs.fields),
 		  "vu_mask l_fields" (this->valid_fields),
-		  "vu_mask r_fields" (rhs.valid_fields)		
+		  "vu_mask r_fields" (rhs.valid_fields)
 	 	);
 	 return lhs_type(result);
       }
