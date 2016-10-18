@@ -482,41 +482,41 @@ CSCDmaPacket::AddDmaTag( tU32 QWC, tU32 PCE, tU32 ID, tU32 IRQ, const tU128 *ADD
 #endif
 
 inline CSCDmaPacket&
-CSCDmaPacket::Cnt( bool irq = false, tU32 pce = 0, bool sp = false ) {
+CSCDmaPacket::Cnt( bool irq, tU32 pce, bool sp ) {
    AddDmaTag( countQWC, pce, DMAC::kCnt, irq, 0, sp ); return *this;
 }
 inline CSCDmaPacket&
-CSCDmaPacket::Next( const tDmaTag* nextTag, bool irq = false, bool sp = false, tU32 pce = 0 ) {
+CSCDmaPacket::Next( const tDmaTag* nextTag, bool irq, bool sp, tU32 pce ) {
    mCheckXferAddrAlign( nextTag );
    xlateAddr(nextTag);
    AddDmaTag( countQWC, pce, DMAC::kNext, irq, (tU128*)nextTag, sp ); return *this;
 }
 inline CSCDmaPacket&
-CSCDmaPacket::Ref( const void *refData, tU32 dataQWLen, bool irq = false, bool sp = false, tU32 pce = 0 ) {
+CSCDmaPacket::Ref( const void *refData, tU32 dataQWLen, bool irq, bool sp, tU32 pce ) {
    mCheckXferAddrAlign( refData );
    xlateAddr(refData);
    AddDmaTag( dataQWLen, pce, DMAC::kRef, irq, (const tU128*)refData, sp ); return *this;
 }
 inline CSCDmaPacket&
-CSCDmaPacket::Refs( const void *refData, tU32 dataQWLen, bool irq = false, bool sp = false, tU32 pce = 0 ) {
+CSCDmaPacket::Refs( const void *refData, tU32 dataQWLen, bool irq, bool sp, tU32 pce ) {
    mCheckXferAddrAlign( refData );
    xlateAddr(refData);
    AddDmaTag( dataQWLen, pce, DMAC::kRefs, irq, (const tU128*)refData, sp ); return *this;
 }
 inline CSCDmaPacket&
-CSCDmaPacket::Refe( const void *refData, tU32 dataQWLen, bool irq = false, bool sp = false, tU32 pce = 0 ) {
+CSCDmaPacket::Refe( const void *refData, tU32 dataQWLen, bool irq, bool sp, tU32 pce ) {
    mCheckXferAddrAlign( refData );
    xlateAddr(refData);
    AddDmaTag( dataQWLen, pce, DMAC::kRefe, irq, (const tU128*)refData, sp ); return *this;
 }
 inline CSCDmaPacket&
-CSCDmaPacket::Call( const void* nextTag, bool irq = false, bool sp = false, tU32 pce = 0 ) {
+CSCDmaPacket::Call( const void* nextTag, bool irq, bool sp, tU32 pce ) {
    mCheckXferAddrAlign( nextTag );
    xlateAddr(nextTag);
    AddDmaTag( countQWC, pce, DMAC::kCall, irq, (tU128*)nextTag, sp ); return *this;
 }
 inline CSCDmaPacket&
-CSCDmaPacket::Call( const CSCDmaPacket& pkt, bool irq = false, bool sp = false, tU32 pce = 0 ) {
+CSCDmaPacket::Call( const CSCDmaPacket& pkt, bool irq, bool sp, tU32 pce ) {
    mCheckXferAddrAlign( pkt.pBase );
 #ifdef PS2_LINUX
    tU128 *base = (tU128*)pkt.pBase;
@@ -531,11 +531,11 @@ CSCDmaPacket::Call( const CSCDmaPacket& pkt, bool irq = false, bool sp = false, 
    return *this;
 }
 inline CSCDmaPacket&
-CSCDmaPacket::Ret( bool irq = false, tU32 pce = 0 ) {
+CSCDmaPacket::Ret( bool irq, tU32 pce ) {
    AddDmaTag( countQWC, pce, DMAC::kRet, irq, 0, false ); return *this;
 }
 inline CSCDmaPacket&
-CSCDmaPacket::End( bool irq = false, tU32 pce = 0 ) {
+CSCDmaPacket::End( bool irq, tU32 pce ) {
    AddDmaTag( countQWC, pce, DMAC::kEnd, irq, 0, false ); return *this;
 }
 
@@ -568,74 +568,74 @@ CSCDmaPacket::Pad128( tU32 padData ) {
 #define mMakeVifCode( _immediate, _num, _cmd, _irq ) ( (tU32)(_immediate) | ((tU32)(_num) << 16) | ((tU32)(_cmd) << 24) | ((tU32)(_irq) << 31) )
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Nop( bool irq = false ) {
+CVifSCDmaPacket::Nop( bool irq ) {
    *this += mMakeVifCode(Unused, Unused, Vifs::Opcodes::nop, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Stcycl( tU32 wl, tU32 cl, bool irq = false ) {
+CVifSCDmaPacket::Stcycl( tU32 wl, tU32 cl, bool irq ) {
    uiWL = wl; uiCL = cl; *this += mMakeVifCode(cl | (wl << 8), Unused, Vifs::Opcodes::stcycl, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Offset( tU32 offset, bool irq = false ) {
+CVifSCDmaPacket::Offset( tU32 offset, bool irq ) {
    *this += mMakeVifCode(offset, Unused, Vifs::Opcodes::offset, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Base( tU32 base, bool irq = false ) {
+CVifSCDmaPacket::Base( tU32 base, bool irq ) {
    *this += mMakeVifCode( base, Unused, Vifs::Opcodes::base, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Itop( tU32 itops, bool irq = false ) {
+CVifSCDmaPacket::Itop( tU32 itops, bool irq ) {
    *this += mMakeVifCode( itops, Unused, Vifs::Opcodes::itop, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Stmod( tU32 mode, bool irq = false ) {
+CVifSCDmaPacket::Stmod( tU32 mode, bool irq ) {
    *this += mMakeVifCode( mode, Unused, Vifs::Opcodes::stmod, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Mskpath3( tU32 mask, bool irq = false ) {
+CVifSCDmaPacket::Mskpath3( tU32 mask, bool irq ) {
    *this += mMakeVifCode( mask, Unused, Vifs::Opcodes::mskpath3, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Mark( tU32 value, bool irq = false ) {
+CVifSCDmaPacket::Mark( tU32 value, bool irq ) {
    *this += mMakeVifCode( value, Unused, Vifs::Opcodes::mark, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Flushe( bool irq = false ) {
+CVifSCDmaPacket::Flushe( bool irq ) {
    *this += mMakeVifCode( Unused, Unused, Vifs::Opcodes::flushe, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Flush( bool irq = false ) {
+CVifSCDmaPacket::Flush( bool irq ) {
    *this += mMakeVifCode( Unused, Unused, Vifs::Opcodes::flush, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Flusha( bool irq = false ) {
+CVifSCDmaPacket::Flusha( bool irq ) {
    *this += mMakeVifCode( Unused, Unused, Vifs::Opcodes::flusha, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Mscal( tU32 addr, bool irq = false ) {
+CVifSCDmaPacket::Mscal( tU32 addr, bool irq ) {
    *this += mMakeVifCode( addr, Unused, Vifs::Opcodes::mscal, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Mscnt( bool irq = false ) {
+CVifSCDmaPacket::Mscnt( bool irq ) {
    *this += mMakeVifCode( Unused, Unused, Vifs::Opcodes::mscnt, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Mscalf( tU32 addr, bool irq = false ) {
+CVifSCDmaPacket::Mscalf( tU32 addr, bool irq ) {
    *this += mMakeVifCode( addr, Unused, Vifs::Opcodes::mscalf, irq); return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Stmask( Vifs::tMask mask, bool irq = false ) {
+CVifSCDmaPacket::Stmask( Vifs::tMask mask, bool irq ) {
    *this += mMakeVifCode( Unused, Unused, Vifs::Opcodes::stmask, irq); *this += mask; return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Strow( const void* rowArray, bool irq = false ) {
+CVifSCDmaPacket::Strow( const void* rowArray, bool irq ) {
    const tU32 *wordArray = (const tU32*)rowArray;
    *this += mMakeVifCode( Unused, Unused, Vifs::Opcodes::strow, irq);
    *this += wordArray[0]; *this += wordArray[1]; *this += wordArray[2]; *this += wordArray[3];
    return *this;
 }
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Stcol( const void* colArray, bool irq = false ) {
+CVifSCDmaPacket::Stcol( const void* colArray, bool irq ) {
    const tU32 *wordArray = (const tU32*)colArray;
    *this += mMakeVifCode( Unused, Unused, Vifs::Opcodes::stcol, irq);
    *this += wordArray[0]; *this += wordArray[1]; *this += wordArray[2]; *this += wordArray[3];
@@ -643,7 +643,7 @@ CVifSCDmaPacket::Stcol( const void* colArray, bool irq = false ) {
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::OpenUnpack( tU32 mode, tU32 vuAddr, bool dblBuffered, bool masked = false, bool usigned = true, bool irq = false )
+CVifSCDmaPacket::OpenUnpack( tU32 mode, tU32 vuAddr, bool dblBuffered, bool masked, bool usigned, bool irq )
 {
    mErrorIf( pOpenVifCode != NULL, "There is still another vifcode open." );
    pOpenVifCode = (Vifs::tVifCode*)pNext;
@@ -670,7 +670,7 @@ CVifSCDmaPacket::CloseUnpack( tU32 wl, tU32 cl ) {
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::OpenDirect( bool irq = false ) {
+CVifSCDmaPacket::OpenDirect( bool irq ) {
    mAssert( pOpenVifCode == NULL );
    pOpenVifCode = (Vifs::tVifCode*)pNext;
    *this += mMakeVifCode( 0, Unused, Vifs::Opcodes::direct, irq );

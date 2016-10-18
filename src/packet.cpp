@@ -41,7 +41,7 @@ int CDmaPacket::PGL_fd = -1;
  * DmaPacket
  */
 
-CDmaPacket::CDmaPacket( tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel, tU32 memMapping = Core::MemMappings::Normal, bool isFull = false )
+CDmaPacket::CDmaPacket( tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel, tU32 memMapping, bool isFull )
    :	pBase((tU8*)buffer), pNext( (tU8*)((isFull) ? buffer + bufferQWSize : buffer) ),
 #ifndef PS2_LINUX
 	pDmaChannel((tDmaChannel*)sceDmaGetChan(channel)),
@@ -64,7 +64,7 @@ CDmaPacket::CDmaPacket( tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel,
 #endif
 }
 
-CDmaPacket::CDmaPacket( tU32 bufferQWSize, tDmaChannelId channel, tU32 memMapping = Core::MemMappings::Normal )
+CDmaPacket::CDmaPacket( tU32 bufferQWSize, tDmaChannelId channel, tU32 memMapping )
    :
 #ifndef PS2_LINUX
 	pDmaChannel((tDmaChannel*)sceDmaGetChan(channel)),
@@ -136,7 +136,7 @@ CDmaPacket::SwapOutBuffer( void *newBuffer )
 #define mCheckPktLength( ) mErrorIf( (tU32)pNext & 0xf, "You don't really want to send a packet that isn't an even number of quads, do you?" )
 
 void
-CDmaPacket::Send( bool waitForEnd = false, bool flushCache = true )
+CDmaPacket::Send( bool waitForEnd, bool flushCache )
 {
    mCheckPktLength();
 
@@ -160,7 +160,7 @@ CDmaPacket::Send( bool waitForEnd = false, bool flushCache = true )
 }
 
 void
-CDmaPacket::HexDump( tU32 numQwords = 0 )
+CDmaPacket::HexDump( tU32 numQwords )
 {
    if ( numQwords == 0 ) numQwords = ((tU32)pNext - (tU32)pBase)/16;
 
@@ -186,13 +186,13 @@ CDmaPacket::Print( void )
  * Source Chain DmaPacket
  */
 
-CSCDmaPacket::CSCDmaPacket( tU32 bufferQWSize, tDmaChannelId channel, bool tte, tU32 memMapping = Core::MemMappings::Normal )
+CSCDmaPacket::CSCDmaPacket( tU32 bufferQWSize, tDmaChannelId channel, bool tte, tU32 memMapping )
    : CDmaPacket( bufferQWSize, channel, memMapping ),
      bTTE(tte), pOpenTag(NULL), uiTTEBytesLeft(0)
 {
 }
 
-CSCDmaPacket::CSCDmaPacket( tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel, bool tte, tU32 memMapping = Core::MemMappings::Normal, bool isFull = false )
+CSCDmaPacket::CSCDmaPacket( tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel, bool tte, tU32 memMapping, bool isFull )
    : CDmaPacket( buffer, bufferQWSize, channel, memMapping, isFull ),
      bTTE(tte), pOpenTag(NULL), uiTTEBytesLeft(0)
 {
@@ -210,7 +210,7 @@ CSCDmaPacket::GetPhysAddr( const void *va )
 #endif
 
 void
-CSCDmaPacket::Send( bool waitForEnd = false, bool flushCache = true )
+CSCDmaPacket::Send( bool waitForEnd, bool flushCache )
 {
    mCheckPktLength();
 
@@ -240,14 +240,14 @@ CSCDmaPacket::Send( bool waitForEnd = false, bool flushCache = true )
  * Vif Source Chain DmaPacket
  */
 
-CVifSCDmaPacket::CVifSCDmaPacket( tU32 bufferQWSize, tDmaChannelId channel, bool tte, tU32 memMapping = Core::MemMappings::Normal )
+CVifSCDmaPacket::CVifSCDmaPacket( tU32 bufferQWSize, tDmaChannelId channel, bool tte, tU32 memMapping )
    : CSCDmaPacket( bufferQWSize, channel, tte, memMapping ),
      pOpenVifCode(NULL), uiWL(1), uiCL(1)
 {
 }
 
 CVifSCDmaPacket::CVifSCDmaPacket( tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel, bool tte,
-				  tU32 memMapping = Core::MemMappings::Normal, bool isFull = false )
+				  tU32 memMapping, bool isFull )
    : CSCDmaPacket( buffer, bufferQWSize, channel, tte, memMapping, isFull ),
      pOpenVifCode(NULL)
 {
@@ -276,7 +276,7 @@ CVifSCDmaPacket::CloseUnpack( void )
 
    // skipping write is easy -- we are already done
 
-   // filling write: now we get ambiguous -- what to do when numQuads == CL in the last
+   // filling 	write: now we get ambiguous -- what to do when numQuads == CL in the last
    // block?  I will say that in this case the vif should still do the full wl length block, filling
    // with internal registers.  If you want different behavior call CloseUnpack with a num field you've
    // computed yourself

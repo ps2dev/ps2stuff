@@ -21,7 +21,7 @@ CImageUploadPkt::CImageUploadPkt( void )
    InitCommon();
 }
 
-CImageUploadPkt::CImageUploadPkt( tU128* imagePtr, tU32 w, tU32 h, GS::tPSM psm, tU32 gsBufWidth = 0, tU32 gsWordAddress = 0 )
+CImageUploadPkt::CImageUploadPkt( tU128* imagePtr, tU32 w, tU32 h, GS::tPSM psm, tU32 gsBufWidth, tU32 gsWordAddress )
    : CVifSCDmaPacket( &FirstDmaTag, kPacketLength, DMAC::Channels::gif, Packet::kDontXferTags )
 {
    InitCommon();

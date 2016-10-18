@@ -60,7 +60,7 @@ CHTimer::UpdateHierarchy( void )
 }
 
 void
-CHTimer::StartTimer( const char* name, bool enableDisplay = true )
+CHTimer::StartTimer( const char* name, bool enableDisplay )
 {
    CHTimer* timer;
    // is this the first time we have been called under the current node?

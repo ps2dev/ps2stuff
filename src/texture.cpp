@@ -40,7 +40,7 @@ namespace GS {
       SetPSM( psm );
    }
 
-   CTexEnv::CTexEnv( GS::tContext context = GS::kContext1 )
+   CTexEnv::CTexEnv( GS::tContext context )
       : uiNumSettingsGSRegs(5),
 	// gee, it's too bad c++ doesn't have a way of chaining constructors....
 	SettingsPacket( (tU128*)&SettingsDmaTag, uiNumSettingsGSRegs + 2,
@@ -170,7 +170,7 @@ namespace GS {
    }
 
    void
-   CTexEnv::SendSettings( bool waitForEnd = false, bool flushCache = true )
+   CTexEnv::SendSettings( bool waitForEnd, bool flushCache )
    {
       SettingsPacket.Send( waitForEnd, flushCache );
    }
@@ -407,7 +407,7 @@ namespace GS {
    }
 
    void
-   CTexture::SetImage( tU128* imagePtr, tU32 w, tU32 h, GS::tPSM psm, tU32* clutPtr = NULL )
+   CTexture::SetImage( tU128* imagePtr, tU32 w, tU32 h, GS::tPSM psm, tU32* clutPtr )
    {
       // make sure the image is qword aligned
       mAssert( ((tU32)imagePtr & 0xf) == 0 );
@@ -452,7 +452,7 @@ namespace GS {
    }
 
    void
-   CTexture::SendImage( bool waitForEnd = false, bool flushCache = true )
+   CTexture::SendImage( bool waitForEnd, bool flushCache )
    {
       mAssert( pImage != NULL );
       pImageUploadPkt->Send( waitForEnd, flushCache );
@@ -471,7 +471,7 @@ namespace GS {
    }
 
    void
-   CTexture::SendClut( bool waitForEnd = false, bool flushCache = true )
+   CTexture::SendClut( bool waitForEnd, bool flushCache )
    {
       mAssert( pClut != NULL );
 

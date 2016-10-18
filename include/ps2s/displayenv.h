@@ -173,16 +173,16 @@ namespace GS {
 
    void
    CDisplayEnv::SetFB1( unsigned int wordAddr, unsigned int bufWidth,
-			unsigned int xOffsetInBuf = 0, unsigned int yOffsetInBuf = 0,
-			unsigned int psm = GS::kPsm32 )
+			unsigned int xOffsetInBuf, unsigned int yOffsetInBuf,
+			unsigned int psm )
    {
       SetFB( &gsrDispFB1, wordAddr, bufWidth, xOffsetInBuf, yOffsetInBuf, psm );
    }
 
    void
    CDisplayEnv::SetFB2( unsigned int wordAddr, unsigned int bufWidth,
-			unsigned int xOffsetInBuf = 0, unsigned int yOffsetInBuf = 0,
-			unsigned int psm = GS::kPsm32 )
+			unsigned int xOffsetInBuf, unsigned int yOffsetInBuf,
+			unsigned int psm )
    {
       SetFB( &gsrDispFB2, wordAddr, bufWidth, xOffsetInBuf, yOffsetInBuf, psm );
    }

@@ -417,7 +417,7 @@ CMemSlot::~CMemSlot()
 
    CMemArea::CMemArea( int width, int height,
 		       GS::tPSM pixFormat,
-		       tMemAlignment alignment = kAlignPage )
+		       tMemAlignment alignment )
       : Width(width), Height(height),
 	Slot(NULL), GSWordAddr(0),
 	PixFormat(pixFormat), Alignment(alignment)

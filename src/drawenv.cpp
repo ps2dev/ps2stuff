@@ -38,7 +38,7 @@ namespace GS {
       *this = rhs;
    }
 
-   CDrawEnv::CDrawEnv( GS::tContext context, tU32 fbW, tU32 fbH, tU32 fbWordAddr, tU32 zbufWordAddr = NULL )
+   CDrawEnv::CDrawEnv( GS::tContext context, tU32 fbW, tU32 fbH, tU32 fbWordAddr, tU32 zbufWordAddr )
       : uiNumGSRegs(13),
 	GifPacket( (tU128*)&SettingsDmaTag, uiNumGSRegs + 2, DMAC::Channels::gif, Core::MemMappings::Normal, Packet::kFull )
    {
@@ -169,7 +169,7 @@ namespace GS {
    }
 
    void
-   CDrawEnv::SendSettings( bool waitForEnd = false, bool flushCache = true )
+   CDrawEnv::SendSettings( bool waitForEnd, bool flushCache )
    {
       GifPacket.Send( waitForEnd, flushCache );
    }
