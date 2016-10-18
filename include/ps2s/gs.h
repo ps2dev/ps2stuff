@@ -172,7 +172,7 @@ namespace GIF {
    }
 }
 
-typedef struct {
+typedef struct tGifTag_t {
 	unsigned long NLOOP:15;
 	unsigned long EOP:1;
 	unsigned long pad0:16;

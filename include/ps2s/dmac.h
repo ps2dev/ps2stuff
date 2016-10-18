@@ -16,7 +16,7 @@
 
 #ifdef PS2_LINUX
 // PLIN
-typedef struct {
+typedef struct tD_CHCR_t {
 	unsigned DIR: 1;	// Direction
 	unsigned p0 : 1;
 	unsigned MOD: 2;	// Mode
@@ -31,7 +31,7 @@ typedef struct {
 #  include "dma.h"
 #endif
 
-typedef struct {
+typedef struct tSourceChainTag_t {
       tU64 QWC:16;
       tU64 pad:10;
       tU64 PCE:2;
