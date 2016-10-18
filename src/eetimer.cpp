@@ -17,7 +17,7 @@
 extern int Ps2stuffDeviceFd;
 #endif
 
-const unsigned int CEETimer::TicksPerFrame[4];
+const unsigned int CEETimer::TicksPerFrame[4] = { 2500000, 156250, 9760, 262 };
 
 CEETimer::CEETimer( tTimer whichTimer )
 {

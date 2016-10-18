@@ -79,7 +79,7 @@ class CEETimer
       typedef enum { CountWhileLow, RestartOnRising, RestartOnFalling, RestartOnBoth } tGateMode;
       typedef enum { Timer0, Timer1, Timer2, Timer3 } tTimer;
 
-      static const unsigned int TicksPerFrame[4] = { 2500000, 156250, 9760, 262 };
+      static const unsigned int TicksPerFrame[4];
 
       CEETimer( tTimer whichTimer );
 
