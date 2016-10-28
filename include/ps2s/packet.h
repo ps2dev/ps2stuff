@@ -242,6 +242,7 @@ class CVifSCDmaPacket : public CSCDmaPacket
       inline CVifSCDmaPacket& Stmask( Vifs::tMask mask, bool irq = false );
       inline CVifSCDmaPacket& Strow( const void* rowArray, bool irq = false );
       inline CVifSCDmaPacket& Stcol( const void* colArray, bool irq = false );
+      inline CVifSCDmaPacket& Mpg( tU32 num, tU32 addr, bool irq = false );
 
       inline CVifSCDmaPacket& OpenUnpack( tU32 mode, tU32 vuAddr, bool dblBuffered,
 					  bool masked = false, bool usigned = true, bool irq = false );
@@ -702,6 +703,12 @@ CVifSCDmaPacket::Stcol( const void* colArray, bool irq ) {
    *this += wordArray[1];
    *this += wordArray[2];
    *this += wordArray[3];
+   return *this;
+}
+
+inline CVifSCDmaPacket&
+CVifSCDmaPacket::Mpg( tU32 num, tU32 addr, bool irq ) {
+   *this += mMakeVifCode( addr, num, Vifs::Opcodes::mpg, irq);
    return *this;
 }
 
