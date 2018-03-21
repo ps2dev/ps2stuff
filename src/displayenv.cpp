@@ -8,11 +8,6 @@
  * includes
  */
 
-#ifdef PS2_LINUX
-#include <linux/ps2/dev.h>
-#include <sys/ioctl.h>
-#endif
-
 #include "ps2s/displayenv.h"
 #include "ps2s/utils.h"
 
@@ -89,7 +84,6 @@ void CDisplayEnv::SetDisplay(tGsrDisplay* displayReg,
     displayReg->DH   = (height - 1) * magV;
 }
 
-#ifndef PS2_LINUX
 void CDisplayEnv::SendSettings(void)
 {
     using namespace GS::ControlRegs;
@@ -100,35 +94,5 @@ void CDisplayEnv::SendSettings(void)
     *(tU64*)display2 = *(tU64*)&gsrDisplay2;
     *(tU64*)bgcolor = *(tU64*)&gsrBGColor;
 }
-#else
-void CDisplayEnv::SendSettings(void)
-{
-    using namespace GS::ControlRegAddrs;
-
-    ps2_gssreg reg;
-
-    // reg.reg = pmode; reg.val = *(tU64*)&gsrPMode;
-    // ioctl( GS_fd, PS2IOC_SGSSREG, &reg );
-
-    reg.reg = dispfb1;
-    reg.val = *(tU64*)&gsrDispFB1;
-    ioctl(GS_fd, PS2IOC_SGSSREG, &reg);
-
-    reg.reg = dispfb2;
-    reg.val = *(tU64*)&gsrDispFB2;
-    ioctl(GS_fd, PS2IOC_SGSSREG, &reg);
-
-    // let the linux drivers take care of these two for now..
-
-    // reg.reg = display1; reg.val = *(tU64*)&gsrDisplay1;
-    // ioctl( GS_fd, PS2IOC_SGSSREG, &reg );
-    // reg.reg = display2; reg.val = *(tU64*)&gsrDisplay2;
-    // ioctl( GS_fd, PS2IOC_SGSSREG, &reg );
-
-    reg.reg = bgcolor;
-    reg.val = *(tU64*)&gsrBGColor;
-    ioctl(GS_fd, PS2IOC_SGSSREG, &reg);
-}
-#endif
 
 } // namespace GS

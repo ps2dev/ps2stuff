@@ -10,10 +10,8 @@
 
 #include <stdlib.h>
 
-#ifndef PS2_LINUX
 #include "dma.h"
 #include "graph.h"
-#endif
 
 #include "ps2s/core.h"
 #include "ps2s/gs.h"

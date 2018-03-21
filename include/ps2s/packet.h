@@ -13,12 +13,7 @@
 
 #include <stdlib.h>
 
-#ifndef PS2_LINUX
 #include "dma.h"
-#else
-// ps2stuff, the kernel module
-#include "ps2stuff_kmodule.h"
-#endif
 
 #include "ps2s/dmac.h"
 #include "ps2s/types.h"
@@ -69,19 +64,6 @@ public:
 
     virtual ~CDmaPacket(void);
 
-#ifdef PS2_LINUX
-    /// dma packets need access to the gs, vu0 and vu1 devices
-    inline static void InitFileDescriptors(int gs_fd,
-        int vu0_fd, int vu1_fd,
-        int pgl_fd)
-    {
-        GS_fd = gs_fd;
-        VU0_fd = vu0_fd;
-        VU1_fd = vu1_fd;
-        PGL_fd = pgl_fd;
-    }
-#endif
-
     // mutators
 
     template <class dataType>
@@ -119,28 +101,7 @@ public:
 protected:
     tU8 *pBase, *pNext;
     tDmaChannelId dmaChannelId;
-#ifdef PS2_LINUX
-    int* ChannelFd;
-#endif
     tU32 uiBufferQwordSize;
-
-#ifdef PS2_LINUX
-    static int VU0_fd, VU1_fd, GS_fd, PGL_fd;
-
-    int* GetChannelFd(tDmaChannelId channel)
-    {
-        if (channel == DMAC::Channels::vif0)
-            return &VU0_fd;
-        else if (channel == DMAC::Channels::gif)
-            return &GS_fd;
-        else if (channel == DMAC::Channels::vif1)
-            return &VU1_fd;
-        else {
-            mError("This dma channel is not supported in linux yet..");
-            return NULL; // calm down, gcc
-        }
-    }
-#endif
 
 private:
     // And on the third day it was proclaimed: "Thou shalt not copy dma packets!"
@@ -196,10 +157,6 @@ public:
 
 protected:
     void SetDmaTag(tDmaTag* tag, tU32 QWC, tU32 PCE, tU32 ID, tU32 IRQ, const tU128* ADDR, tU32 SPR);
-
-#ifdef PS2_LINUX
-    void* GetPhysAddr(const void* va);
-#endif
 
     bool bTTE;
     tDmaTag* pOpenTag;
@@ -344,11 +301,7 @@ CDmaPacket::Add(const CDmaPacket& otherPkt)
 inline void
 CDmaPacket::SetDmaChannel(tDmaChannelId channel)
 {
-#ifndef PS2_LINUX
     dmaChannelId = channel;
-#else
-    ChannelFd = GetChannelFd(channel);
-#endif
 }
 
 /*
@@ -496,12 +449,7 @@ CSCDmaPacket::AddDmaTag(tU32 QWC, tU32 PCE, tU32 ID, tU32 IRQ, const tU128* ADDR
 
 #undef mCheckFreeSpaceN
 
-#ifdef PS2_LINUX
-#define xlateAddr(__va) \
-    (__va) = (__typeof__(__va))GetPhysAddr(__va)
-#else
 #define xlateAddr(__va)
-#endif
 
 inline CSCDmaPacket&
 CSCDmaPacket::Cnt(bool irq, tU32 pce, bool sp)
@@ -559,16 +507,8 @@ inline CSCDmaPacket&
 CSCDmaPacket::Call(const CSCDmaPacket& pkt, bool irq, bool sp, tU32 pce)
 {
     mCheckXferAddrAlign(pkt.pBase);
-#ifdef PS2_LINUX
-    tU128* base = (tU128*)pkt.pBase;
-    xlateAddr(base);
-    AddDmaTag(countQWC, pce, DMAC::kCall, irq,
-        base, sp);
-#else
     AddDmaTag(countQWC, pce, DMAC::kCall, irq,
         Core::MakePtrNormal((tU128*)pkt.pBase), sp);
-#endif
-
     return *this;
 }
 

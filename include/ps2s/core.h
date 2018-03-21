@@ -22,13 +22,8 @@ namespace Core {
 
 namespace MemMappings {
     static const tU32 Normal       = 0x00000000,
-#ifndef PS2_LINUX
                       Uncached     = 0x20000000,
                       UncachedAccl = 0x30000000,
-#else
-                      Uncached = 0x00000000,
-                      UncachedAccl = 0x00000000,
-#endif
 
                       SP = 0x70000000,
 
@@ -41,14 +36,7 @@ namespace MemMappings {
 template <class ptrType>
 inline ptrType MakePtrNormal(ptrType ptr)
 {
-#ifndef PS2_LINUX
     return reinterpret_cast<ptrType>((tU32)ptr & 0x0fffffff);
-#else
-    // since we're in a virtual address space, the upper 4 bits
-    // are valid address bits, so we can't mask them off...
-    // return reinterpret_cast<ptrType>( (tU32)ptr & 0x0fffffff );
-    return reinterpret_cast<ptrType>((tU32)ptr & 0xffffffff);
-#endif
 }
 
 template <class ptrType>
@@ -72,14 +60,7 @@ inline ptrType MakePtrUncachedAccl(ptrType ptr)
 // PLIN -- need to override delete as well...
 inline void* New16(size_t size)
 {
-#ifdef PS2_LINUX
-    size = (size == 0) ? 1 : size;
-    void* mem = memalign(16, size);
-    mErrorIf(mem == NULL, "Could not allocate memory, exiting.");
-    return mem;
-#else
     return ::operator new(size);
-#endif
 }
 
 // cop0 counter

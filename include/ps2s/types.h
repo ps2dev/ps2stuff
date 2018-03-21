@@ -12,22 +12,14 @@
 typedef unsigned char tU8;
 typedef unsigned short int tU16;
 typedef unsigned int tU32;
-#ifndef PS2_LINUX
 typedef unsigned long tU64;
-#else
-typedef unsigned long long tU64;
-#endif
 // it doesn't really make sense to have a non-16-byte-aligned qword type...
 typedef unsigned int tU128 __attribute__((mode(TI), aligned(16)));
 
 typedef char t8;
 typedef short int t16;
 typedef int t32;
-#ifndef PS2_LINUX
-typedef long t64;
-#else
 typedef long long t64;
-#endif
 typedef int t128 __attribute__((mode(TI), aligned(16)));
 
 typedef struct {

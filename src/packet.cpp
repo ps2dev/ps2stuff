@@ -11,30 +11,11 @@
 #include <malloc.h>
 #include <stdio.h>
 
-#ifndef PS2_LINUX
 #include "kernel.h"
-#else
-#include "ps2dma.h"
-#include <linux/ps2/ee.h> // needed for ps2dma.h
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#endif
 
 #include "ps2s/gs.h"
 #include "ps2s/math.h"
 #include "ps2s/packet.h"
-
-/********************************************
- * static data
- */
-
-#ifdef PS2_LINUX
-int CDmaPacket::VU0_fd = -1;
-int CDmaPacket::VU1_fd = -1;
-int CDmaPacket::GS_fd = -1;
-int CDmaPacket::PGL_fd = -1;
-#endif
 
 /********************************************
  * DmaPacket
@@ -43,43 +24,25 @@ int CDmaPacket::PGL_fd = -1;
 CDmaPacket::CDmaPacket(tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel, tU32 memMapping, bool isFull)
     : pBase((tU8*)buffer)
     , pNext((tU8*)((isFull) ? buffer + bufferQWSize : buffer))
-    ,
-#ifndef PS2_LINUX
-    dmaChannelId(channel)
-    ,
-#else
-    ChannelFd(GetChannelFd(channel))
-    ,
-#endif
-    uiBufferQwordSize(bufferQWSize)
+    , dmaChannelId(channel)
+    , uiBufferQwordSize(bufferQWSize)
     , bDeallocateBuffer(false)
 {
 // PLIN
-#ifndef PS2_LINUX
     mErrorIf(memMapping == Core::MemMappings::Uncached || memMapping == Core::MemMappings::UncachedAccl && (tU32)buffer & (64 - 1),
         "Dma buffer should be aligned on a cache line (64-byte boundary) when using the uncached mem mappings!");
     mErrorIf((memMapping == Core::MemMappings::Uncached || memMapping == Core::MemMappings::UncachedAccl) && bufferQWSize & (4 - 1),
         "Dma buffer size should be a whole number of cache lines (64 bytes = 4 quads) when using the uncached mem mappings!");
-#endif
 }
 
 CDmaPacket::CDmaPacket(tU32 bufferQWSize, tDmaChannelId channel, tU32 memMapping)
-    :
-#ifndef PS2_LINUX
-    dmaChannelId(channel)
-    ,
-#else
-    ChannelFd(GetChannelFd(channel))
-    ,
-#endif
-    uiBufferQwordSize(bufferQWSize)
+    : dmaChannelId(channel)
+    , uiBufferQwordSize(bufferQWSize)
     , bDeallocateBuffer(true)
 {
 // PLIN
-#ifndef PS2_LINUX
     mErrorIf((memMapping == Core::MemMappings::Uncached || memMapping == Core::MemMappings::UncachedAccl) && bufferQWSize & (4 - 1),
         "Dma buffer size should be a whole number of cache lines (64 bytes = 4 quads) when using the uncached mem mappings!");
-#endif
 
     pBase = pNext = (tU8*)AllocBuffer(bufferQWSize, memMapping);
     mAssert(pBase != NULL);
@@ -87,37 +50,20 @@ CDmaPacket::CDmaPacket(tU32 bufferQWSize, tDmaChannelId channel, tU32 memMapping
 
 CDmaPacket::~CDmaPacket()
 {
-#ifndef PS2_LINUX
     if (bDeallocateBuffer)
         free(Core::MakePtrNormal(pBase));
-#else
-    if (bDeallocateBuffer) {
-        munmap(pBase, uiBufferQwordSize * 16);
-    }
-#endif
 }
 
 void* CDmaPacket::AllocBuffer(int numQwords, unsigned int memMapping)
 {
 // an alignment of 64 bytes is strictly only necessary for uncached or uncached accl mem mappings, but
 // it ain't a bad idea in general..
-#ifndef PS2_LINUX
     tU32 alignment = 64;
     void* mem      = (void*)((tU32)memalign(alignment, numQwords * 16) | memMapping);
-#else
-    int arg = 0;
-    if (memMapping == Core::MemMappings::Uncached || memMapping == Core::MemMappings::UncachedAccl)
-        arg = 1;
-    void* mem = (void*)mmap(0, numQwords * 16, PROT_READ | PROT_WRITE,
-        MAP_SHARED, PGL_fd, arg);
-    mErrorIf((int)mem < 0, "Could not allocate dma memory");
-#endif
     // I hate to do this, but I've wasted FAR too much time hunting down cache incoherency
     if (memMapping == Core::MemMappings::Uncached || memMapping == Core::MemMappings::UncachedAccl) {
 // PLIN
-#ifndef PS2_LINUX
         FlushCache(0);
-#endif
     }
     return mem;
 }
@@ -138,7 +84,6 @@ void CDmaPacket::Send(bool waitForEnd, bool flushCache)
     tU32 pktQWLength = ((tU32)pNext - (tU32)pBase) / 16;
     mAssert(pktQWLength != 0);
 
-#ifndef PS2_LINUX
     //if ( flushCache ) FlushCache(0);
 
     // clear any memory mappings (this won't work for sp)
@@ -147,14 +92,6 @@ void CDmaPacket::Send(bool waitForEnd, bool flushCache)
     asm("sync.l");
     if (waitForEnd)
         dma_channel_fast_waits(dmaChannelId);
-#else // PS2_LINUX
-    mErrorIf(ChannelFd != GetChannelFd(DMAC::Channels::vif1),
-        "Can only send vif1 packets now in linux");
-    ioctl(PGL_fd, PS2STUFF_IOCTV1DMAK, pBase);
-    asm("sync.l");
-    if (waitForEnd)
-        ioctl(PGL_fd, PS2STUFF_IOCTV1DMAW, 0);
-#endif
 }
 
 void CDmaPacket::HexDump(tU32 numQwords)
@@ -201,16 +138,6 @@ CSCDmaPacket::CSCDmaPacket(tU128* buffer, tU32 bufferQWSize, tDmaChannelId chann
 {
 }
 
-#ifdef PS2_LINUX
-void* CSCDmaPacket::GetPhysAddr(const void* va)
-{
-    void* pa = (void*)ioctl(PGL_fd, PS2STUFF_IOCQPHYSADDR, (unsigned int)va);
-    mErrorIf(pa == 0,
-        "Couldn't translate virtual addr to physical: %p", va);
-    return pa;
-}
-#endif
-
 void CSCDmaPacket::Send(bool waitForEnd, bool flushCache)
 {
     mCheckPktLength();
@@ -218,7 +145,6 @@ void CSCDmaPacket::Send(bool waitForEnd, bool flushCache)
     // make sure we haven't forgotten to close the last dma tag
     mAssert(pOpenTag == NULL);
 
-#ifndef PS2_LINUX
     if (flushCache)
         FlushCache(0);
 
@@ -231,14 +157,6 @@ void CSCDmaPacket::Send(bool waitForEnd, bool flushCache)
 
     if (waitForEnd)
         dma_channel_fast_waits(dmaChannelId);
-#else // PS2_LINUX
-    mErrorIf(ChannelFd != GetChannelFd(DMAC::Channels::vif1),
-        "Can only send vif1 packets now in linux");
-    ioctl(PGL_fd, PS2STUFF_IOCTV1DMAK, pBase);
-    asm("sync.l");
-    if (waitForEnd)
-        ioctl(PGL_fd, PS2STUFF_IOCTV1DMAW, 0);
-#endif
 }
 
 /********************************************

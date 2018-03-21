@@ -103,13 +103,11 @@ void CImageUploadPkt::BuildXferTags(void)
 
     bool imageOnSP = false;
 
-#ifndef PS2_LINUX
     // is the image on the scratchpad?
     imageOnSP = ((tU32)pImage & 0x70000000);
     if (imageOnSP) {
         image = (tU128*)((tU32)image & 0x3ff0);
     }
-#endif
 
     tU32 width = gsrTrxReg.trans_w, height = gsrTrxReg.trans_h;
     tU32 bytesInImage = width * height * GS::GetBitsPerPixel((GS::tPSM)gsrBitBltBuf.dest_pixmode) / 8;
@@ -145,75 +143,6 @@ void CImageUploadPkt::BuildXferTags(void)
     // see comment above this function
     SetTTE(false);
 }
-//  #ifndef PS2_LINUX
-//  #else // PS2_LINUX
-#if 0
-void
-CImageUploadPkt::BuildXferTags( void )
-{
-   // see comment above this function
-   SetTTE( false );
-
-   // transfer the registers
-   this->Cnt();
-   this->Nop().Nop().Nop().OpenDirect();
-   pNext += 5 * 16;
-   this->CloseDirect().CloseTag();
-
-   this->SetTTE( true );
-
-   // some giftag defaults
-   tGifTag imageDataGifTag;
-   imageDataGifTag.PRE = 0;
-   imageDataGifTag.NREG = 0;
-   imageDataGifTag.FLG = 2; // image mode
-   imageDataGifTag.EOP = 0;
-   imageDataGifTag.NLOOP = 0;
-
-   mAssert( pImage != NULL );
-   tU128 *image = pImage;
-   // is the image on the scratchpad?
-   // on linux, no.
-//     if ( (tU32)image & 0x70000000 ) {
-//        image = (tU128*)((tU32)image & 0x3ff0);
-//     }
-
-   tU32 width = gsrTrxReg.RRW, height = gsrTrxReg.RRH;
-   tU32 bytesInImage = width * height * GS::GetBitsPerPixel((GS::tPSM)gsrBitBltBuf.DPSM) / 8;
-
-   tU32 numQuadsInImage = ( (bytesInImage & 0xf) == 0 ) ? bytesInImage / 16 : bytesInImage / 16 + 1;
-   tU32 numQuadsLeft = numQuadsInImage;
-   const tU32 maxQuadsPerGT = (1 << 15) - 1; // limited by the NLOOP field
-
-   while ( numQuadsLeft > 0 ) {
-      // set up giftag
-      tU32 numQuadsThisGT = Math::Min( numQuadsLeft, maxQuadsPerGT );
-      imageDataGifTag.NLOOP = numQuadsThisGT;
-      imageDataGifTag.EOP = (numQuadsThisGT == numQuadsLeft) ? 1 : 0;
-
-      // xfer giftag
-      this->Cnt();
-      this->Nop().OpenDirect();
-      *this += imageDataGifTag;
-      this->CloseDirect();
-      this->CloseTag();
-
-      bool imageOnSP = false; // ((tU32)pImage & 0x70000000);
-      if ( numQuadsThisGT == numQuadsLeft )
-	 this->Refe( &image[numQuadsInImage - numQuadsLeft], numQuadsThisGT, Packet::kNoIrq, imageOnSP );
-      else
-	 this->Ref( &image[numQuadsInImage - numQuadsLeft], numQuadsThisGT, Packet::kNoIrq, imageOnSP );
-
-      // these will fit in the upper 64 bits after the dma tag (ref or refe)
-      this->Nop().OpenDirect().CloseDirect( numQuadsThisGT );
-
-      numQuadsLeft -= numQuadsThisGT;
-   }
-
-   // see comment above this function
-   SetTTE( false );
-}
-#endif
 
 void CImageUploadPkt::Send(CSCDmaPacket& packet)
 {

@@ -7,8 +7,6 @@
 #ifndef matrix_h
 #define matrix_h
 
-#ifndef PS2_LINUX
-
 #include "ps2s/matrix_common.h"
 
 class zero_33;
@@ -2736,7 +2734,5 @@ inline mat_43
     result.col2 = *this * mat.get_col2();
     return result;
 }
-
-#endif // PS2_LINUX
 
 #endif // matrix_h

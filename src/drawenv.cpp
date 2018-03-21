@@ -10,9 +10,7 @@
 
 #include <stdio.h>
 
-#ifndef PS2_LINUX
 #include "dma.h"
-#endif
 
 #include "ps2s/core.h"
 #include "ps2s/drawenv.h"
