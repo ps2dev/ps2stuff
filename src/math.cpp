@@ -8,17 +8,17 @@
 
 namespace Math {
 
-	// This is the rand from K&R.  rand() is supposed to be portable, but..
-	unsigned long int next = 1;
-	int Rand( void )
-	{
-		next = next * 1103515245 + 12345;
-		return (unsigned int)(next/65536) % 32768;
-	}
+// This is the rand from K&R.  rand() is supposed to be portable, but..
+unsigned long int next = 1;
+int Rand(void)
+{
+    next = next * 1103515245 + 12345;
+    return (unsigned int)(next / 65536) % 32768;
+}
 
-	void SRand( unsigned int seed )
-	{
-		next = (unsigned long int)seed;
-	}
+void SRand(unsigned int seed)
+{
+    next = (unsigned long int)seed;
+}
 
 } // namespace Math

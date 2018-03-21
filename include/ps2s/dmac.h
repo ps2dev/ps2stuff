@@ -16,56 +16,78 @@
 
 // PLIN
 typedef struct tD_CHCR_t {
-	unsigned DIR: 1;	// Direction
-	unsigned p0 : 1;
-	unsigned MOD: 2;	// Mode
-	unsigned ASP: 2;	// Address stack pointer
-	unsigned TTE: 1;	// Tag trasfer enable
-	unsigned TIE: 1;	// Tag interrupt enable
-	unsigned STR: 1;	// start
-	unsigned p1 : 7;
-	unsigned TAG:16;	// DMAtag
+    unsigned DIR : 1; // Direction
+    unsigned p0 : 1;
+    unsigned MOD : 2; // Mode
+    unsigned ASP : 2; // Address stack pointer
+    unsigned TTE : 1; // Tag trasfer enable
+    unsigned TIE : 1; // Tag interrupt enable
+    unsigned STR : 1; // start
+    unsigned p1 : 7;
+    unsigned TAG : 16; // DMAtag
 } tD_CHCR;
 
 typedef struct tSourceChainTag_t {
-      tU64 QWC:16;
-      tU64 pad:10;
-      tU64 PCE:2;
-      tU64 ID:3;
-      tU64 IRQ:1;
-      tU64 ADDR:31;
-      tU64 SPR:1;
-      tU32 opt1;
-      tU32 opt2;
-} tSourceChainTag __attribute__ (( aligned(16) ));
+    tU64 QWC : 16;
+    tU64 pad : 10;
+    tU64 PCE : 2;
+    tU64 ID : 3;
+    tU64 IRQ : 1;
+    tU64 ADDR : 31;
+    tU64 SPR : 1;
+    tU32 opt1;
+    tU32 opt2;
+} tSourceChainTag __attribute__((aligned(16)));
 
 typedef tSourceChainTag tDmaTag;
 
 typedef struct {
-	tD_CHCR	chcr;		unsigned int	p0[3];	// channel control
-	void		*madr;	unsigned int	p1[3];	// memory address
-	unsigned int	qwc;	unsigned int	p2[3];	// transfer count
-	tDmaTag		*tadr;	unsigned int	p3[3];	// tag address
-	void		*as0;	unsigned int	p4[3];	// address stack
-	void		*as1;	unsigned int	p5[3];	// address stack
-	unsigned int	p6[4];				// pad
-	unsigned int	p7[4];				// pad
-	void		*sadr;	unsigned int	p8[3];	// spr address
+    tD_CHCR chcr;
+    unsigned int p0[3]; // channel control
+    void* madr;
+    unsigned int p1[3]; // memory address
+    unsigned int qwc;
+    unsigned int p2[3]; // transfer count
+    tDmaTag* tadr;
+    unsigned int p3[3]; // tag address
+    void* as0;
+    unsigned int p4[3]; // address stack
+    void* as1;
+    unsigned int p5[3]; // address stack
+    unsigned int p6[4]; // pad
+    unsigned int p7[4]; // pad
+    void* sadr;
+    unsigned int p8[3]; // spr address
 } tDmaChannel;
 
 /********************************************
  * DMAC
  */
 
-namespace DMAC
-{
-	namespace Channels {
-		enum eChannels { vif0, vif1, gif, fromIpu, toIpu, sif0, sif1,sif2, fromSpr, toSpr };
-	}
+namespace DMAC {
+namespace Channels {
+    enum eChannels { vif0,
+        vif1,
+        gif,
+        fromIpu,
+        toIpu,
+        sif0,
+        sif1,
+        sif2,
+        fromSpr,
+        toSpr };
+}
 
-	enum { kRefe, kCnt, kNext, kRef, kRefs, kCall, kRet, kEnd };
+enum { kRefe,
+    kCnt,
+    kNext,
+    kRef,
+    kRefs,
+    kCall,
+    kRet,
+    kEnd };
 
-	/*
+/*
 	namespace ChannelPtrs {
 		const volatile tDmaChannel *vif0 = (volatile tDmaChannel*)D0_CHCR,
 			*vif1 = (volatile tDmaChannel*)D1_CHCR,

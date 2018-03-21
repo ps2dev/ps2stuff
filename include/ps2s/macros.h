@@ -7,10 +7,10 @@
 #ifndef ps2s_macros_h
 #define ps2s_macros_h
 
-#define mCat( _a, _b ) _a ## _b
-#define mExpandCat( _a, _b ) mCat( _a, _b )
+#define mCat(_a, _b) _a##_b
+#define mExpandCat(_a, _b) mCat(_a, _b)
 
-#define mQuote( _a ) #_a
-#define mExpandQuote( _a ) mQuote( _a )
+#define mQuote(_a) #_a
+#define mExpandQuote(_a) mQuote(_a)
 
 #endif // ps2s_macros_h

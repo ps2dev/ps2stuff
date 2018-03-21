@@ -7,12 +7,12 @@
 #include "ps2s/ps2stuff.h"
 #include "ps2s/gsmem.h"
 
-void ps2sInit( void )
+void ps2sInit(void)
 {
-   GS::CMemArea::Init();
+    GS::CMemArea::Init();
 }
 
-void ps2sFinish( void )
+void ps2sFinish(void)
 {
-   GS::CMemArea::Finish();
+    GS::CMemArea::Finish();
 }

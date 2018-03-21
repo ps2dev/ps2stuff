@@ -7,7 +7,7 @@
 #ifndef ps2s_ps2stuff_h
 #define ps2s_ps2stuff_h
 
-extern "C" void ps2sInit( void );
-extern "C" void ps2sFinish( void );
+extern "C" void ps2sInit(void);
+extern "C" void ps2sFinish(void);
 
 #endif // ps2s_ps2stuff_h

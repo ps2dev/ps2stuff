@@ -8,7 +8,7 @@
 #define ps2s_debug_h
 
 #ifdef DEBUG_MODULE_NAME
-#  undef DEBUG_MODULE_NAME
+#undef DEBUG_MODULE_NAME
 #endif
 #define DEBUG_MODULE_NAME PS2S
 

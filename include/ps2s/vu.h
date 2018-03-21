@@ -7,15 +7,14 @@
 #ifndef ps2s_vu_h
 #define ps2s_vu_h
 
-#include "ps2s/types.h"
 #include "ps2s/debug.h"
+#include "ps2s/types.h"
 
 /********************************************
 	 * common
 	 */
 
 namespace VUs {
-
 }
 
 /********************************************
@@ -23,10 +22,10 @@ namespace VUs {
 	 */
 
 namespace VU0 {
-	inline void CopyQwordsToVU0( tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords );
-	inline void CopyEvenQwordsToVU0( tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords );
-	inline void CopyQwordsFromVU0( tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwords );
-	inline void CopyEvenQwordsFromVU0( tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwords );
+inline void CopyQwordsToVU0(tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords);
+inline void CopyEvenQwordsToVU0(tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords);
+inline void CopyQwordsFromVU0(tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwords);
+inline void CopyEvenQwordsFromVU0(tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwords);
 }
 
 /********************************************
@@ -34,128 +33,119 @@ namespace VU0 {
 	 */
 
 namespace VU1 {
-
 }
-
 
 /********************************************
  * VU0 inlines
  */
 
-void
-VU0::CopyQwordsToVU0( tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords )
+void VU0::CopyQwordsToVU0(tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords)
 {
-	mAssert( ((tU32)mainMemSrc & 0xf) == 0 );
+    mAssert(((tU32)mainMemSrc & 0xf) == 0);
 
-   asm volatile ("
-      .set	noreorder
-      ctc2	%2, $vi03
-      sll		$8, %0, 4   /* num bytes */
-      addu	$8, %1, $8  /* ending address */
-      .align	8
-   0:
-      lqc2	vf02, 0(%1)
-      addiu	%1, %1, 16
-      bne		%1, $8, 0b
-      vsqi	vf02, ($vi03++)
-      .set	reorder
-   "
-					  : "+r" (numQwords), "+r" (mainMemSrc)
-					  : "r" (vu0QwordOffset)
-					  : "cc","$8" );
+    asm volatile("
+                         .set noreorder
+                             ctc2
+                     % 2,
+                 $vi03
+                     sll $8,
+                 % 0, 4 /* num bytes */
+                 addu $8,
+                 % 1, $8 /* ending address */
+                          .align 8 0
+                 : lqc2 vf02, 0(% 1) addiu % 1, % 1, 16 bne % 1, $8, 0b vsqi vf02, ($vi03++).set reorder "
+                 : "+r"(numQwords), "+r"(mainMemSrc)
+                 : "r"(vu0QwordOffset)
+                 : "cc", "$8");
 }
 
-void
-VU0::CopyEvenQwordsToVU0( tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords )
+void VU0::CopyEvenQwordsToVU0(tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords)
 {
-	mAssert( ((tU32)mainMemSrc & 0xf) == 0 );
-	mErrorIf( numQwords & 1, "numQwords must be EVEN!" );
+    mAssert(((tU32)mainMemSrc & 0xf) == 0);
+    mErrorIf(numQwords & 1, "numQwords must be EVEN!");
 
-   asm volatile ("
-      .set	noreorder
+    asm volatile("
+                         .set noreorder
 
-      ctc2	%2, $vi04
-      sll		$8, %0, 4   /* num bytes */
-      addu	$8, %1, $8  /* ending address */
-      .balign	8
-   0:
-      lqc2	vf02, 0(%1)
-      addiu	%1, %1, 16
-      lqc2	vf03, 0(%1)
-      addiu	%1, %1, 16
-      vsqi	vf02, ($vi04++)
-      nop
-      bne		%1, $8, 0b
-      vsqi	vf03, ($vi04++)
+                             ctc2
+                     % 2,
+                 $vi04
+                     sll $8,
+                 % 0, 4 /* num bytes */
+                 addu $8,
+                 % 1, $8 /* ending address */
+                          .balign 8 0
+                 : lqc2 vf02, 0(% 1) addiu % 1, % 1, 16 lqc2 vf03, 0(% 1) addiu % 1, % 1, 16 vsqi vf02, ($vi04++)nop bne % 1, $8, 0b vsqi vf03, ($vi04++)
 
-      .set	reorder
-   "
-					  : "+r" (numQwords), "+r" (mainMemSrc)
-					  : "r" (vu0QwordOffset)
-					  : "cc","$8" );
+                                                                                                                                                    .set reorder "
+                 : "+r"(numQwords), "+r"(mainMemSrc)
+                 : "r"(vu0QwordOffset)
+                 : "cc", "$8");
 }
 
-void
-VU0::CopyQwordsFromVU0( tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwords )
+void VU0::CopyQwordsFromVU0(tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwords)
 {
-	mAssert( ((tU32)mainMemDest & 0xf) == 0 );
+    mAssert(((tU32)mainMemDest & 0xf) == 0);
 
-   asm volatile ("
-      .set	noreorder
+    asm volatile("
+                         .set noreorder
 
-      ctc2	%2, $vi02
-      addi	%0, %0, -16
-      sll		$8, %1, 4  /* num bytes */
-      addu	$8, $8, %0 /* ending address */
-      .balign	8
-   0:
-      vlqi	vf01, ($vi02++)
-      addiu	%0, %0, 16
-      bne		%0, $8, 0b
-      sqc2	vf01, 0(%0)
+                             ctc2
+                     % 2,
+                 $vi02
+                         addi
+                     % 0,
+                 % 0, -16 sll $8, % 1, 4 /* num bytes */
+                 addu $8,
+                 $8, % 0 /* ending address */
+                           .balign 8 0
+                 : vlqi vf01, ($vi02++)addiu % 0, % 0, 16 bne % 0, $8, 0b sqc2 vf01, 0(% 0)
 
-      .set	reorder
-   "
-					  : "+r" (mainMemDest)
-					  : "r" (numQwords), "r" (vu0QwordOffset)
-					  : "$8", "cc", "memory" );
+                                                                                         .set reorder "
+                 : "+r"(mainMemDest)
+                 : "r"(numQwords), "r"(vu0QwordOffset)
+                 : "$8", "cc", "memory");
 }
 
-void
-VU0::CopyEvenQwordsFromVU0( tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwords )
+void VU0::CopyEvenQwordsFromVU0(tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwords)
 {
-	mAssert( ((tU32)mainMemDest & 0xf) == 0 );
-	mErrorIf( numQwords & 1, "numQwords must be EVEN!" );
+    mAssert(((tU32)mainMemDest & 0xf) == 0);
+    mErrorIf(numQwords & 1, "numQwords must be EVEN!");
 
-   asm volatile ("
-      .set	noreorder
+    asm volatile("
+                         .set noreorder
 
-      ctc2	%2, $vi02
-      addi	%0, %0, -16
-      sll		$8, %1, 4  /* num bytes */
-      addu	$8, $8, %0 /* ending address */
-      .balign	8
-   0:
-      addiu	%0, %0, 16
-      vlqi	vf01, ($vi02++)
+                             ctc2
+                     % 2,
+                 $vi02
+                         addi
+                     % 0,
+                 % 0, -16 sll $8, % 1, 4 /* num bytes */
+                 addu $8,
+                 $8, % 0 /* ending address */
+                           .balign 8 0
+                 : addiu % 0, % 0, 16 vlqi vf01, ($vi02++)
 
-      vlqi	vf02, ($vi02++)
-      nop
+                                                     vlqi vf02,
+                 ($vi02++)
+                     nop
 
-      sqc2	vf01, 0(%0)
-      nop
+                         sqc2 vf01,
+                 0(% 0)
+                         nop
 
-      addu         	%0, %0, 16
-      nop
+                             addu
+                     % 0,
+                 % 0, 16 nop
 
-      bne		%0, $8, 0b
-      sqc2	vf02, 0(%0)
+                          bne
+                     % 0,
+                 $8, 0b sqc2 vf02, 0(% 0)
 
-      .set	reorder
-   "
-					  : "+r" (mainMemDest)
-					  : "r" (numQwords), "r" (vu0QwordOffset)
-					  : "$8", "cc", "memory" );
+                                       .set reorder "
+                 : "+r"(mainMemDest)
+                 : "r"(numQwords), "r"(vu0QwordOffset)
+                 : "$8", "cc", "memory");
 }
 
 #endif // ps2s_vu_h

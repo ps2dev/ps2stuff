@@ -11,229 +11,232 @@
  * includes
  */
 
-#include "ps2s/types.h"
 #include "ps2s/debug.h"
 #include "ps2s/gs_reg_types.h"
+#include "ps2s/types.h"
 
 class CSCDmaPacket;
 
 namespace GS {
 
-   /********************************************
+/********************************************
     * constants
     */
 
-   typedef enum { kContext1, kContext2 } tContext;
+typedef enum { kContext1,
+    kContext2 } tContext;
 
-   typedef enum { kPsm32 =	0,
-		  kPsm24 =	1,
-		  kPsm16 =	2,
-		  kPsm16s =	10,
-		  kPsm8 =	19,
-		  kPsm8h =	27,
-		  kPsm4 =	20,
-		  kPsm4hh =	44,
-		  kPsm4hl =	36,
+typedef enum { kPsm32 = 0,
+    kPsm24            = 1,
+    kPsm16            = 2,
+    kPsm16s           = 10,
+    kPsm8             = 19,
+    kPsm8h            = 27,
+    kPsm4             = 20,
+    kPsm4hh           = 44,
+    kPsm4hl           = 36,
 
-		  kPsmz32 =	48,
-		  kPsmz24 =	49,
-		  kPsmz16 =	50,
-		  kPsmz16s =	58,
+    kPsmz32  = 48,
+    kPsmz24  = 49,
+    kPsmz16  = 50,
+    kPsmz16s = 58,
 
-		  kInvalidPsm = -1
-   } tPSM;
+    kInvalidPsm = -1
+} tPSM;
 
-   /********************************************
+/********************************************
     * register addresses
     */
 
-   // "normal" registers
+// "normal" registers
 
-   namespace RegAddrs {
-      static const int prim		= 0x00;
-      static const int rgbaq		= 0x01;
-      static const int st		= 0x02;
-      static const int uv		= 0x03;
-      static const int xyzf2		= 0x04;
-      static const int xyz2		= 0x05;
-      static const int tex0_1		= 0x06;
-      static const int tex0_2		= 0x07;
-      static const int clamp_1		= 0x08;
-      static const int clamp_2		= 0x09;
-      static const int fog		= 0x0a;
-      static const int xyzf3		= 0x0c;
-      static const int xyz3		= 0x0d;
-      static const int tex1_1		= 0x14;
-      static const int tex1_2		= 0x15;
-      static const int tex2_1		= 0x16;
-      static const int tex2_2		= 0x17;
-      static const int xyoffset_1	= 0x18;
-      static const int xyoffset_2	= 0x19;
-      static const int prmodecont	= 0x1a;
-      static const int prmode		= 0x1b;
-      static const int texclut		= 0x1c;
-      static const int scanmsk		= 0x22;
-      static const int miptbp1_1	= 0x34;
-      static const int miptbp1_2	= 0x35;
-      static const int miptbp2_1	= 0x36;
-      static const int miptbp2_2	= 0x37;
-      static const int texa		= 0x3b;
-      static const int fogcol		= 0x3d;
-      static const int texflush		= 0x3f;
-      static const int scissor_1	= 0x40;
-      static const int scissor_2	= 0x41;
-      static const int alpha_1		= 0x42;
-      static const int alpha_2		= 0x43;
-      static const int dimx		= 0x44;
-      static const int dthe		= 0x45;
-      static const int colclamp		= 0x46;
-      static const int test_1		= 0x47;
-      static const int test_2		= 0x48;
-      static const int pabe		= 0x49;
-      static const int fba_1		= 0x4a;
-      static const int fba_2		= 0x4b;
-      static const int frame_1		= 0x4c;
-      static const int frame_2		= 0x4d;
-      static const int zbuf_1		= 0x4e;
-      static const int zbuf_2		= 0x4f;
-      static const int bitbltbuf	= 0x50;
-      static const int trxpos		= 0x51;
-      static const int trxreg		= 0x52;
-      static const int trxdir		= 0x53;
-      static const int hwreg		= 0x54;
-      static const int signal		= 0x60;
-      static const int finish		= 0x61;
-      static const int label		= 0x62;
-      static const int nop		= 0x7f;
-   }
+namespace RegAddrs {
+    static const int prim       = 0x00;
+    static const int rgbaq      = 0x01;
+    static const int st         = 0x02;
+    static const int uv         = 0x03;
+    static const int xyzf2      = 0x04;
+    static const int xyz2       = 0x05;
+    static const int tex0_1     = 0x06;
+    static const int tex0_2     = 0x07;
+    static const int clamp_1    = 0x08;
+    static const int clamp_2    = 0x09;
+    static const int fog        = 0x0a;
+    static const int xyzf3      = 0x0c;
+    static const int xyz3       = 0x0d;
+    static const int tex1_1     = 0x14;
+    static const int tex1_2     = 0x15;
+    static const int tex2_1     = 0x16;
+    static const int tex2_2     = 0x17;
+    static const int xyoffset_1 = 0x18;
+    static const int xyoffset_2 = 0x19;
+    static const int prmodecont = 0x1a;
+    static const int prmode     = 0x1b;
+    static const int texclut    = 0x1c;
+    static const int scanmsk    = 0x22;
+    static const int miptbp1_1  = 0x34;
+    static const int miptbp1_2  = 0x35;
+    static const int miptbp2_1  = 0x36;
+    static const int miptbp2_2  = 0x37;
+    static const int texa       = 0x3b;
+    static const int fogcol     = 0x3d;
+    static const int texflush   = 0x3f;
+    static const int scissor_1  = 0x40;
+    static const int scissor_2  = 0x41;
+    static const int alpha_1    = 0x42;
+    static const int alpha_2    = 0x43;
+    static const int dimx       = 0x44;
+    static const int dthe       = 0x45;
+    static const int colclamp   = 0x46;
+    static const int test_1     = 0x47;
+    static const int test_2     = 0x48;
+    static const int pabe       = 0x49;
+    static const int fba_1      = 0x4a;
+    static const int fba_2      = 0x4b;
+    static const int frame_1    = 0x4c;
+    static const int frame_2    = 0x4d;
+    static const int zbuf_1     = 0x4e;
+    static const int zbuf_2     = 0x4f;
+    static const int bitbltbuf  = 0x50;
+    static const int trxpos     = 0x51;
+    static const int trxreg     = 0x52;
+    static const int trxdir     = 0x53;
+    static const int hwreg      = 0x54;
+    static const int signal     = 0x60;
+    static const int finish     = 0x61;
+    static const int label      = 0x62;
+    static const int nop        = 0x7f;
+}
 
-   // the "special" registers
+// the "special" registers
 
-   namespace ControlRegAddrs {
+namespace ControlRegAddrs {
 
-      static const int pmode        = 0x00;
-      static const int smode2       = 0x02;
-      static const int dispfb1      = 0x07;
-      static const int display1     = 0x08;
-      static const int dispfb2      = 0x09;
-      static const int display2     = 0x0a;
-      static const int extbuf       = 0x0b;
-      static const int extdata      = 0x0c;
-      static const int extwrite     = 0x0d;
-      static const int bgcolor      = 0x0e;
-      static const int csr          = 0x40;
-      static const int imr          = 0x41;
-      static const int busdir       = 0x44;
-      static const int siglblid     = 0x48;
-   }
+    static const int pmode    = 0x00;
+    static const int smode2   = 0x02;
+    static const int dispfb1  = 0x07;
+    static const int display1 = 0x08;
+    static const int dispfb2  = 0x09;
+    static const int display2 = 0x0a;
+    static const int extbuf   = 0x0b;
+    static const int extdata  = 0x0c;
+    static const int extwrite = 0x0d;
+    static const int bgcolor  = 0x0e;
+    static const int csr      = 0x40;
+    static const int imr      = 0x41;
+    static const int busdir   = 0x44;
+    static const int siglblid = 0x48;
+}
 
-   namespace ControlRegs {
+namespace ControlRegs {
 
-      static volatile void* const pmode        = (volatile void*)0x12000000;
-      static volatile void* const smode2       = (volatile void*)0x12000020;
-      static volatile void* const dispfb1      = (volatile void*)0x12000070;
-      static volatile void* const display1     = (volatile void*)0x12000080;
-      static volatile void* const dispfb2      = (volatile void*)0x12000090;
-      static volatile void* const display2     = (volatile void*)0x120000a0;
-      static volatile void* const extbuf       = (volatile void*)0x120000b0;
-      static volatile void* const extdata      = (volatile void*)0x120000c0;
-      static volatile void* const extwrite     = (volatile void*)0x120000d0;
-      static volatile void* const bgcolor      = (volatile void*)0x120000e0;
-      static volatile void* const csr          = (volatile void*)0x12001000;
-      static volatile void* const imr          = (volatile void*)0x12001010;
-      static volatile void* const busdir       = (volatile void*)0x12001040;
-      static volatile void* const siglblid     = (volatile void*)0x12001080;
-   }
+    static volatile void* const pmode    = (volatile void*)0x12000000;
+    static volatile void* const smode2   = (volatile void*)0x12000020;
+    static volatile void* const dispfb1  = (volatile void*)0x12000070;
+    static volatile void* const display1 = (volatile void*)0x12000080;
+    static volatile void* const dispfb2  = (volatile void*)0x12000090;
+    static volatile void* const display2 = (volatile void*)0x120000a0;
+    static volatile void* const extbuf   = (volatile void*)0x120000b0;
+    static volatile void* const extdata  = (volatile void*)0x120000c0;
+    static volatile void* const extwrite = (volatile void*)0x120000d0;
+    static volatile void* const bgcolor  = (volatile void*)0x120000e0;
+    static volatile void* const csr      = (volatile void*)0x12001000;
+    static volatile void* const imr      = (volatile void*)0x12001010;
+    static volatile void* const busdir   = (volatile void*)0x12001040;
+    static volatile void* const siglblid = (volatile void*)0x12001080;
+}
 
-   /********************************************
+/********************************************
     * methods
     */
 
-   inline tU32 PackRGB( tU8 r, tU8 g, tU8 b ) {
-      return (tU32)r | ((tU32)g << 8) | ((tU32)b << 16);
-   }
-   inline tU32 PackRGBA( tU8 r, tU8 g, tU8 b, tU8 a ) {
-      return (tU32)r | ((tU32)g << 8) | ((tU32)b << 16) | ((tU32)a << 24);
-   }
+inline tU32 PackRGB(tU8 r, tU8 g, tU8 b)
+{
+    return (tU32)r | ((tU32)g << 8) | ((tU32)b << 16);
+}
+inline tU32 PackRGBA(tU8 r, tU8 g, tU8 b, tU8 a)
+{
+    return (tU32)r | ((tU32)g << 8) | ((tU32)b << 16) | ((tU32)a << 24);
+}
 
-   void Init( void );
+void Init(void);
 
-   void Flush( void );
-   void Flush( CSCDmaPacket& packet );
+void Flush(void);
+void Flush(CSCDmaPacket& packet);
 
-   inline unsigned int GetBitsPerPixel( tPSM psm );
-   void ReorderClut( tU32* oldClut, tU32* newClut );
+inline unsigned int GetBitsPerPixel(tPSM psm);
+void ReorderClut(tU32* oldClut, tU32* newClut);
 
 } // namespace GS
 
 namespace GIF {
-   namespace Registers {
-      static volatile tU128* const fifo		= (volatile tU128*)0x10006000;
-   }
+namespace Registers {
+    static volatile tU128* const fifo = (volatile tU128*)0x10006000;
+}
 }
 
 typedef struct tGifTag_t {
-	unsigned long NLOOP:15;
-	unsigned long EOP:1;
-	unsigned long pad0:16;
-	unsigned long id:14;
-	unsigned long PRE:1;
-	unsigned long PRIM:11;
-	unsigned long FLG:2;
-	unsigned long NREG:4;
-	unsigned long REGS0:4;
-	unsigned long REGS1:4;
-	unsigned long REGS2:4;
-	unsigned long REGS3:4;
-	unsigned long REGS4:4;
-	unsigned long REGS5:4;
-	unsigned long REGS6:4;
-	unsigned long REGS7:4;
-	unsigned long REGS8:4;
-	unsigned long REGS9:4;
-	unsigned long REGS10:4;
-	unsigned long REGS11:4;
-	unsigned long REGS12:4;
-	unsigned long REGS13:4;
-	unsigned long REGS14:4;
-	unsigned long REGS15:4;
+    unsigned long NLOOP : 15;
+    unsigned long EOP : 1;
+    unsigned long pad0 : 16;
+    unsigned long id : 14;
+    unsigned long PRE : 1;
+    unsigned long PRIM : 11;
+    unsigned long FLG : 2;
+    unsigned long NREG : 4;
+    unsigned long REGS0 : 4;
+    unsigned long REGS1 : 4;
+    unsigned long REGS2 : 4;
+    unsigned long REGS3 : 4;
+    unsigned long REGS4 : 4;
+    unsigned long REGS5 : 4;
+    unsigned long REGS6 : 4;
+    unsigned long REGS7 : 4;
+    unsigned long REGS8 : 4;
+    unsigned long REGS9 : 4;
+    unsigned long REGS10 : 4;
+    unsigned long REGS11 : 4;
+    unsigned long REGS12 : 4;
+    unsigned long REGS13 : 4;
+    unsigned long REGS14 : 4;
+    unsigned long REGS15 : 4;
 } tGifTag __attribute__((aligned(16)));
 
 inline unsigned int
-GS::GetBitsPerPixel( tPSM psm )
+GS::GetBitsPerPixel(tPSM psm)
 {
-   tU32 bpp = 0;
+    tU32 bpp = 0;
 
-   switch( psm ) {
-      case kPsm32:
-      case kPsmz32:
-	 bpp = 32;
-	 break;
-      case kPsm24:
-      case kPsmz24:
-	 bpp = 24;
-	 break;
-      case kPsm16:
-      case kPsm16s:
-      case kPsmz16:
-      case kPsmz16s:
-	 bpp = 16;
-	 break;
-      case kPsm8:
-      case kPsm8h:
-	 bpp = 8;
-	 break;
-      case kPsm4:
-      case kPsm4hl:
-      case kPsm4hh:
-	 bpp = 4;
-	 break;
-      default:
-	 mAssert( false );
-	 break;
-   }
+    switch (psm) {
+    case kPsm32:
+    case kPsmz32:
+        bpp = 32;
+        break;
+    case kPsm24:
+    case kPsmz24:
+        bpp = 24;
+        break;
+    case kPsm16:
+    case kPsm16s:
+    case kPsmz16:
+    case kPsmz16s:
+        bpp = 16;
+        break;
+    case kPsm8:
+    case kPsm8h:
+        bpp = 8;
+        break;
+    case kPsm4:
+    case kPsm4hl:
+    case kPsm4hh:
+        bpp = 4;
+        break;
+    default:
+        mAssert(false);
+        break;
+    }
 
-   return bpp;
+    return bpp;
 }
 
 #endif // ps2s_gs_h
