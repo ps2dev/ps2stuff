@@ -11,10 +11,6 @@
  * includes
  */
 
-// PLIN
-//  #include <libgraph.h>
-//  #include <eestruct.h>
-
 #include "ps2s/core.h"
 #include "ps2s/dmac.h"
 #include "ps2s/gs.h"
@@ -130,7 +126,7 @@ public:
 
     inline void SetDepthTestPassMode(tZTestPassMode passMode)
     {
-        gsrTest.ztest_enable = (tU64)passMode;
+        gsrTest.ztest_method = (tU64)passMode;
         eZTestPassMode       = passMode;
     }
     inline void SetDepthBufferAddr(tU32 wordAddress) { gsrZBuf.fb_addr = wordAddress / 2048; }
@@ -143,7 +139,7 @@ public:
     inline void DisableDepthTest(void)
     {
         gsrZBuf.update_mask  = 1;
-        gsrTest.ztest_enable = (tU64)ZTest::kAlways;
+        gsrTest.ztest_method = (tU64)ZTest::kAlways;
     }
     inline void SetDepthWriteEnabled(bool write) { gsrZBuf.update_mask = !write; }
 

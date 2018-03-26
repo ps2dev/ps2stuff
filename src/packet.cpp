@@ -28,7 +28,7 @@ CDmaPacket::CDmaPacket(tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel, 
     , uiBufferQwordSize(bufferQWSize)
     , bDeallocateBuffer(false)
 {
-// PLIN
+    // PLIN
     mErrorIf(memMapping == Core::MemMappings::Uncached || memMapping == Core::MemMappings::UncachedAccl && (tU32)buffer & (64 - 1),
         "Dma buffer should be aligned on a cache line (64-byte boundary) when using the uncached mem mappings!");
     mErrorIf((memMapping == Core::MemMappings::Uncached || memMapping == Core::MemMappings::UncachedAccl) && bufferQWSize & (4 - 1),
@@ -40,7 +40,7 @@ CDmaPacket::CDmaPacket(tU32 bufferQWSize, tDmaChannelId channel, tU32 memMapping
     , uiBufferQwordSize(bufferQWSize)
     , bDeallocateBuffer(true)
 {
-// PLIN
+    // PLIN
     mErrorIf((memMapping == Core::MemMappings::Uncached || memMapping == Core::MemMappings::UncachedAccl) && bufferQWSize & (4 - 1),
         "Dma buffer size should be a whole number of cache lines (64 bytes = 4 quads) when using the uncached mem mappings!");
 
@@ -56,13 +56,13 @@ CDmaPacket::~CDmaPacket()
 
 void* CDmaPacket::AllocBuffer(int numQwords, unsigned int memMapping)
 {
-// an alignment of 64 bytes is strictly only necessary for uncached or uncached accl mem mappings, but
-// it ain't a bad idea in general..
+    // an alignment of 64 bytes is strictly only necessary for uncached or uncached accl mem mappings, but
+    // it ain't a bad idea in general..
     tU32 alignment = 64;
     void* mem      = (void*)((tU32)memalign(alignment, numQwords * 16) | memMapping);
     // I hate to do this, but I've wasted FAR too much time hunting down cache incoherency
     if (memMapping == Core::MemMappings::Uncached || memMapping == Core::MemMappings::UncachedAccl) {
-// PLIN
+        // PLIN
         FlushCache(0);
     }
     return mem;
@@ -84,12 +84,14 @@ void CDmaPacket::Send(bool waitForEnd, bool flushCache)
     tU32 pktQWLength = ((tU32)pNext - (tU32)pBase) / 16;
     mAssert(pktQWLength != 0);
 
-    //if ( flushCache ) FlushCache(0);
+    // dma_channel_send_normal always flushes the data cache
+    //if (flushCache)
+    //    FlushCache(0);
 
     // clear any memory mappings (this won't work for sp)
-    dma_wait_fast();
+    dma_channel_fast_waits(dmaChannelId);
     dma_channel_send_normal(dmaChannelId, (void*)((tU32)pBase & 0x0fffffff), pktQWLength, 0, 0);
-    asm("sync.l");
+
     if (waitForEnd)
         dma_channel_fast_waits(dmaChannelId);
 }
@@ -145,15 +147,13 @@ void CSCDmaPacket::Send(bool waitForEnd, bool flushCache)
     // make sure we haven't forgotten to close the last dma tag
     mAssert(pOpenTag == NULL);
 
+    // dma_channel_send_chain does NOT flush all data that is "source chained"
     if (flushCache)
         FlushCache(0);
 
-    // tell the channel whether to xfer the 64 bits above the dma tags
-    //pDmaChannel->chcr.TTE = bTTE;
-
     // clear any memory mappings (this won't work for sp)
-    dma_wait_fast();
-    dma_channel_send_chain(dmaChannelId, (void*)((tU32)pBase & 0x0fffffff), 0 /* data_size for cache flush... */, bTTE ? DMA_FLAG_TRANSFERTAG : 0, 0);
+    dma_channel_fast_waits(dmaChannelId);
+    dma_channel_send_chain(dmaChannelId, (void*)((tU32)pBase & 0x0fffffff), 0, bTTE ? DMA_FLAG_TRANSFERTAG : 0, 0);
 
     if (waitForEnd)
         dma_channel_fast_waits(dmaChannelId);

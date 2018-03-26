@@ -120,13 +120,11 @@ public:
     inline void SetBGColor(tU8 r, tU8 g, tU8 b)
     {
         gsrBGColor.R = r;
-        gsrBGColor.G = g, gsrBGColor.B = b;
+        gsrBGColor.G = g;
+        gsrBGColor.B = b;
     }
 
     void SendSettings(void);
-
-    /// Set the file descriptor for the /dev gs device
-    static void InitGsFd(int gs_fd) { GS_fd = gs_fd; }
 
     inline void* operator new(size_t size)
     {
@@ -156,8 +154,6 @@ private:
         unsigned int wordAddr, unsigned int bufWidth,
         unsigned int xOffsetInBuf, unsigned int yOffsetInBuf,
         unsigned int psm);
-
-    static int GS_fd;
 } __attribute((aligned(16)));
 
 void CDisplayEnv::GsDisplayModeIs(tDisplayMode mode)

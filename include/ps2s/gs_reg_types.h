@@ -7,8 +7,8 @@
 #ifndef pgl_gs_reg_types_h
 #define pgl_gs_reg_types_h
 
-#include "ps2s/types.h"
 #include "libgs.h"
+#include "ps2s/types.h"
 
 namespace GS {
 

@@ -14,20 +14,12 @@
 namespace GS {
 
 /********************************************
-    * static stuff
-    */
-
-int CDisplayEnv::GS_fd = -1;
-
-/********************************************
     * methods
     */
 
 CDisplayEnv::CDisplayEnv(void)
 {
-    printf("this = %p, &gsrPMode = %p\n", this, &gsrPMode);
     *(tU64*)&gsrPMode = (tU64)0;
-    puts("after");
 
     gsrPMode.CRTMD = 0;
 

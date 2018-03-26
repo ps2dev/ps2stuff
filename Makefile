@@ -2,6 +2,8 @@ EE_LIB = libps2stuff.a
 
 EE_LDFLAGS  += -L. -L$(PS2SDK)/ports/lib
 EE_INCS     += -I./include -I$(PS2SDK)/ports/include
+EE_CFLAGS   += -D_DEBUG
+EE_CXXFLAGS += -D_DEBUG
 # VU0 code is broken so disable for now
 EE_CFLAGS   += -DNO_VU0_VECTORS
 EE_CXXFLAGS += -DNO_VU0_VECTORS
@@ -39,6 +41,6 @@ clean:
 realclean: clean
 	rm -rf $(PS2SDK)/ports/include/ps2s
 	rm -f  $(PS2SDK)/ports/lib/$(EE_LIB)
-	
+
 include $(PS2SDK)/Defs.make
-include ../ps2sdk-ports/Makefile.eeglobal
+include ../Makefile.eeglobal
