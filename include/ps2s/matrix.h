@@ -8,6 +8,7 @@
 #define matrix_h
 
 #include "ps2s/matrix_common.h"
+#include <math.h>
 
 class zero_33;
 class zero_44;

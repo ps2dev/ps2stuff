@@ -7,6 +7,8 @@
 #ifndef ps2s_vif_h
 #define ps2s_vif_h
 
+#include <ps2s/types.h>
+
 namespace Vifs {
 
 /********************************************
