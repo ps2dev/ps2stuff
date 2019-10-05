@@ -43,4 +43,4 @@ realclean: clean
 	rm -f  $(PS2SDK)/ports/lib/$(EE_LIB)
 
 include $(PS2SDK)/Defs.make
-include ../Makefile.eeglobal
+include $(PS2SDK)/samples/Makefile.eeglobal
