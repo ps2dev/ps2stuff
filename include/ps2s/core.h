@@ -119,9 +119,9 @@ Core::FToI4(float flp)
 {
     tU32 fip;
 
-    asm __volatile__("qmtc2		%1, vf01	\n"
-                     "vftoi4	vf01, vf01	\n"
-                     "qmfc2		%0, vf01	\n"
+    asm __volatile__("qmtc2		%1, $vf1	\n"
+                     "vftoi4	$vf1, $vf1	\n"
+                     "qmfc2		%0, $vf1	\n"
                      : "=r"(fip)
                      : "r"(flp));
 

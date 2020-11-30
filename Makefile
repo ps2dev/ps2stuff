@@ -5,8 +5,8 @@ EE_INCS     += -I./include -I$(PS2SDK)/ports/include
 EE_CFLAGS   += -D_DEBUG
 EE_CXXFLAGS += -D_DEBUG
 # VU0 code is broken so disable for now
-EE_CFLAGS   += -DNO_VU0_VECTORS
-EE_CXXFLAGS += -DNO_VU0_VECTORS
+EE_CFLAGS   += -DNO_VU0_VECTORS -DNO_ASM
+EE_CXXFLAGS += -DNO_VU0_VECTORS -DNO_ASM
 
 EE_OBJS = \
 	src/core.o \

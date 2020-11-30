@@ -217,7 +217,7 @@ void CTexEnv::SetDimensions(tU32 w, tU32 h)
     // perspective tex mapping (but what about plain old (u,v)?? -- FIXME)
 
     int page_width   = 64;
-    unsigned int bpp = GS::GetBitsPerPixel((enum GS::tPSM)gsrTex0.psm);
+    unsigned int bpp = GS::GetBitsPerPixel((GS::tPSM)gsrTex0.psm);
     if (bpp == 8 || bpp == 4)
         page_width = 128;
 
