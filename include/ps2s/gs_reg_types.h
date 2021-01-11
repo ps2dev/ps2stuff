@@ -45,7 +45,7 @@ typedef struct {
     tU64 pad59 : 1 __attribute__((packed));
     tU64 DIMX33 : 3 __attribute__((packed));
     tU64 pad63 : 1 __attribute__((packed));
-} tDimx __attribute__((packed));
+} __attribute__((packed)) tDimx ;
 
 typedef GS_ALPHA tAlpha;
 typedef GS_BITBLTBUF tBitbltbuf;
