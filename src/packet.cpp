@@ -29,7 +29,7 @@ CDmaPacket::CDmaPacket(tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel, 
     , bDeallocateBuffer(false)
 {
     // PLIN
-    mErrorIf(memMapping == Core::MemMappings::Uncached || memMapping == Core::MemMappings::UncachedAccl && (tU32)buffer & (64 - 1),
+    mErrorIf(memMapping == Core::MemMappings::Uncached || ((memMapping == Core::MemMappings::UncachedAccl) && ((tU32)buffer & (64 - 1))),
         "Dma buffer should be aligned on a cache line (64-byte boundary) when using the uncached mem mappings!");
     mErrorIf((memMapping == Core::MemMappings::Uncached || memMapping == Core::MemMappings::UncachedAccl) && bufferQWSize & (4 - 1),
         "Dma buffer size should be a whole number of cache lines (64 bytes = 4 quads) when using the uncached mem mappings!");

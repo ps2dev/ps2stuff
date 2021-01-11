@@ -174,7 +174,7 @@ void CDrawEnv::SendSettings(bool waitForEnd, bool flushCache)
 void CDrawEnv::SendSettings(CSCDmaPacket& packet)
 {
     bool opened_tag;
-    if (opened_tag = !packet.HasOpenTag())
+    if ((opened_tag = !packet.HasOpenTag()))
         packet.Cnt();
     packet.Add(&SettingsGifTag, uiNumGSRegs + 1);
     if (opened_tag)
