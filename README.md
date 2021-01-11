@@ -1,0 +1,55 @@
+# ps2stuff
+
+![CI](https://github.com/ps2dev/ps2stuff/workflows/CI/badge.svg)
+
+```
+Copyright (C) 2000,2001,2002  Sony Computer Entertainment America
+
+This file is subject to the terms and conditions of the GNU Lesser General Public License Version 2.1. See the file "COPYING" in the main directory of this archive for more details.                            
+```
+
+
+## Contact
+Tyler Daniel - tyler_daniel@playstation.com
+
+
+## General/About
+`ps2stuff` is, as the name implies, a collection of stuff that I have
+found useful for ps2 development. `ps2stuff` is most notably used by `ps2gl`,
+which generally motivates new releases.
+
+
+## Documentation
+
+Hmm... I should probably write some.  The header files are all the
+documentation that exists now...
+
+## Compiling
+
+`ps2stuff` uses the UberMakefile, developed here at SCEA R&D.  There is
+some documentation at the top of the Makefile, but here is a
+quickstart:
+
+You'll usually do 'make [buildname] [target]' where buildname is one
+of the build names listed in Makefile.builds and target is usually
+`clean` or nothing.  If no build is given then the environment
+variable BUILDNAME is used, if that is not defined then the
+DEFAULTBUILD specified in the Makefile is used.  So `make` will build
+the default build given in the Makefile, `make linux` will build a
+linux build, and `make optimized` will build a native (non-linux) build.
+
+## Conventions
+
+If you're modifiying existing code, follow the conventions for that module,
+otherwise use standard conventions.
+
+Here are the conventions I use: local stuff starts with lowercase, non-local
+with uppercase and an optional lowercase prefix, "someVar" not "some_var,"
+constants start with `k`, macros start with `m`, classes start with `C`.
+
+Please don't use the c preprocessor unless absolutely necessary; inlines instead
+of macros, and `static const float SomeVariable = 1.0f` not `#define
+SOME_VARIABLE 1.0f`.  There is no memory or speed disadvantage to either of
+the above.
+
+
