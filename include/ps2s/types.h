@@ -12,7 +12,7 @@
 typedef unsigned char tU8;
 typedef unsigned short int tU16;
 typedef unsigned int tU32;
-typedef unsigned long tU64;
+typedef unsigned long long tU64;
 // it doesn't really make sense to have a non-16-byte-aligned qword type...
 typedef unsigned int tU128 __attribute__((mode(TI), aligned(16)));
 
