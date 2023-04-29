@@ -171,6 +171,7 @@ void ReorderClut(tU32* oldClut, tU32* newClut);
 
 namespace GIF {
 namespace Registers {
+    static volatile tU32* const ctrl = (volatile tU32*)0x10003000;
     static volatile tU128* const fifo = (volatile tU128*)0x10006000;
 }
 }
