@@ -89,11 +89,11 @@ void CDmaPacket::Send(bool waitForEnd, bool flushCache)
     //    FlushCache(0);
 
     // clear any memory mappings (this won't work for sp)
-    dma_channel_fast_waits(dmaChannelId);
+    dma_channel_wait(dmaChannelId, 1000000);
     dma_channel_send_normal(dmaChannelId, (void*)((tU32)pBase & 0x0fffffff), pktQWLength, 0, 0);
 
     if (waitForEnd)
-        dma_channel_fast_waits(dmaChannelId);
+        dma_channel_wait(dmaChannelId, 1000000);
 }
 
 void CDmaPacket::HexDump(tU32 numQwords)
@@ -101,7 +101,7 @@ void CDmaPacket::HexDump(tU32 numQwords)
     if (numQwords == 0)
         numQwords = ((tU32)pNext - (tU32)pBase) / 16;
 
-    printf("dumping %d words\n", ((tU32)pNext - (tU32)pBase) / 4);
+    printf("dumping %d words (%d qwords)\n", ((tU32)pNext - (tU32)pBase) / 4, numQwords);
 
     tU32 i = 0;
     for (tU32 *nextWord = (tU32*)pBase; nextWord != (tU32*)pNext; nextWord++, i++) {
@@ -152,11 +152,11 @@ void CSCDmaPacket::Send(bool waitForEnd, bool flushCache)
         FlushCache(0);
 
     // clear any memory mappings (this won't work for sp)
-    dma_channel_fast_waits(dmaChannelId);
+    dma_channel_wait(dmaChannelId, 1000000);
     dma_channel_send_chain(dmaChannelId, (void*)((tU32)pBase & 0x0fffffff), 0, bTTE ? DMA_FLAG_TRANSFERTAG : 0, 0);
 
     if (waitForEnd)
-        dma_channel_fast_waits(dmaChannelId);
+        dma_channel_wait(dmaChannelId, 1000000);
 }
 
 /********************************************
