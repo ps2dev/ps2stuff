@@ -104,7 +104,7 @@ public:
         unsigned int screenX = 0, unsigned int screenY = 0,
         unsigned int magH = 4, unsigned int magV = 1);
 
-    inline void GsDisplayModeIs(tDisplayMode mode);
+    inline void SetDisplayMode(tDisplayMode mode);
 
     // blending the two read circuits
     inline void BlendRC1WithBG(void) { gsrPMode.SLBG = 1; }
@@ -156,13 +156,18 @@ private:
         unsigned int psm);
 } __attribute((aligned(16)));
 
-void CDisplayEnv::GsDisplayModeIs(tDisplayMode mode)
+void CDisplayEnv::SetDisplayMode(tDisplayMode mode)
 {
     using namespace DisplayModes;
+
     switch (mode) {
     case ntsc:
         HorizontalOverScan = 158 * 4;
         VerticalOverScan   = 50 * 1;
+        break;
+    case pal:
+        HorizontalOverScan = 158 * 4; // untested!
+        VerticalOverScan   = 50 * 1;  // untested!
         break;
     case dtv:
         HorizontalOverScan = 302;
@@ -170,6 +175,7 @@ void CDisplayEnv::GsDisplayModeIs(tDisplayMode mode)
         break;
     default:
         mError("This display mode isn't handled yet..somebody type in the values.");
+        return;
     }
 }
 

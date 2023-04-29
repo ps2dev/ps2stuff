@@ -11,6 +11,8 @@
 #include "ps2s/displayenv.h"
 #include "ps2s/utils.h"
 
+#include <kernel.h>
+
 namespace GS {
 
 /********************************************
@@ -24,7 +26,7 @@ CDisplayEnv::CDisplayEnv(void)
     gsrPMode.CRTMD = 0;
 
     // some reasonable (?) defaults
-    GsDisplayModeIs(DisplayModes::ntsc);
+    SetDisplayMode(DisplayModes::ntsc);
     SetUseReadCircuit1(false);
     SetUseReadCircuit2(true);
     BlendRC1WithRC2();
@@ -79,12 +81,12 @@ void CDisplayEnv::SetDisplay(tGsrDisplay* displayReg,
 void CDisplayEnv::SendSettings(void)
 {
     using namespace GS::ControlRegs;
-    //*(tU64*)pmode = *(tU64*)&gsrPMode;
-    *(tU64*)dispfb1 = *(tU64*)&gsrDispFB1;
-    *(tU64*)dispfb2 = *(tU64*)&gsrDispFB2;
-    //*(tU64*)display1 = *(tU64*)&gsrDisplay1;
-    //*(tU64*)display2 = *(tU64*)&gsrDisplay2;
-    *(tU64*)bgcolor = *(tU64*)&gsrBGColor;
+    *(tU64*)pmode    = *(tU64*)&gsrPMode;
+    *(tU64*)dispfb1  = *(tU64*)&gsrDispFB1;
+    *(tU64*)dispfb2  = *(tU64*)&gsrDispFB2;
+    *(tU64*)display1 = *(tU64*)&gsrDisplay1;
+    *(tU64*)display2 = *(tU64*)&gsrDisplay2;
+    *(tU64*)bgcolor  = *(tU64*)&gsrBGColor;
 }
 
 } // namespace GS
