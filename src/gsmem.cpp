@@ -108,15 +108,13 @@ void CMemSlotList::PrintSlots()
 
 void CMemSlotList::RemoveSlot(CMemSlot* slot)
 {
-    bool found        = false;
     tSlotIter curSlot = Slots.begin();
     for (; curSlot != Slots.end(); curSlot++)
         if (*curSlot == slot) {
-            found = true;
             break;
         }
 
-    mErrorIf(!found, "This list does not contain the specified slot!");
+    mErrorIf((*curSlot != slot), "This list does not contain the specified slot!");
 
     Slots.erase(curSlot);
 }

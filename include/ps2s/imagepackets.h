@@ -70,10 +70,8 @@ public:
     void Send(CSCDmaPacket& packet);
     void Send(CVifSCDmaPacket& packet);
 
-    inline void* operator new(size_t size)
-    {
-        return Core::New16(size);
-    }
+    inline void* operator new(size_t size) { return Core::New16(size); }
+    inline void operator delete(void* p) { Core::Delete16(p); }
 
 protected:
 private:
@@ -135,10 +133,8 @@ public:
     inline void Send(CSCDmaPacket& packet) { CImageUploadPkt::Send(packet); }
     inline void Send(CVifSCDmaPacket& packet) { CImageUploadPkt::Send(packet); }
 
-    inline void* operator new(size_t size)
-    {
-        return Core::New16(size);
-    }
+    inline void* operator new(size_t size) { return Core::New16(size); }
+    inline void operator delete(void* p) { Core::Delete16(p); }
 };
 
 #endif // ps2s_imagepackets_h

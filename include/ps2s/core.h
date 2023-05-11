@@ -57,10 +57,14 @@ inline ptrType MakePtrUncachedAccl(ptrType ptr)
 
 // used to override new() to allocate on qword boundaries (only for linux)
 
-// PLIN -- need to override delete as well...
 inline void* New16(size_t size)
 {
-    return ::operator new(size);
+    return ::operator new(size, std::align_val_t(16));
+}
+
+inline void Delete16(void* p)
+{
+    ::operator delete(p);
 }
 
 // cop0 counter

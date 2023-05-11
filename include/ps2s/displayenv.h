@@ -126,10 +126,8 @@ public:
 
     void SendSettings(void);
 
-    inline void* operator new(size_t size)
-    {
-        return Core::New16(size);
-    }
+    inline void* operator new(size_t size) { return Core::New16(size); }
+    inline void operator delete(void* p) { Core::Delete16(p); }
 
 protected:
 private:
