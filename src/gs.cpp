@@ -17,8 +17,8 @@ typedef struct {
     tGifTag gt;
     tU64 texFlush;
     tU64 texFlushAddr;
-} tFlushPkt;
-static tFlushPkt FlushPkt __attribute__((aligned(16)));
+} __attribute__((packed,aligned(16))) tFlushPkt;
+static tFlushPkt FlushPkt;
 
 /********************************************
  * functions

@@ -37,7 +37,7 @@ typedef struct tSourceChainTag_t {
     tU64 SPR : 1;
     tU32 opt1;
     tU32 opt2;
-} tSourceChainTag __attribute__((aligned(16)));
+} __attribute__((packed,aligned(16))) tSourceChainTag;
 
 typedef tSourceChainTag tDmaTag;
 

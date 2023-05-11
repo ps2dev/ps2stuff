@@ -193,34 +193,37 @@ public:
     inline void operator delete(void* p) { Core::Delete16(p); }
 
 protected:
-    tSourceChainTag SettingsDmaTag;
-    tGifTag SettingsGifTag;
-    GS::tFrame gsrFrame;
-    tU64 FrameAddr;
-    GS::tZbuf gsrZBuf;
-    tU64 ZBufAddr;
-    GS::tXyoffset gsrXYOffset;
-    tU64 XYOffsetAddr;
-    GS::tPrmodecont gsrPrModeCont;
-    tU64 PrModeContAddr;
-    GS::tColclamp gsrColClamp;
-    tU64 ColClampAddr;
-    GS::tTest gsrTest;
-    tU64 TestAddr;
-    GS::tAlpha gsrAlpha;
-    tU64 AlphaAddr;
-    GS::tPabe gsrPABE;
-    tU64 PABEAddr;
-    GS::tFba gsrFBA;
-    tU64 FBAAddr;
-    GS::tDthe gsrDTHE;
-    tU64 DTHEAddr;
-    GS::tDimx gsrDIMX;
-    tU64 DIMXAddr;
-    GS::tScissor gsrScissor;
-    tU64 ScissorAddr;
-    GS::tFogcol gsrFogCol;
-    tU64 FogColAddr;
+    struct {
+        // DMA tag + GIF tag + 13 register settings
+        tSourceChainTag SettingsDmaTag;
+        tGifTag SettingsGifTag;
+        GS::tFrame gsrFrame;
+        tU64 FrameAddr;
+        GS::tZbuf gsrZBuf;
+        tU64 ZBufAddr;
+        GS::tXyoffset gsrXYOffset;
+        tU64 XYOffsetAddr;
+        GS::tPrmodecont gsrPrModeCont;
+        tU64 PrModeContAddr;
+        GS::tColclamp gsrColClamp;
+        tU64 ColClampAddr;
+        GS::tTest gsrTest;
+        tU64 TestAddr;
+        GS::tAlpha gsrAlpha;
+        tU64 AlphaAddr;
+        GS::tPabe gsrPABE;
+        tU64 PABEAddr;
+        GS::tFba gsrFBA;
+        tU64 FBAAddr;
+        GS::tDthe gsrDTHE;
+        tU64 DTHEAddr;
+        GS::tDimx gsrDIMX;
+        tU64 DIMXAddr;
+        GS::tScissor gsrScissor;
+        tU64 ScissorAddr;
+        GS::tFogcol gsrFogCol;
+        tU64 FogColAddr;
+    } __attribute__((packed,aligned(16)));
     tU32 uiNumGSRegs;
 
     CSCDmaPacket GifPacket;
@@ -232,7 +235,7 @@ protected:
 private:
     void InitCommon(GS::tContext context);
 
-} __attribute__((aligned(16)));
+};
 
 /********************************************
     * inline methods
