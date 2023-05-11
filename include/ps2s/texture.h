@@ -204,7 +204,7 @@ private:
 
     void InitCommon(GS::tContext context);
 
-} __attribute__((aligned(16)));
+};
 
 /********************************************
     * CClut
