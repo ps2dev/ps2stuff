@@ -120,25 +120,26 @@ public:
     CTexEnv(const CTexEnv& rhs);
     CTexEnv& operator=(const CTexEnv& rhs);
 
-    inline void* operator new(size_t size)
-    {
-        return Core::New16(size);
-    }
+    inline void* operator new(size_t size) { return Core::New16(size); }
+    inline void operator delete(void* p) { Core::Delete16(p); }
 
 protected:
     // gs packet to setup texture environment
-    tSourceChainTag SettingsDmaTag;
-    tGifTag SettingsGifTag;
-    GS::tTexflush gsrTexflush;
-    tU64 TexflushAddr;
-    GS::tClamp gsrClamp;
-    tU64 ClampAddr;
-    GS::tTex1 gsrTex1;
-    tU64 Tex1Addr;
-    GS::tTex0 gsrTex0;
-    tU64 Tex0Addr;
-    GS::tTexa gsrTexA;
-    tU64 TexAAddr;
+    struct {
+        // DMA tag + GIF tag + 5 register settings
+        tSourceChainTag SettingsDmaTag;
+        tGifTag SettingsGifTag;
+        GS::tTexflush gsrTexflush;
+        tU64 TexflushAddr;
+        GS::tClamp gsrClamp;
+        tU64 ClampAddr;
+        GS::tTex1 gsrTex1;
+        tU64 Tex1Addr;
+        GS::tTex0 gsrTex0;
+        tU64 Tex0Addr;
+        GS::tTexa gsrTexA;
+        tU64 TexAAddr;
+    } __attribute__((packed,aligned(16)));
 
     tU32 uiNumSettingsGSRegs;
     tU32 uiTexPixelWidth, uiTexPixelHeight;
@@ -148,7 +149,7 @@ protected:
 private:
     void InitCommon(GS::tContext context);
 
-} __attribute__((aligned(16)));
+};
 
 /********************************************
     * CTexture
@@ -203,7 +204,7 @@ private:
 
     void InitCommon(GS::tContext context);
 
-} __attribute__((aligned(16)));
+};
 
 /********************************************
     * CClut

@@ -202,7 +202,7 @@ typedef struct tGifTag_t {
     unsigned long long REGS13 : 4;
     unsigned long long REGS14 : 4;
     unsigned long long REGS15 : 4;
-} tGifTag __attribute__((aligned(16)));
+} __attribute__((packed,aligned(16))) tGifTag;
 
 inline unsigned int
 GS::GetBitsPerPixel(tPSM psm)

@@ -82,23 +82,24 @@ public:
 
     CDmaPacket& GetPacket(void) { return GifPacket; }
 
-    inline void* operator new(size_t size)
-    {
-        return Core::New16(size);
-    }
+    inline void* operator new(size_t size) { return Core::New16(size); }
+    inline void operator delete(void* p) { Core::Delete16(p); }
 
 protected:
 private:
-    tGifTag DrawGifTag;
-    tU32 Color[4];
-    tTexCoords TexCoords1;
-    tU32 Vertex1[4];
-    tTexCoords TexCoords2;
-    tU32 Vertex2[4];
+    struct {
+        // GIF tag + 5 qwords data
+        tGifTag DrawGifTag;
+        tU32 Color[4];
+        tTexCoords TexCoords1;
+        tU32 Vertex1[4];
+        tTexCoords TexCoords2;
+        tU32 Vertex2[4];
+    } __attribute__((packed,aligned(16)));
 
     CDmaPacket GifPacket;
 
-} __attribute__((aligned(16)));
+};
 
 /********************************************
  * inline methods

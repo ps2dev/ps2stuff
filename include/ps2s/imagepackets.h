@@ -70,32 +70,33 @@ public:
     void Send(CSCDmaPacket& packet);
     void Send(CVifSCDmaPacket& packet);
 
-    inline void* operator new(size_t size)
-    {
-        return Core::New16(size);
-    }
+    inline void* operator new(size_t size) { return Core::New16(size); }
+    inline void operator delete(void* p) { Core::Delete16(p); }
 
 protected:
 private:
     // gs packet to setup the texture image transfer
-    tU128 FirstDmaTag;
-    tGifTag ImageXferSettingsGifTag;
-    GS::tBitbltbuf gsrBitBltBuf;
-    tU64 BitBltBufAddr;
-    GS::tTrxpos gsrTrxPos;
-    tU64 TrxPosAddr;
-    GS::tTrxreg gsrTrxReg;
-    tU64 TrxRegAddr;
-    GS::tTrxdir gsrTrxDir;
-    tU64 TrxDirAddr;
-    tU128 RestOfPacket[15];
+    struct {
+        // DMA tag + GIF tag + 4 register settings (+ 15 rest ?)
+        tU128 FirstDmaTag;
+        tGifTag ImageXferSettingsGifTag;
+        GS::tBitbltbuf gsrBitBltBuf;
+        tU64 BitBltBufAddr;
+        GS::tTrxpos gsrTrxPos;
+        tU64 TrxPosAddr;
+        GS::tTrxreg gsrTrxReg;
+        tU64 TrxRegAddr;
+        GS::tTrxdir gsrTrxDir;
+        tU64 TrxDirAddr;
+        tU128 RestOfPacket[15];
+    } __attribute__((packed,aligned(16)));
 
     tU32 uiNumXferGSRegs;
     tU128* pImage;
 
     void InitCommon(void);
     void BuildXferTags(void);
-} __attribute__((aligned(16)));
+};
 
 /********************************************
  * CClutUploadPkt
@@ -135,10 +136,8 @@ public:
     inline void Send(CSCDmaPacket& packet) { CImageUploadPkt::Send(packet); }
     inline void Send(CVifSCDmaPacket& packet) { CImageUploadPkt::Send(packet); }
 
-    inline void* operator new(size_t size)
-    {
-        return Core::New16(size);
-    }
+    inline void* operator new(size_t size) { return Core::New16(size); }
+    inline void operator delete(void* p) { Core::Delete16(p); }
 };
 
 #endif // ps2s_imagepackets_h
