@@ -26,9 +26,9 @@ namespace GS {
  * CTexEnv methods
  */
 
-CTexEnv::CTexEnv(GS::tContext context, tU32 width, tU32 height, GS::tPSM psm)
+CTexEnv::CTexEnv(GS::tContext context, uint32_t width, uint32_t height, GS::tPSM psm)
     : uiNumSettingsGSRegs(5)
-    , SettingsPacket((tU128*)&SettingsDmaTag, uiNumSettingsGSRegs + 2,
+    , SettingsPacket((uint128_t*)&SettingsDmaTag, uiNumSettingsGSRegs + 2,
           DMAC::Channels::gif, Packet::kDontXferTags,
           Core::MemMappings::Normal, Packet::kFull)
 {
@@ -42,7 +42,7 @@ CTexEnv::CTexEnv(GS::tContext context)
     : uiNumSettingsGSRegs(5)
     ,
     // gee, it's too bad c++ doesn't have a way of chaining constructors....
-    SettingsPacket((tU128*)&SettingsDmaTag, uiNumSettingsGSRegs + 2,
+    SettingsPacket((uint128_t*)&SettingsDmaTag, uiNumSettingsGSRegs + 2,
         DMAC::Channels::gif, Packet::kDontXferTags,
         Core::MemMappings::Normal, Packet::kFull)
 {
@@ -53,7 +53,7 @@ CTexEnv::CTexEnv(const CTexEnv& rhs)
     : uiNumSettingsGSRegs(5)
     ,
     // gee, it's too bad c++ doesn't have a way of chaining constructors....
-    SettingsPacket((tU128*)&SettingsDmaTag, uiNumSettingsGSRegs + 2,
+    SettingsPacket((uint128_t*)&SettingsDmaTag, uiNumSettingsGSRegs + 2,
         DMAC::Channels::gif, Packet::kDontXferTags,
         Core::MemMappings::Normal, Packet::kFull)
 {
@@ -128,24 +128,24 @@ void CTexEnv::InitCommon(GS::tContext context)
     gsrTex1.k    = 0;
 
     // make sure things are qword aligned (I don't trust the compiler...)
-    mAssert(((tU32)&SettingsGifTag & 0xf) == 0);
+    mAssert(((uint32_t)&SettingsGifTag & 0xf) == 0);
 }
 
 CTexEnv&
 CTexEnv::operator=(const CTexEnv& rhs)
 {
-    Utils::MemCpy128(reinterpret_cast<tU128*>(&SettingsGifTag), reinterpret_cast<const tU128*>(&rhs.SettingsGifTag), uiNumSettingsGSRegs + 1);
+    Utils::MemCpy128(reinterpret_cast<uint128_t*>(&SettingsGifTag), reinterpret_cast<const uint128_t*>(&rhs.SettingsGifTag), uiNumSettingsGSRegs + 1);
     uiTexPixelHeight = rhs.uiTexPixelHeight;
     uiTexPixelWidth  = rhs.uiTexPixelWidth;
     return *this;
 }
 
-void CTexEnv::SetImageGsAddr(tU32 gsMemWordAddress)
+void CTexEnv::SetImageGsAddr(uint32_t gsMemWordAddress)
 {
     gsrTex0.tb_addr = gsMemWordAddress / 64;
 }
 
-void CTexEnv::SetClutGsAddr(tU32 gsMemWordAddress)
+void CTexEnv::SetClutGsAddr(uint32_t gsMemWordAddress)
 {
     gsrTex0.cb_addr = gsMemWordAddress / 64;
 }
@@ -172,7 +172,7 @@ void CTexEnv::SendSettings(bool waitForEnd, bool flushCache)
 void CTexEnv::SendSettings(CSCDmaPacket& packet)
 {
     packet.Cnt();
-    packet.Add((tU128*)&SettingsGifTag, uiNumSettingsGSRegs + 1);
+    packet.Add((uint128_t*)&SettingsGifTag, uiNumSettingsGSRegs + 1);
     packet.CloseTag();
 }
 
@@ -188,26 +188,26 @@ void CTexEnv::SendSettings(CVifSCDmaPacket& packet)
         }
 
         packet.OpenDirect();
-        packet.Add((tU128*)&SettingsGifTag, uiNumSettingsGSRegs + 1);
+        packet.Add((uint128_t*)&SettingsGifTag, uiNumSettingsGSRegs + 1);
         packet.CloseDirect();
     }
     packet.CloseTag();
 }
 
-void CTexEnv::SetDimensions(tU32 w, tU32 h)
+void CTexEnv::SetDimensions(uint32_t w, uint32_t h)
 {
     uiTexPixelWidth  = w;
     uiTexPixelHeight = h;
 
     // get the log base 2 of the dimensions
-    tU32 logW = Math::Log2(w);
-    tU32 logH = Math::Log2(h);
+    uint32_t logW = Math::Log2(w);
+    uint32_t logH = Math::Log2(h);
 
     // if the texture dimensions are not powers of two, they need to be rounded up
     // to the next power of two
-    if (((tU32)1 << logW) != w)
+    if (((uint32_t)1 << logW) != w)
         logW++;
-    if (((tU32)1 << logH) != h)
+    if (((uint32_t)1 << logH) != h)
         logH++;
 
     gsrTex0.tex_width  = logW;
@@ -232,7 +232,7 @@ void CTexEnv::SetDimensions(tU32 w, tU32 h)
 // all pretty reasonable, but REGION_REPEAT uses the bitwise operations & and | instead of the % and + operations
 // that you would expect.  RTM.
 
-void CTexEnv::SetRegion(tU32 originU, tU32 originV, tU32 w, tU32 h)
+void CTexEnv::SetRegion(uint32_t originU, uint32_t originV, uint32_t w, uint32_t h)
 {
     tTexWrapMode sMode, tMode;
     sMode = (gsrClamp.wrap_mode_s & 2) ? (tTexWrapMode)(3 - gsrClamp.wrap_mode_s) : (tTexWrapMode)gsrClamp.wrap_mode_s;
@@ -257,8 +257,8 @@ void CTexEnv::SetRegion(tU32 originU, tU32 originV, tU32 w, tU32 h)
         gsrClamp.max_clamp_v = originV;
     }
 
-    gsrClamp.wrap_mode_s = 3 - (tU32)sMode;
-    gsrClamp.wrap_mode_t = 3 - (tU32)tMode;
+    gsrClamp.wrap_mode_s = 3 - (uint32_t)sMode;
+    gsrClamp.wrap_mode_t = 3 - (uint32_t)tMode;
 
     // see note above this method
     mAssert((sMode == kClamp) || (((gsrClamp.max_clamp_u & gsrClamp.min_clamp_u) == 0) && Math::IsPow2(gsrClamp.min_clamp_u + 1)));
@@ -293,11 +293,11 @@ void CTexEnv::SetWrapModeS(tTexWrapMode sMode)
     tTexWrapMode oldMode = (gsrClamp.wrap_mode_s & 2) ? (tTexWrapMode)(3 - gsrClamp.wrap_mode_s) : (tTexWrapMode)sMode;
     if (oldMode != sMode) {
         if (oldMode == kRepeat) {
-            tU32 temp            = gsrClamp.min_clamp_u;
+            uint32_t temp            = gsrClamp.min_clamp_u;
             gsrClamp.min_clamp_u = gsrClamp.max_clamp_u;
             gsrClamp.max_clamp_u += temp;
         } else {
-            tU32 temp            = gsrClamp.min_clamp_u;
+            uint32_t temp            = gsrClamp.min_clamp_u;
             gsrClamp.min_clamp_u = gsrClamp.max_clamp_u - gsrClamp.min_clamp_u;
             gsrClamp.max_clamp_u = temp;
         }
@@ -319,11 +319,11 @@ void CTexEnv::SetWrapModeT(tTexWrapMode tMode)
     tTexWrapMode oldMode = (gsrClamp.wrap_mode_t & 2) ? (tTexWrapMode)(3 - gsrClamp.wrap_mode_t) : (tTexWrapMode)tMode;
     if (oldMode != tMode) {
         if (oldMode == kRepeat) {
-            tU32 temp            = gsrClamp.min_clamp_v;
+            uint32_t temp            = gsrClamp.min_clamp_v;
             gsrClamp.min_clamp_v = gsrClamp.max_clamp_v;
             gsrClamp.max_clamp_v += temp;
         } else {
-            tU32 temp            = gsrClamp.min_clamp_v;
+            uint32_t temp            = gsrClamp.min_clamp_v;
             gsrClamp.min_clamp_v = gsrClamp.max_clamp_v - gsrClamp.min_clamp_v;
             gsrClamp.max_clamp_v = temp;
         }
@@ -369,35 +369,35 @@ void CTexture::InitCommon(GS::tContext context)
     bFreeMemOnExit  = false;
 }
 
-void CTexture::SetImageGsAddr(tU32 gsMemWordAddress)
+void CTexture::SetImageGsAddr(uint32_t gsMemWordAddress)
 {
     CTexEnv::SetImageGsAddr(gsMemWordAddress);
     // gsrBitBltBuf.DBP = gsMemWordAddress/64;
     pImageUploadPkt->SetGsAddr(gsMemWordAddress);
 }
 
-void CTexture::SetClutGsAddr(tU32 gsMemWordAddress)
+void CTexture::SetClutGsAddr(uint32_t gsMemWordAddress)
 {
     CTexEnv::SetClutGsAddr(gsMemWordAddress);
     pClutUploadPkt->SetGsAddr(gsMemWordAddress);
 }
 
-tU128*
-CTexture::AllocMem(tU32 w, tU32 h, GS::tPSM psm)
+uint128_t*
+CTexture::AllocMem(uint32_t w, uint32_t h, GS::tPSM psm)
 {
     mAssert(pImage == NULL);
 
-    tU128* image = (tU128*)malloc(h * w * GS::GetBitsPerPixel(psm) / 8);
+    uint128_t* image = (uint128_t*)malloc(h * w * GS::GetBitsPerPixel(psm) / 8);
     mAssert(image != NULL);
     bFreeMemOnExit = true;
 
     return image;
 }
 
-void CTexture::SetImage(tU128* imagePtr, tU32 w, tU32 h, GS::tPSM psm, tU32* clutPtr)
+void CTexture::SetImage(uint128_t* imagePtr, uint32_t w, uint32_t h, GS::tPSM psm, uint32_t* clutPtr)
 {
     // make sure the image is qword aligned
-    mAssert(((tU32)imagePtr & 0xf) == 0);
+    mAssert(((uint32_t)imagePtr & 0xf) == 0);
 
     pImage = imagePtr;
 
@@ -409,8 +409,8 @@ void CTexture::SetImage(tU128* imagePtr, tU32 w, tU32 h, GS::tPSM psm, tU32* clu
     // I think this isn't necessary anymore...
     /*
       // width of the area in gs mem (64 pixel units) to use
-      tU32 gsBufWidth = ( (w % 64) != 0 ) ? w/64 + 1 : w/64;
-      gsBufWidth = Math::Max( ((tU32)1 << gsrTex0.tex_width) / 64, gsBufWidth );
+      uint32_t gsBufWidth = ( (w % 64) != 0 ) ? w/64 + 1 : w/64;
+      gsBufWidth = Math::Max( ((uint32_t)1 << gsrTex0.tex_width) / 64, gsBufWidth );
       gsrTex0.tb_width = gsBufWidth;
       */
 
@@ -420,7 +420,7 @@ void CTexture::SetImage(tU128* imagePtr, tU32 w, tU32 h, GS::tPSM psm, tU32* clu
     pImageUploadPkt->SetImage(imagePtr, w, h, psm);
 
     // clut
-    pClut = (tU128*)clutPtr;
+    pClut = (uint128_t*)clutPtr;
     if (clutPtr != NULL) {
         mAssert(pClutUploadPkt == NULL);
         pClutUploadPkt = new CClutUploadPkt;
@@ -481,26 +481,26 @@ CClut::CClut(const void* table, int numEntries)
     : GsAddr(0)
 {
     UploadPkt = new CClutUploadPkt;
-    UploadPkt->SetClut((tU32*)table);
+    UploadPkt->SetClut((uint32_t*)table);
 }
 
 /********************************************
     * CCheckTex methods
     */
 
-CCheckTex::CCheckTex(GS::tContext context, tU32 width, tU32 height, tU32 xCellSize, tU32 yCellSize, tU32 color1, tU32 color2)
+CCheckTex::CCheckTex(GS::tContext context, uint32_t width, uint32_t height, uint32_t xCellSize, uint32_t yCellSize, uint32_t color1, uint32_t color2)
     : CTexture(context)
 {
-    tU128* image = AllocMem(width, height, GS::kPsm32);
+    uint128_t* image = AllocMem(width, height, GS::kPsm32);
     SetImage(image, width, height, GS::kPsm32);
 
     MakeCheckerboard(xCellSize, yCellSize, color1, color2);
 }
 
-void CCheckTex::MakeCheckerboard(tU32 xCellSize, tU32 yCellSize, tU32 color1, tU32 color2)
+void CCheckTex::MakeCheckerboard(uint32_t xCellSize, uint32_t yCellSize, uint32_t color1, uint32_t color2)
 {
-    tU32* curPixel = (tU32*)pImage;
-    tU32 row, col;
+    uint32_t* curPixel = (uint32_t*)pImage;
+    uint32_t row, col;
     for (row = 0; row < uiTexPixelHeight; row++) {
         for (col = 0; col < uiTexPixelWidth; col++)
             *curPixel++ = (Math::IsEven(row / yCellSize) ^ Math::IsEven(col / xCellSize)) ? color1 : color2;

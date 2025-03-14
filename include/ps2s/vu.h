@@ -22,10 +22,10 @@ namespace VUs {
 	 */
 
 namespace VU0 {
-inline void CopyQwordsToVU0(tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords);
-inline void CopyEvenQwordsToVU0(tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords);
-inline void CopyQwordsFromVU0(tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwords);
-inline void CopyEvenQwordsFromVU0(tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwords);
+inline void CopyQwordsToVU0(uint32_t vu0QwordOffset, uint128_t* mainMemSrc, uint32_t numQwords);
+inline void CopyEvenQwordsToVU0(uint32_t vu0QwordOffset, uint128_t* mainMemSrc, uint32_t numQwords);
+inline void CopyQwordsFromVU0(uint128_t* mainMemDest, uint32_t vu0QwordOffset, uint32_t numQwords);
+inline void CopyEvenQwordsFromVU0(uint128_t* mainMemDest, uint32_t vu0QwordOffset, uint32_t numQwords);
 }
 
 /********************************************
@@ -39,9 +39,9 @@ namespace VU1 {
  * VU0 inlines
  */
 
-void VU0::CopyQwordsToVU0(tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords)
+void VU0::CopyQwordsToVU0(uint32_t vu0QwordOffset, uint128_t* mainMemSrc, uint32_t numQwords)
 {
-    mAssert(((tU32)mainMemSrc & 0xf) == 0);
+    mAssert(((uint32_t)mainMemSrc & 0xf) == 0);
 
     asm volatile("
                          .set noreorder
@@ -59,9 +59,9 @@ void VU0::CopyQwordsToVU0(tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords
                  : "cc", "$8");
 }
 
-void VU0::CopyEvenQwordsToVU0(tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQwords)
+void VU0::CopyEvenQwordsToVU0(uint32_t vu0QwordOffset, uint128_t* mainMemSrc, uint32_t numQwords)
 {
-    mAssert(((tU32)mainMemSrc & 0xf) == 0);
+    mAssert(((uint32_t)mainMemSrc & 0xf) == 0);
     mErrorIf(numQwords & 1, "numQwords must be EVEN!");
 
     asm volatile("
@@ -83,9 +83,9 @@ void VU0::CopyEvenQwordsToVU0(tU32 vu0QwordOffset, tU128* mainMemSrc, tU32 numQw
                  : "cc", "$8");
 }
 
-void VU0::CopyQwordsFromVU0(tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwords)
+void VU0::CopyQwordsFromVU0(uint128_t* mainMemDest, uint32_t vu0QwordOffset, uint32_t numQwords)
 {
-    mAssert(((tU32)mainMemDest & 0xf) == 0);
+    mAssert(((uint32_t)mainMemDest & 0xf) == 0);
 
     asm volatile("
                          .set noreorder
@@ -107,9 +107,9 @@ void VU0::CopyQwordsFromVU0(tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwo
                  : "$8", "cc", "memory");
 }
 
-void VU0::CopyEvenQwordsFromVU0(tU128* mainMemDest, tU32 vu0QwordOffset, tU32 numQwords)
+void VU0::CopyEvenQwordsFromVU0(uint128_t* mainMemDest, uint32_t vu0QwordOffset, uint32_t numQwords)
 {
-    mAssert(((tU32)mainMemDest & 0xf) == 0);
+    mAssert(((uint32_t)mainMemDest & 0xf) == 0);
     mErrorIf(numQwords & 1, "numQwords must be EVEN!");
 
     asm volatile("

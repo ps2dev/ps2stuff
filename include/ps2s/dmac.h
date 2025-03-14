@@ -28,15 +28,15 @@ typedef struct tD_CHCR_t {
 } tD_CHCR;
 
 typedef struct tSourceChainTag_t {
-    tU64 QWC : 16;
-    tU64 pad : 10;
-    tU64 PCE : 2;
-    tU64 ID : 3;
-    tU64 IRQ : 1;
-    tU64 ADDR : 31;
-    tU64 SPR : 1;
-    tU32 opt1;
-    tU32 opt2;
+    uint64_t QWC : 16;
+    uint64_t pad : 10;
+    uint64_t PCE : 2;
+    uint64_t ID : 3;
+    uint64_t IRQ : 1;
+    uint64_t ADDR : 31;
+    uint64_t SPR : 1;
+    uint32_t opt1;
+    uint32_t opt2;
 } __attribute__((packed,aligned(16))) tSourceChainTag;
 
 typedef tSourceChainTag tDmaTag;

@@ -16,11 +16,11 @@
 	 */
 
 namespace Utils {
-inline void MemCpy128(tU128* dest, const tU128* src, tU32 numQwords);
+inline void MemCpy128(uint128_t* dest, const uint128_t* src, uint32_t numQwords);
 
-inline void QwordHexDump(tU32* mem, tU32 numQwords);
-inline void QwordDecDump(tU32* mem, tU32 numQwords);
-inline void QwordFloatDump(float* mem, tU32 numQwords);
+inline void QwordHexDump(uint32_t* mem, uint32_t numQwords);
+inline void QwordDecDump(uint32_t* mem, uint32_t numQwords);
+inline void QwordFloatDump(float* mem, uint32_t numQwords);
 }
 
 /********************************************
@@ -28,35 +28,35 @@ inline void QwordFloatDump(float* mem, tU32 numQwords);
  */
 
 inline void
-Utils::MemCpy128(tU128* dest, const tU128* src, tU32 numQwords)
+Utils::MemCpy128(uint128_t* dest, const uint128_t* src, uint32_t numQwords)
 {
-    mAssert(((tU32)dest & 0xf) == 0 && ((tU32)src & 0xf) == 0);
+    mAssert(((uint32_t)dest & 0xf) == 0 && ((uint32_t)src & 0xf) == 0);
     while (numQwords-- > 0)
         *(dest++) = *(src++);
 }
 
 inline void
-Utils::QwordHexDump(tU32* mem, tU32 numQwords)
+Utils::QwordHexDump(uint32_t* mem, uint32_t numQwords)
 {
-    tU32 i;
+    uint32_t i;
     for (i = 0; i < numQwords; i++, mem += 4)
-        printf("%08x: 0x%08x 0x%08x 0x%08x 0x%08x\n", (tU32)mem, mem[0], mem[1], mem[2], mem[3]);
+        printf("%08lx: 0x%08lx 0x%08lx 0x%08lx 0x%08lx\n", (uint32_t)mem, mem[0], mem[1], mem[2], mem[3]);
 }
 
 inline void
-Utils::QwordDecDump(tU32* mem, tU32 numQwords)
+Utils::QwordDecDump(uint32_t* mem, uint32_t numQwords)
 {
-    tU32 i;
+    uint32_t i;
     for (i = 0; i < numQwords; i++, mem += 4)
-        printf("%08x: %d %d %d %d\n", (tU32)mem, mem[0], mem[1], mem[2], mem[3]);
+        printf("%08lx: %ld %ld %ld %ld\n", (uint32_t)mem, mem[0], mem[1], mem[2], mem[3]);
 }
 
 inline void
-Utils::QwordFloatDump(float* mem, tU32 numQwords)
+Utils::QwordFloatDump(float* mem, uint32_t numQwords)
 {
-    tU32 i;
+    uint32_t i;
     for (i = 0; i < numQwords; i++, mem += 4)
-        printf("%08x: %f %f %f %f\n", (tU32)mem, mem[0], mem[1], mem[2], mem[3]);
+        printf("%08lx: %f %f %f %f\n", (uint32_t)mem, mem[0], mem[1], mem[2], mem[3]);
 }
 
 #endif // ps2s_utils_h

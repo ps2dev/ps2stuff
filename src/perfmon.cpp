@@ -93,7 +93,7 @@ PerfTest::prfDef PerfTest::prfTable[NUM_PRF_TESTS] = {
 
 PerfTest::PerfTest()
 {
-    tU32 n;
+    uint32_t n;
     int n0 = 0;
     int n1 = 0;
 
@@ -123,7 +123,7 @@ PerfTest::~PerfTest()
 
 void PerfTest::StepTests()
 {
-    for (tU32 n = 0; n != Core::COP0_NUM_PERF_COUNTERS; n++) {
+    for (uint32_t n = 0; n != Core::COP0_NUM_PERF_COUNTERS; n++) {
         m_iCurrentTest[n] = GetNextTestID(n, m_iCurrentTest[n]);
     }
 }
@@ -178,7 +178,7 @@ void PerfTest::DumpStats(int nLoops)
     }
     printf("\n");
 
-    for (tU32 n = 0; n != NUM_PRF_TESTS; n++) {
+    for (uint32_t n = 0; n != NUM_PRF_TESTS; n++) {
         int lval = 0;
         if (m_testVals[n] == MPRF_NOT_READY) {
             printf("NOT_READY ");
@@ -237,7 +237,7 @@ int PerfTest::sDumpStats(char* buffer, int nLoops)
     }
     nc += sprintf(buffer + nc, "\n");
 
-    for (tU32 n = 0; n != NUM_PRF_TESTS; n++) {
+    for (uint32_t n = 0; n != NUM_PRF_TESTS; n++) {
         if (m_testVals[n] == MPRF_NOT_READY) {
             nc += sprintf(buffer + nc, "NOT_READY ");
         } else {
@@ -272,7 +272,7 @@ int PerfTest::sDumpStats(char* buffer, int nLoops)
     return nc;
 }
 
-int PerfTest::GetNextTestID(tU32 counter_id, tU32 ctest)
+int PerfTest::GetNextTestID(uint32_t counter_id, uint32_t ctest)
 {
     if (counter_id >= 2)
         return 0;

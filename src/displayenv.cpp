@@ -21,7 +21,7 @@ namespace GS {
 
 CDisplayEnv::CDisplayEnv(void)
 {
-    *(tU64*)&gsrPMode = (tU64)0;
+    *(uint64_t*)&gsrPMode = (uint64_t)0;
 
     gsrPMode.CRTMD = 0;
 
@@ -81,12 +81,12 @@ void CDisplayEnv::SetDisplay(tGsrDisplay* displayReg,
 void CDisplayEnv::SendSettings(void)
 {
     using namespace GS::ControlRegs;
-    *(tU64*)pmode    = *(tU64*)&gsrPMode;
-    *(tU64*)dispfb1  = *(tU64*)&gsrDispFB1;
-    *(tU64*)dispfb2  = *(tU64*)&gsrDispFB2;
-    *(tU64*)display1 = *(tU64*)&gsrDisplay1;
-    *(tU64*)display2 = *(tU64*)&gsrDisplay2;
-    *(tU64*)bgcolor  = *(tU64*)&gsrBGColor;
+    *(uint64_t*)pmode    = *(uint64_t*)&gsrPMode;
+    *(uint64_t*)dispfb1  = *(uint64_t*)&gsrDispFB1;
+    *(uint64_t*)dispfb2  = *(uint64_t*)&gsrDispFB2;
+    *(uint64_t*)display1 = *(uint64_t*)&gsrDisplay1;
+    *(uint64_t*)display2 = *(uint64_t*)&gsrDisplay2;
+    *(uint64_t*)bgcolor  = *(uint64_t*)&gsrBGColor;
 }
 
 } // namespace GS

@@ -133,7 +133,7 @@ public:
         tMode.OVFF = 0;
     }
 
-    inline void SetCompareValue(tU16 val)
+    inline void SetCompareValue(uint16_t val)
     {
         tComp  = val;
         *pComp = tComp;
@@ -168,7 +168,7 @@ public:
 protected:
     Timers::tMode tMode;
     Timers::tCount tCount;
-    tU16 tComp;
+    uint16_t tComp;
     tResolution Resolution;
 
     volatile unsigned int* pMode;
