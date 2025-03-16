@@ -59,8 +59,8 @@ static const bool kNotMasked  = false;
 class CDmaPacket {
 public:
     // need to add support for different memory mappings
-    CDmaPacket(tU32 bufferQWSize, tDmaChannelId channel, tU32 memMapping = Core::MemMappings::Normal);
-    CDmaPacket(tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel, tU32 memMapping = Core::MemMappings::Normal, bool isFull = false);
+    CDmaPacket(uint32_t bufferQWSize, tDmaChannelId channel, uint32_t memMapping = Core::MemMappings::Normal);
+    CDmaPacket(uint128_t* buffer, uint32_t bufferQWSize, tDmaChannelId channel, uint32_t memMapping = Core::MemMappings::Normal, bool isFull = false);
 
     virtual ~CDmaPacket(void);
 
@@ -71,14 +71,14 @@ public:
     template <class dataType>
     inline dataType* Add(const dataType data);
     template <class dataType>
-    inline dataType* Add(const dataType* data, tU32 num);
+    inline dataType* Add(const dataType* data, uint32_t num);
 
     // to use these you MUST cast to CDmaPacket&!! (otherwise you'll get a compiler error..  I
     // could make inlines for all of CDmaPacket's descendants, but I will certainly forget to
     // update them at some point in the future, when I may not be lucky enough to have
     // the compiler catch it...)
     void operator+=(const CDmaPacket& otherPkt);
-    inline tU128* Add(const CDmaPacket& otherPkt);
+    inline uint128_t* Add(const CDmaPacket& otherPkt);
 
     inline void Reset(void) { pNext = pBase; }
     inline void SetDmaChannel(tDmaChannelId channel);
@@ -86,22 +86,22 @@ public:
 
     // accessors
 
-    tU128* GetBase(void) const { return (tU128*)pBase; }
-    tU8* GetNextPtr(void) const { return pNext; }
-    tU32 GetByteLength(void) const { return (tU32)pNext - (tU32)pBase; }
+    uint128_t* GetBase(void) const { return (uint128_t*)pBase; }
+    uint8_t* GetNextPtr(void) const { return pNext; }
+    uint32_t GetByteLength(void) const { return (uint32_t)pNext - (uint32_t)pBase; }
 
     static void* AllocBuffer(int numQwords, unsigned int memMapping);
     // be VERY careful using this.. it swaps its internal dma buffer with the new,
     // returning the old..  be aware of where memory is being deallocated..
     void* SwapOutBuffer(void* newBuffer);
 
-    void HexDump(tU32 numQwords = 0);
+    void HexDump(uint32_t numQwords = 0);
     virtual void Print(void);
 
 protected:
-    tU8 *pBase, *pNext;
+    uint8_t *pBase, *pNext;
     tDmaChannelId dmaChannelId;
-    tU32 uiBufferQwordSize;
+    uint32_t uiBufferQwordSize;
 
 private:
     // And on the third day it was proclaimed: "Thou shalt not copy dma packets!"
@@ -120,8 +120,8 @@ private:
 
 class CSCDmaPacket : public CDmaPacket {
 public:
-    CSCDmaPacket(tU32 bufferQWSize, tDmaChannelId channel, bool tte, tU32 memMapping = Core::MemMappings::Normal);
-    CSCDmaPacket(tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel, bool tte, tU32 memMapping = Core::MemMappings::Normal, bool isFull = false);
+    CSCDmaPacket(uint32_t bufferQWSize, tDmaChannelId channel, bool tte, uint32_t memMapping = Core::MemMappings::Normal);
+    CSCDmaPacket(uint128_t* buffer, uint32_t bufferQWSize, tDmaChannelId channel, bool tte, uint32_t memMapping = Core::MemMappings::Normal, bool isFull = false);
     virtual ~CSCDmaPacket(void) {}
 
     template <class dataType>
@@ -129,24 +129,24 @@ public:
     template <class dataType>
     inline dataType* Add(const dataType data);
     template <class dataType>
-    inline dataType* Add(const dataType* data, tU32 num);
+    inline dataType* Add(const dataType* data, uint32_t num);
 
     inline void operator+=(const CDmaPacket& otherPkt);
-    inline tU128* Add(const CDmaPacket& otherPkt);
+    inline uint128_t* Add(const CDmaPacket& otherPkt);
 
-    inline CSCDmaPacket& Cnt(bool irq = false, tU32 pce = 0, bool sp = false);
-    inline CSCDmaPacket& Next(const tDmaTag* nextTag, bool irq = false, bool sp = false, tU32 pce = 0);
-    inline CSCDmaPacket& Ref(const void* refData, tU32 dataQWLen, bool irq = false, bool sp = false, tU32 pce = 0);
-    inline CSCDmaPacket& Refs(const void* refData, tU32 dataQWLen, bool irq = false, bool sp = false, tU32 pce = 0);
-    inline CSCDmaPacket& Refe(const void* refData, tU32 dataQWLen, bool irq = false, bool sp = false, tU32 pce = 0);
-    inline CSCDmaPacket& Call(const void* nextTag, bool irq = false, bool sp = false, tU32 pce = 0);
-    inline CSCDmaPacket& Call(const CSCDmaPacket& pkt, bool irq = false, bool sp = false, tU32 pce = 0);
-    inline CSCDmaPacket& Ret(bool irq = false, tU32 pce = 0);
-    inline CSCDmaPacket& End(bool irq = false, tU32 pce = 0);
+    inline CSCDmaPacket& Cnt(bool irq = false, uint32_t pce = 0, bool sp = false);
+    inline CSCDmaPacket& Next(const tDmaTag* nextTag, bool irq = false, bool sp = false, uint32_t pce = 0);
+    inline CSCDmaPacket& Ref(const void* refData, uint32_t dataQWLen, bool irq = false, bool sp = false, uint32_t pce = 0);
+    inline CSCDmaPacket& Refs(const void* refData, uint32_t dataQWLen, bool irq = false, bool sp = false, uint32_t pce = 0);
+    inline CSCDmaPacket& Refe(const void* refData, uint32_t dataQWLen, bool irq = false, bool sp = false, uint32_t pce = 0);
+    inline CSCDmaPacket& Call(const void* nextTag, bool irq = false, bool sp = false, uint32_t pce = 0);
+    inline CSCDmaPacket& Call(const CSCDmaPacket& pkt, bool irq = false, bool sp = false, uint32_t pce = 0);
+    inline CSCDmaPacket& Ret(bool irq = false, uint32_t pce = 0);
+    inline CSCDmaPacket& End(bool irq = false, uint32_t pce = 0);
     inline CSCDmaPacket& CloseTag(void);
 
-    CSCDmaPacket& Pad96(tU32 padData);
-    CSCDmaPacket& Pad128(tU32 padData);
+    CSCDmaPacket& Pad96(uint32_t padData);
+    CSCDmaPacket& Pad128(uint32_t padData);
 
     virtual void Send(bool waitForEnd = false, bool flushCache = true);
 
@@ -156,19 +156,19 @@ public:
     bool HasOpenTag() const { return pOpenTag != NULL; }
 
 protected:
-    void SetDmaTag(tDmaTag* tag, tU32 QWC, tU32 PCE, tU32 ID, tU32 IRQ, const tU128* ADDR, tU32 SPR);
+    void SetDmaTag(tDmaTag* tag, uint32_t QWC, uint32_t PCE, uint32_t ID, uint32_t IRQ, const uint128_t* ADDR, uint32_t SPR);
 
     bool bTTE;
     tDmaTag* pOpenTag;
-    tU32 uiTTEBytesLeft;
+    uint32_t uiTTEBytesLeft;
 
 private:
     // these will be passed as u32's as the QWC field, which is only 16 bits wide
     // so it should be ok to use the upper half-word
-    static const tU32 countQWC     = 1 << 16;
-    static const tU32 dontCountQWC = 1 << 17;
+    static const uint32_t countQWC     = 1 << 16;
+    static const uint32_t dontCountQWC = 1 << 17;
 
-    inline void AddDmaTag(tU32 QWC, tU32 PCE, tU32 ID, tU32 IRQ, const tU128* ADDR, tU32 SPR);
+    inline void AddDmaTag(uint32_t QWC, uint32_t PCE, uint32_t ID, uint32_t IRQ, const uint128_t* ADDR, uint32_t SPR);
 
     // see the note in CDmaPacket
     CSCDmaPacket(const CSCDmaPacket& pktToCopy);
@@ -181,47 +181,47 @@ private:
 
 class CVifSCDmaPacket : public CSCDmaPacket {
 public:
-    CVifSCDmaPacket(tU32 bufferQWSize, tDmaChannelId channel, bool tte, tU32 memMapping = Core::MemMappings::Normal);
-    CVifSCDmaPacket(tU128* buffer, tU32 bufferQWSize, tDmaChannelId channel, bool tte, tU32 memMapping = Core::MemMappings::Normal, bool isFull = false);
+    CVifSCDmaPacket(uint32_t bufferQWSize, tDmaChannelId channel, bool tte, uint32_t memMapping = Core::MemMappings::Normal);
+    CVifSCDmaPacket(uint128_t* buffer, uint32_t bufferQWSize, tDmaChannelId channel, bool tte, uint32_t memMapping = Core::MemMappings::Normal, bool isFull = false);
 
     virtual ~CVifSCDmaPacket(void) {}
 
     inline CVifSCDmaPacket& Nop(bool irq = false);
-    inline CVifSCDmaPacket& Stcycl(tU32 wl, tU32 cl, bool irq = false);
-    inline CVifSCDmaPacket& Offset(tU32 offset, bool irq = false);
-    inline CVifSCDmaPacket& Base(tU32 base, bool irq = false);
-    inline CVifSCDmaPacket& Itop(tU32 itops, bool irq = false);
-    inline CVifSCDmaPacket& Stmod(tU32 mode, bool irq = false);
-    inline CVifSCDmaPacket& Mskpath3(tU32 mask, bool irq = false);
-    inline CVifSCDmaPacket& Mark(tU32 value, bool irq = false);
+    inline CVifSCDmaPacket& Stcycl(uint32_t wl, uint32_t cl, bool irq = false);
+    inline CVifSCDmaPacket& Offset(uint32_t offset, bool irq = false);
+    inline CVifSCDmaPacket& Base(uint32_t base, bool irq = false);
+    inline CVifSCDmaPacket& Itop(uint32_t itops, bool irq = false);
+    inline CVifSCDmaPacket& Stmod(uint32_t mode, bool irq = false);
+    inline CVifSCDmaPacket& Mskpath3(uint32_t mask, bool irq = false);
+    inline CVifSCDmaPacket& Mark(uint32_t value, bool irq = false);
     inline CVifSCDmaPacket& Flushe(bool irq = false);
     inline CVifSCDmaPacket& Flush(bool irq = false);
     inline CVifSCDmaPacket& Flusha(bool irq = false);
-    inline CVifSCDmaPacket& Mscal(tU32 addr, bool irq = false);
+    inline CVifSCDmaPacket& Mscal(uint32_t addr, bool irq = false);
     inline CVifSCDmaPacket& Mscnt(bool irq = false);
-    inline CVifSCDmaPacket& Mscalf(tU32 addr, bool irq = false);
+    inline CVifSCDmaPacket& Mscalf(uint32_t addr, bool irq = false);
     inline CVifSCDmaPacket& Stmask(Vifs::tMask mask, bool irq = false);
     inline CVifSCDmaPacket& Strow(const void* rowArray, bool irq = false);
     inline CVifSCDmaPacket& Stcol(const void* colArray, bool irq = false);
-    inline CVifSCDmaPacket& Mpg(tU32 num, tU32 addr, bool irq = false);
+    inline CVifSCDmaPacket& Mpg(uint32_t num, uint32_t addr, bool irq = false);
 
-    inline CVifSCDmaPacket& OpenUnpack(tU32 mode, tU32 vuAddr, bool dblBuffered,
+    inline CVifSCDmaPacket& OpenUnpack(uint32_t mode, uint32_t vuAddr, bool dblBuffered,
         bool masked = false, bool usigned = true, bool irq = false);
     CVifSCDmaPacket& CloseUnpack(void);
-    inline CVifSCDmaPacket& CloseUnpack(tU32 wl, tU32 cl);
-    inline CVifSCDmaPacket& CloseUnpack(tU32 unpackNUM);
+    inline CVifSCDmaPacket& CloseUnpack(uint32_t wl, uint32_t cl);
+    inline CVifSCDmaPacket& CloseUnpack(uint32_t unpackNUM);
 
     inline CVifSCDmaPacket& OpenDirect(bool irq = false);
     inline CVifSCDmaPacket& CloseDirect(void);
-    inline CVifSCDmaPacket& CloseDirect(tU32 numQuads);
+    inline CVifSCDmaPacket& CloseDirect(uint32_t numQuads);
 
     inline CVifSCDmaPacket& Pad96(void);
     inline CVifSCDmaPacket& Pad128(void);
 
 private:
-    static const tU32 Unused = 0;
+    static const uint32_t Unused = 0;
     Vifs::tVifCode* pOpenVifCode;
-    tU32 uiWL, uiCL;
+    uint32_t uiWL, uiCL;
 };
 
 /********************************************
@@ -235,7 +235,7 @@ private:
 
 #define mCheckPktAlignment(__type)     \
     mWarnIf(sizeof(__type) == 16       \
-            && (tU32)pNext & (16 - 1), \
+            && (uint32_t)pNext & (16 - 1), \
         "You're trying to add 16-byte data to this packet on a non-16-byte boundary.. Are you sure this is right?")
 
 #define mAddData(__type, __data)                \
@@ -266,16 +266,16 @@ CDmaPacket::Add(const dataType data)
 
 template <class dataType>
 inline dataType*
-CDmaPacket::Add(const dataType* data, tU32 num)
+CDmaPacket::Add(const dataType* data, uint32_t num)
 {
     mCheckFreeSpaceN(dataType, num);
     mCheckPktAlignment(dataType);
 
     dataType* dataStart = reinterpret_cast<dataType*>(pNext);
     dataType* nextStore = dataStart;
-    for (tU32 i = 0; i < num; i++)
+    for (uint32_t i = 0; i < num; i++)
         *nextStore++ = *data++;
-    pNext            = reinterpret_cast<tU8*>(nextStore);
+    pNext            = reinterpret_cast<uint8_t*>(nextStore);
 
     return dataStart;
 }
@@ -283,17 +283,17 @@ CDmaPacket::Add(const dataType* data, tU32 num)
 inline void
 CDmaPacket::operator+=(const CDmaPacket& otherPkt)
 {
-    tU32 numBytes = otherPkt.GetByteLength();
+    uint32_t numBytes = otherPkt.GetByteLength();
     mErrorIf(numBytes & (16 - 1), "Can only add packets that are an even # of quads.");
 
-    tU32 numQuads = numBytes / 16;
+    uint32_t numQuads = numBytes / 16;
     Add(otherPkt.GetBase(), numQuads);
 }
 
-inline tU128*
+inline uint128_t*
 CDmaPacket::Add(const CDmaPacket& otherPkt)
 {
-    tU128* dataStart = reinterpret_cast<tU128*>(pNext);
+    uint128_t* dataStart = reinterpret_cast<uint128_t*>(pNext);
     operator+=(otherPkt);
     return dataStart;
 }
@@ -319,7 +319,7 @@ class CDmaPacket::Helper {
 	public:
 		static inline void AddSize( CDmaPacket& packet, const dataType data ) {
 			mErrorIf( packet.pNext+byteSize > (packet.pBase + packet.uiBufferQwordSize*16), "Not enough space in packet!" );
-			mErrorIf( (tU32)packet.pNext & (byteSize - 1), "Free space in packet not properly aligned!" );
+			mErrorIf( (uint32_t)packet.pNext & (byteSize - 1), "Free space in packet not properly aligned!" );
 
 			*(dataType*)packet.pNext = data; packet.pNext += byteSize;
 		}
@@ -330,10 +330,10 @@ class CDmaPacket::Helper < dataType, 16 > {
 	public:
 		static inline void AddSize( CDmaPacket& packet, const dataType data ) {
 			mErrorIf( packet.pNext+sizeof(data) > (packet.pBase + packet.uiBufferQwordSize*16), "Not enough space in packet!" );
-			mErrorIf( (tU32)packet.pNext & (sizeof(data) - 1), "Free space in packet not properly aligned!" );
+			mErrorIf( (uint32_t)packet.pNext & (sizeof(data) - 1), "Free space in packet not properly aligned!" );
 
-			union { dataType realData; tU128 qword; } uData = { data };
-			*(tU128*)packet.pNext = uData.qword; packet.pNext += 16;
+			union { dataType realData; uint128_t qword; } uData = { data };
+			*(uint128_t*)packet.pNext = uData.qword; packet.pNext += 16;
 			// mAdd128( uData.qword );
 		}
 };
@@ -356,7 +356,7 @@ class CDmaPacket::Helper < dataType, 16 > {
         "Don't you think you should open a dma tag before adding data?")
 
 #define mCheckXferAddrAlign(_addr) \
-    mErrorIf((tU32)(_addr) & (16 - 1), "I suggest you only point to qword-aligned memory..")
+    mErrorIf((uint32_t)(_addr) & (16 - 1), "I suggest you only point to qword-aligned memory..")
 
 template <class dataType>
 inline dataType*
@@ -377,7 +377,7 @@ CSCDmaPacket::operator+=(const dataType data)
 
 template <class dataType>
 inline dataType*
-CSCDmaPacket::Add(const dataType* data, tU32 num)
+CSCDmaPacket::Add(const dataType* data, uint32_t num)
 {
     mCheckTTESpaceN(dataType, num);
     dataType* retValue = CDmaPacket::Add<dataType>(data, num);
@@ -393,7 +393,7 @@ CSCDmaPacket::operator+=(const CDmaPacket& otherPkt)
 {
     CDmaPacket::operator+=(otherPkt);
 }
-inline tU128*
+inline uint128_t*
 CSCDmaPacket::Add(const CDmaPacket& otherPkt)
 {
     return CDmaPacket::Add(otherPkt);
@@ -402,13 +402,13 @@ CSCDmaPacket::Add(const CDmaPacket& otherPkt)
 // dma tags
 
 inline void
-CSCDmaPacket::SetDmaTag(tDmaTag* tag, tU32 QWC, tU32 PCE, tU32 ID, tU32 IRQ, const tU128* ADDR, tU32 SPR)
+CSCDmaPacket::SetDmaTag(tDmaTag* tag, uint32_t QWC, uint32_t PCE, uint32_t ID, uint32_t IRQ, const uint128_t* ADDR, uint32_t SPR)
 {
     tag->QWC  = QWC;
     tag->PCE  = PCE;
     tag->ID   = ID;
     tag->IRQ  = IRQ;
-    tag->ADDR = (tU64)((tU32)ADDR);
+    tag->ADDR = (uint64_t)((uint32_t)ADDR);
     tag->SPR  = SPR;
 }
 
@@ -416,20 +416,20 @@ inline CSCDmaPacket&
 CSCDmaPacket::CloseTag(void)
 {
     mErrorIf(!pOpenTag, "You called CloseTag(), but no dma tags are open!");
-    mErrorIf(((tU32)pNext & (16 - 1)) != 0, "Packet is not qword aligned");
+    mErrorIf(((uint32_t)pNext & (16 - 1)) != 0, "Packet is not qword aligned");
     // set the qwc field of any open tags.. (- 1 is so that we don't count the qword
     // containing the *pOpenTag)
     if (pOpenTag)
-        pOpenTag->QWC = (((tU32)pNext - (tU32)pOpenTag) / 16 - 1);
+        pOpenTag->QWC = (((uint32_t)pNext - (uint32_t)pOpenTag) / 16 - 1);
 
     pOpenTag = NULL;
     return *this;
 }
 
 inline void
-CSCDmaPacket::AddDmaTag(tU32 QWC, tU32 PCE, tU32 ID, tU32 IRQ, const tU128* ADDR, tU32 SPR)
+CSCDmaPacket::AddDmaTag(uint32_t QWC, uint32_t PCE, uint32_t ID, uint32_t IRQ, const uint128_t* ADDR, uint32_t SPR)
 {
-    mErrorIf(((tU32)pNext & 0xf) != 0, "Free space in packet is not aligned properly.");
+    mErrorIf(((uint32_t)pNext & 0xf) != 0, "Free space in packet is not aligned properly.");
     mErrorIf(pOpenTag, "You need to close any open dma tags before opening another!");
 
     if (QWC == countQWC) {
@@ -452,92 +452,92 @@ CSCDmaPacket::AddDmaTag(tU32 QWC, tU32 PCE, tU32 ID, tU32 IRQ, const tU128* ADDR
 #define xlateAddr(__va)
 
 inline CSCDmaPacket&
-CSCDmaPacket::Cnt(bool irq, tU32 pce, bool sp)
+CSCDmaPacket::Cnt(bool irq, uint32_t pce, bool sp)
 {
     AddDmaTag(countQWC, pce, DMAC::kCnt, irq, 0, sp);
     return *this;
 }
 
 inline CSCDmaPacket&
-CSCDmaPacket::Next(const tDmaTag* nextTag, bool irq, bool sp, tU32 pce)
+CSCDmaPacket::Next(const tDmaTag* nextTag, bool irq, bool sp, uint32_t pce)
 {
     mCheckXferAddrAlign(nextTag);
     xlateAddr(nextTag);
-    AddDmaTag(countQWC, pce, DMAC::kNext, irq, (tU128*)nextTag, sp);
+    AddDmaTag(countQWC, pce, DMAC::kNext, irq, (uint128_t*)nextTag, sp);
     return *this;
 }
 
 inline CSCDmaPacket&
-CSCDmaPacket::Ref(const void* refData, tU32 dataQWLen, bool irq, bool sp, tU32 pce)
+CSCDmaPacket::Ref(const void* refData, uint32_t dataQWLen, bool irq, bool sp, uint32_t pce)
 {
     mCheckXferAddrAlign(refData);
     xlateAddr(refData);
-    AddDmaTag(dataQWLen, pce, DMAC::kRef, irq, (const tU128*)refData, sp);
+    AddDmaTag(dataQWLen, pce, DMAC::kRef, irq, (const uint128_t*)refData, sp);
     return *this;
 }
 
 inline CSCDmaPacket&
-CSCDmaPacket::Refs(const void* refData, tU32 dataQWLen, bool irq, bool sp, tU32 pce)
+CSCDmaPacket::Refs(const void* refData, uint32_t dataQWLen, bool irq, bool sp, uint32_t pce)
 {
     mCheckXferAddrAlign(refData);
     xlateAddr(refData);
-    AddDmaTag(dataQWLen, pce, DMAC::kRefs, irq, (const tU128*)refData, sp);
+    AddDmaTag(dataQWLen, pce, DMAC::kRefs, irq, (const uint128_t*)refData, sp);
     return *this;
 }
 
 inline CSCDmaPacket&
-CSCDmaPacket::Refe(const void* refData, tU32 dataQWLen, bool irq, bool sp, tU32 pce)
+CSCDmaPacket::Refe(const void* refData, uint32_t dataQWLen, bool irq, bool sp, uint32_t pce)
 {
     mCheckXferAddrAlign(refData);
     xlateAddr(refData);
-    AddDmaTag(dataQWLen, pce, DMAC::kRefe, irq, (const tU128*)refData, sp);
+    AddDmaTag(dataQWLen, pce, DMAC::kRefe, irq, (const uint128_t*)refData, sp);
     return *this;
 }
 
 inline CSCDmaPacket&
-CSCDmaPacket::Call(const void* nextTag, bool irq, bool sp, tU32 pce)
+CSCDmaPacket::Call(const void* nextTag, bool irq, bool sp, uint32_t pce)
 {
     mCheckXferAddrAlign(nextTag);
     xlateAddr(nextTag);
-    AddDmaTag(countQWC, pce, DMAC::kCall, irq, (tU128*)nextTag, sp);
+    AddDmaTag(countQWC, pce, DMAC::kCall, irq, (uint128_t*)nextTag, sp);
     return *this;
 }
 
 inline CSCDmaPacket&
-CSCDmaPacket::Call(const CSCDmaPacket& pkt, bool irq, bool sp, tU32 pce)
+CSCDmaPacket::Call(const CSCDmaPacket& pkt, bool irq, bool sp, uint32_t pce)
 {
     mCheckXferAddrAlign(pkt.pBase);
     AddDmaTag(countQWC, pce, DMAC::kCall, irq,
-        Core::MakePtrNormal((tU128*)pkt.pBase), sp);
+        Core::MakePtrNormal((uint128_t*)pkt.pBase), sp);
     return *this;
 }
 
 inline CSCDmaPacket&
-CSCDmaPacket::Ret(bool irq, tU32 pce)
+CSCDmaPacket::Ret(bool irq, uint32_t pce)
 {
     AddDmaTag(countQWC, pce, DMAC::kRet, irq, 0, false);
     return *this;
 }
 
 inline CSCDmaPacket&
-CSCDmaPacket::End(bool irq, tU32 pce)
+CSCDmaPacket::End(bool irq, uint32_t pce)
 {
     AddDmaTag(countQWC, pce, DMAC::kEnd, irq, 0, false);
     return *this;
 }
 
 inline CSCDmaPacket&
-CSCDmaPacket::Pad96(tU32 padData)
+CSCDmaPacket::Pad96(uint32_t padData)
 {
-    while ((((tU32)pNext + 4) & 0xf) != 0)
+    while ((((uint32_t)pNext + 4) & 0xf) != 0)
         *this += padData;
     return *this;
 }
 
 inline CSCDmaPacket&
-CSCDmaPacket::Pad128(tU32 padData)
+CSCDmaPacket::Pad128(uint32_t padData)
 {
-    while (((tU32)pNext & 0xf) != 0)
+    while (((uint32_t)pNext & 0xf) != 0)
         *this += padData;
     return *this;
 }
@@ -555,7 +555,7 @@ CSCDmaPacket::Pad128(tU32 padData)
 
 // VifCodes
 
-#define mMakeVifCode(_immediate, _num, _cmd, _irq) ((tU32)(_immediate) | ((tU32)(_num) << 16) | ((tU32)(_cmd) << 24) | ((tU32)(_irq) << 31))
+#define mMakeVifCode(_immediate, _num, _cmd, _irq) ((uint32_t)(_immediate) | ((uint32_t)(_num) << 16) | ((uint32_t)(_cmd) << 24) | ((uint32_t)(_irq) << 31))
 
 inline CVifSCDmaPacket&
 CVifSCDmaPacket::Nop(bool irq)
@@ -565,7 +565,7 @@ CVifSCDmaPacket::Nop(bool irq)
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Stcycl(tU32 wl, tU32 cl, bool irq)
+CVifSCDmaPacket::Stcycl(uint32_t wl, uint32_t cl, bool irq)
 {
     uiWL = wl;
     uiCL = cl;
@@ -574,42 +574,42 @@ CVifSCDmaPacket::Stcycl(tU32 wl, tU32 cl, bool irq)
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Offset(tU32 offset, bool irq)
+CVifSCDmaPacket::Offset(uint32_t offset, bool irq)
 {
     *this += mMakeVifCode(offset, Unused, Vifs::Opcodes::offset, irq);
     return *this;
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Base(tU32 base, bool irq)
+CVifSCDmaPacket::Base(uint32_t base, bool irq)
 {
     *this += mMakeVifCode(base, Unused, Vifs::Opcodes::base, irq);
     return *this;
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Itop(tU32 itops, bool irq)
+CVifSCDmaPacket::Itop(uint32_t itops, bool irq)
 {
     *this += mMakeVifCode(itops, Unused, Vifs::Opcodes::itop, irq);
     return *this;
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Stmod(tU32 mode, bool irq)
+CVifSCDmaPacket::Stmod(uint32_t mode, bool irq)
 {
     *this += mMakeVifCode(mode, Unused, Vifs::Opcodes::stmod, irq);
     return *this;
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Mskpath3(tU32 mask, bool irq)
+CVifSCDmaPacket::Mskpath3(uint32_t mask, bool irq)
 {
     *this += mMakeVifCode(mask, Unused, Vifs::Opcodes::mskpath3, irq);
     return *this;
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Mark(tU32 value, bool irq)
+CVifSCDmaPacket::Mark(uint32_t value, bool irq)
 {
     *this += mMakeVifCode(value, Unused, Vifs::Opcodes::mark, irq);
     return *this;
@@ -637,7 +637,7 @@ CVifSCDmaPacket::Flusha(bool irq)
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Mscal(tU32 addr, bool irq)
+CVifSCDmaPacket::Mscal(uint32_t addr, bool irq)
 {
     *this += mMakeVifCode(addr, Unused, Vifs::Opcodes::mscal, irq);
     return *this;
@@ -651,7 +651,7 @@ CVifSCDmaPacket::Mscnt(bool irq)
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Mscalf(tU32 addr, bool irq)
+CVifSCDmaPacket::Mscalf(uint32_t addr, bool irq)
 {
     *this += mMakeVifCode(addr, Unused, Vifs::Opcodes::mscalf, irq);
     return *this;
@@ -668,7 +668,7 @@ CVifSCDmaPacket::Stmask(Vifs::tMask mask, bool irq)
 inline CVifSCDmaPacket&
 CVifSCDmaPacket::Strow(const void* rowArray, bool irq)
 {
-    const tU32* wordArray = (const tU32*)rowArray;
+    const uint32_t* wordArray = (const uint32_t*)rowArray;
     *this += mMakeVifCode(Unused, Unused, Vifs::Opcodes::strow, irq);
     *this += wordArray[0];
     *this += wordArray[1];
@@ -680,7 +680,7 @@ CVifSCDmaPacket::Strow(const void* rowArray, bool irq)
 inline CVifSCDmaPacket&
 CVifSCDmaPacket::Stcol(const void* colArray, bool irq)
 {
-    const tU32* wordArray = (const tU32*)colArray;
+    const uint32_t* wordArray = (const uint32_t*)colArray;
     *this += mMakeVifCode(Unused, Unused, Vifs::Opcodes::stcol, irq);
     *this += wordArray[0];
     *this += wordArray[1];
@@ -690,28 +690,28 @@ CVifSCDmaPacket::Stcol(const void* colArray, bool irq)
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::Mpg(tU32 num, tU32 addr, bool irq)
+CVifSCDmaPacket::Mpg(uint32_t num, uint32_t addr, bool irq)
 {
     *this += mMakeVifCode(addr, num, Vifs::Opcodes::mpg, irq);
     return *this;
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::OpenUnpack(tU32 mode, tU32 vuAddr, bool dblBuffered, bool masked, bool usigned, bool irq)
+CVifSCDmaPacket::OpenUnpack(uint32_t mode, uint32_t vuAddr, bool dblBuffered, bool masked, bool usigned, bool irq)
 {
     mErrorIf(pOpenVifCode != NULL, "There is still another vifcode open.");
     pOpenVifCode = (Vifs::tVifCode*)pNext;
-    *this += mMakeVifCode(vuAddr | ((tU32)usigned << 14) | ((tU32)dblBuffered << 15),
+    *this += mMakeVifCode(vuAddr | ((uint32_t)usigned << 14) | ((uint32_t)dblBuffered << 15),
         0,
-        mode | ((tU32)masked << 4) | 0x60, irq);
+        mode | ((uint32_t)masked << 4) | 0x60, irq);
     return *this;
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::CloseUnpack(tU32 unpackNUM)
+CVifSCDmaPacket::CloseUnpack(uint32_t unpackNUM)
 {
     // make sure we're u32 aligned and a vifcode is open and it's an unpack
-    mAssert(((tU32)pNext & 0x3) == 0 && pOpenVifCode && ((pOpenVifCode->cmd & 0x60) == 0x60));
+    mAssert(((uint32_t)pNext & 0x3) == 0 && pOpenVifCode && ((pOpenVifCode->cmd & 0x60) == 0x60));
     mAssert(unpackNUM <= 256);
     pOpenVifCode->num = (unpackNUM == 256) ? 0 : unpackNUM;
     pOpenVifCode      = NULL;
@@ -719,7 +719,7 @@ CVifSCDmaPacket::CloseUnpack(tU32 unpackNUM)
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::CloseUnpack(tU32 wl, tU32 cl)
+CVifSCDmaPacket::CloseUnpack(uint32_t wl, uint32_t cl)
 {
     uiWL = wl;
     uiCL = cl;
@@ -736,9 +736,9 @@ CVifSCDmaPacket::OpenDirect(bool irq)
 }
 
 inline CVifSCDmaPacket&
-CVifSCDmaPacket::CloseDirect(tU32 numQuads)
+CVifSCDmaPacket::CloseDirect(uint32_t numQuads)
 {
-    mAssert(pOpenVifCode != NULL && (((tU32)pNext - ((tU32)pOpenVifCode + 4)) & 0xf) == 0);
+    mAssert(pOpenVifCode != NULL && (((uint32_t)pNext - ((uint32_t)pOpenVifCode + 4)) & 0xf) == 0);
     pOpenVifCode->immediate = numQuads;
     pOpenVifCode            = NULL;
     return *this;
@@ -747,7 +747,7 @@ CVifSCDmaPacket::CloseDirect(tU32 numQuads)
 inline CVifSCDmaPacket&
 CVifSCDmaPacket::CloseDirect(void)
 {
-    return CloseDirect(((tU32)pNext - ((tU32)pOpenVifCode + 4)) / 16);
+    return CloseDirect(((uint32_t)pNext - ((uint32_t)pOpenVifCode + 4)) / 16);
 }
 
 inline CVifSCDmaPacket&

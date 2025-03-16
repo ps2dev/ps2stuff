@@ -41,11 +41,11 @@ class PerfTest {
 #define PERF_WBB_BURST_REQUEST_FULL 26
 
 private:
-    static const tU32 NUM_PRF_TESTS = 27;
+    static const uint32_t NUM_PRF_TESTS = 27;
 
     typedef struct prfDef {
-        tU32 cnt_id;
-        tU32 cnt_val;
+        uint32_t cnt_id;
+        uint32_t cnt_val;
     } prfDef;
 
 public:
@@ -93,7 +93,7 @@ private:
     static prfDef prfTable[NUM_PRF_TESTS];
     int m_Prev_testVals[NUM_PRF_TESTS];
     int m_testVals[NUM_PRF_TESTS];
-    int GetNextTestID(tU32 counter_id, tU32 ctest);
+    int GetNextTestID(uint32_t counter_id, uint32_t ctest);
     void StepTests();
 };
 

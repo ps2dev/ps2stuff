@@ -21,7 +21,7 @@ CImageUploadPkt::CImageUploadPkt(void)
     InitCommon();
 }
 
-CImageUploadPkt::CImageUploadPkt(tU128* imagePtr, tU32 w, tU32 h, GS::tPSM psm, tU32 gsBufWidth, tU32 gsWordAddress)
+CImageUploadPkt::CImageUploadPkt(uint128_t* imagePtr, uint32_t w, uint32_t h, GS::tPSM psm, uint32_t gsBufWidth, uint32_t gsWordAddress)
     : CVifSCDmaPacket(&FirstDmaTag, kPacketLength, DMAC::Channels::gif, Packet::kDontXferTags)
 {
     InitCommon();
@@ -99,26 +99,26 @@ void CImageUploadPkt::BuildXferTags(void)
     imageDataGifTag.NLOOP   = 0;
 
     mAssert(pImage != NULL);
-    tU128* image = pImage;
+    uint128_t* image = pImage;
 
     bool imageOnSP = false;
 
     // is the image on the scratchpad?
-    imageOnSP = ((tU32)pImage & 0x70000000);
+    imageOnSP = ((uint32_t)pImage & 0x70000000);
     if (imageOnSP) {
-        image = (tU128*)((tU32)image & 0x3ff0);
+        image = (uint128_t*)((uint32_t)image & 0x3ff0);
     }
 
-    tU32 width = gsrTrxReg.trans_w, height = gsrTrxReg.trans_h;
-    tU32 bytesInImage = width * height * GS::GetBitsPerPixel((GS::tPSM)gsrBitBltBuf.dest_pixmode) / 8;
+    uint32_t width = gsrTrxReg.trans_w, height = gsrTrxReg.trans_h;
+    uint32_t bytesInImage = width * height * GS::GetBitsPerPixel((GS::tPSM)gsrBitBltBuf.dest_pixmode) / 8;
 
-    tU32 numQuadsInImage     = ((bytesInImage & 0xf) == 0) ? bytesInImage / 16 : bytesInImage / 16 + 1;
-    tU32 numQuadsLeft        = numQuadsInImage;
-    const tU32 maxQuadsPerGT = (1 << 15) - 1; // limited by the NLOOP field
+    uint32_t numQuadsInImage     = ((bytesInImage & 0xf) == 0) ? bytesInImage / 16 : bytesInImage / 16 + 1;
+    uint32_t numQuadsLeft        = numQuadsInImage;
+    const uint32_t maxQuadsPerGT = (1 << 15) - 1; // limited by the NLOOP field
 
     while (numQuadsLeft > 0) {
         // set up giftag
-        tU32 numQuadsThisGT   = Math::Min(numQuadsLeft, maxQuadsPerGT);
+        uint32_t numQuadsThisGT   = Math::Min(numQuadsLeft, maxQuadsPerGT);
         imageDataGifTag.NLOOP = numQuadsThisGT;
         imageDataGifTag.EOP   = (numQuadsThisGT == numQuadsLeft) ? 1 : 0;
 
@@ -148,7 +148,7 @@ void CImageUploadPkt::Send(CSCDmaPacket& packet)
 {
     mErrorIf(packet.GetTTE(), "Only vif source chain packets can use this class to xfer images with tte on.");
 
-    tU128* thisPktCopy = packet.Add((CDmaPacket&)*this);
+    uint128_t* thisPktCopy = packet.Add((CDmaPacket&)*this);
 
     // change the last refe in the copy to a ref
     tSourceChainTag* lastRefe = reinterpret_cast<tSourceChainTag*>(thisPktCopy + this->GetByteLength() / 16 - 1);
@@ -160,7 +160,7 @@ void CImageUploadPkt::Send(CVifSCDmaPacket& packet)
 {
     mErrorIf(!packet.GetTTE(), "Vif source chains need to turn tte on to xfer images with this class.");
 
-    tU128* thisPktCopy = packet.Add((CDmaPacket&)*this);
+    uint128_t* thisPktCopy = packet.Add((CDmaPacket&)*this);
 
     // change the last refe in the copy to a ref
     tSourceChainTag* lastRefe = reinterpret_cast<tSourceChainTag*>(thisPktCopy + this->GetByteLength() / 16 - 1);

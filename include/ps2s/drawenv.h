@@ -99,7 +99,7 @@ class CDrawEnv {
 public:
     CDrawEnv(GS::tContext context);
     CDrawEnv(const CDrawEnv& rhs);
-    CDrawEnv(GS::tContext context, tU32 fbW, tU32 fbH, tU32 fbWordAddr, tU32 zbufWordAddr = NULL);
+    CDrawEnv(GS::tContext context, uint32_t fbW, uint32_t fbH, uint32_t fbWordAddr, uint32_t zbufWordAddr = NULL);
 
     void operator=(const CDrawEnv& otherDE);
 
@@ -107,14 +107,14 @@ public:
 
     inline void EnableAlphaTest(void) { gsrTest.atest_enable = 1; }
     inline void DisableAlphaTest(void) { gsrTest.atest_enable = 0; }
-    inline void SetAlphaTestPassMode(tAlphaTestPassMode mode) { gsrTest.atest_method = (tU64)mode; }
-    inline void SetAlphaTestFailAction(tAlphaTestFailAction action) { gsrTest.atest_fail_method = (tU64)action; }
-    inline void SetAlphaRefVal(tU8 refVal) { gsrTest.atest_reference = refVal; }
+    inline void SetAlphaTestPassMode(tAlphaTestPassMode mode) { gsrTest.atest_method = (uint64_t)mode; }
+    inline void SetAlphaTestFailAction(tAlphaTestFailAction action) { gsrTest.atest_fail_method = (uint64_t)action; }
+    inline void SetAlphaRefVal(uint8_t refVal) { gsrTest.atest_reference = refVal; }
 
     inline void EnableSelectiveAlphaBlend(void) { gsrPABE.enable = 1; }
     inline void DisableSelectiveAlphaBlend(void) { gsrPABE.enable = 0; }
 
-    inline void SetAlphaBlendFunc(tAlphaBlendVal a, tAlphaBlendVal b, tAlphaBlendVal c, tAlphaBlendVal d, tU32 fix);
+    inline void SetAlphaBlendFunc(tAlphaBlendVal a, tAlphaBlendVal b, tAlphaBlendVal c, tAlphaBlendVal d, uint32_t fix);
 
     inline void EnableColorClamp(void) { gsrColClamp.clamp = 1; }
     inline void DisableColorClamp(void) { gsrColClamp.clamp = 0; }
@@ -126,11 +126,11 @@ public:
 
     inline void SetDepthTestPassMode(tZTestPassMode passMode)
     {
-        gsrTest.ztest_method = (tU64)passMode;
+        gsrTest.ztest_method = (uint64_t)passMode;
         eZTestPassMode       = passMode;
     }
-    inline void SetDepthBufferAddr(tU32 wordAddress) { gsrZBuf.fb_addr = wordAddress / 2048; }
-    inline void SetDepthBufferPSM(tU32 psm) { gsrZBuf.psm = (tU64)psm; }
+    inline void SetDepthBufferAddr(uint32_t wordAddress) { gsrZBuf.fb_addr = wordAddress / 2048; }
+    inline void SetDepthBufferPSM(uint32_t psm) { gsrZBuf.psm = (uint64_t)psm; }
     inline void EnableDepthTest(void)
     {
         gsrZBuf.update_mask = 0;
@@ -139,34 +139,34 @@ public:
     inline void DisableDepthTest(void)
     {
         gsrZBuf.update_mask  = 1;
-        gsrTest.ztest_method = (tU64)ZTest::kAlways;
+        gsrTest.ztest_method = (uint64_t)ZTest::kAlways;
     }
     inline void SetDepthWriteEnabled(bool write) { gsrZBuf.update_mask = !write; }
 
-    inline void SetFrameBufferAddr(tU32 wordAddress)
+    inline void SetFrameBufferAddr(uint32_t wordAddress)
     {
         mAssert((wordAddress & 2047) == 0);
         gsrFrame.fb_addr = wordAddress / 2048;
     }
-    inline void SetFrameBufferDrawMask(tU32 drawMask) { gsrFrame.draw_mask = drawMask; }
-    void SetFrameBufferDim(tU32 pixelW, tU32 pixelH);
-    inline void SetFrameBufferPSM(tU32 psm) { gsrFrame.psm = psm; }
+    inline void SetFrameBufferDrawMask(uint32_t drawMask) { gsrFrame.draw_mask = drawMask; }
+    void SetFrameBufferDim(uint32_t pixelW, uint32_t pixelH);
+    inline void SetFrameBufferPSM(uint32_t psm) { gsrFrame.psm = psm; }
     float GetInterlacedPixelOffset() const { return InterlacedOffset; }
     void SetInterlacedPixelOffset(float offset) { InterlacedOffset = offset; }
     void CalculateClippedFBXYOffsets(bool addHalfPixel);
-    inline void SetXYOffsets(tU16 offsetX, tU16 offsetY)
+    inline void SetXYOffsets(uint16_t offsetX, uint16_t offsetY)
     {
         gsrXYOffset.offset_x = offsetX << 4;
         gsrXYOffset.offset_y = offsetY << 4;
     }
-    inline void SetXYOffsetsFix4(tU16 offsetX, tU16 offsetY)
+    inline void SetXYOffsetsFix4(uint16_t offsetX, uint16_t offsetY)
     {
         gsrXYOffset.offset_x = offsetX;
         gsrXYOffset.offset_y = offsetY;
     }
 
-    inline void SetFrameBufAlphaORMask(tU32 mask) { gsrFBA.alpha = mask; }
-    inline void SetFogColor(tU32 r, tU32 g, tU32 b)
+    inline void SetFrameBufAlphaORMask(uint32_t mask) { gsrFBA.alpha = mask; }
+    inline void SetFogColor(uint32_t r, uint32_t g, uint32_t b)
     {
         gsrFogCol.r = r;
         gsrFogCol.g = g;
@@ -180,14 +180,14 @@ public:
         tDitherVal dm20, tDitherVal dm21, tDitherVal dm22, tDitherVal dm23,
         tDitherVal dm30, tDitherVal dm31, tDitherVal dm32, tDitherVal dm33);
 
-    inline void SetScissorArea(tU32 scX, tU32 scY, tU32 scWidth, tU32 scHeight); // must be after SetFrameBufferDim() to have effect
+    inline void SetScissorArea(uint32_t scX, uint32_t scY, uint32_t scWidth, uint32_t scHeight); // must be after SetFrameBufferDim() to have effect
 
     void SendSettings(bool waitForEnd = false, bool flushCache = true);
     void SendSettings(CSCDmaPacket& packet);
     void SendSettings(CVifSCDmaPacket& packet);
 
     // accessors
-    tU32 GetFrameBufferAddr(void) { return gsrFrame.fb_addr * 2048; }
+    uint32_t GetFrameBufferAddr(void) { return gsrFrame.fb_addr * 2048; }
 
     inline void* operator new(size_t size) { return Core::New16(size); }
     inline void operator delete(void* p) { Core::Delete16(p); }
@@ -198,38 +198,38 @@ protected:
         tSourceChainTag SettingsDmaTag;
         tGifTag SettingsGifTag;
         GS::tFrame gsrFrame;
-        tU64 FrameAddr;
+        uint64_t FrameAddr;
         GS::tZbuf gsrZBuf;
-        tU64 ZBufAddr;
+        uint64_t ZBufAddr;
         GS::tXyoffset gsrXYOffset;
-        tU64 XYOffsetAddr;
+        uint64_t XYOffsetAddr;
         GS::tPrmodecont gsrPrModeCont;
-        tU64 PrModeContAddr;
+        uint64_t PrModeContAddr;
         GS::tColclamp gsrColClamp;
-        tU64 ColClampAddr;
+        uint64_t ColClampAddr;
         GS::tTest gsrTest;
-        tU64 TestAddr;
+        uint64_t TestAddr;
         GS::tAlpha gsrAlpha;
-        tU64 AlphaAddr;
+        uint64_t AlphaAddr;
         GS::tPabe gsrPABE;
-        tU64 PABEAddr;
+        uint64_t PABEAddr;
         GS::tFba gsrFBA;
-        tU64 FBAAddr;
+        uint64_t FBAAddr;
         GS::tDthe gsrDTHE;
-        tU64 DTHEAddr;
+        uint64_t DTHEAddr;
         GS::tDimx gsrDIMX;
-        tU64 DIMXAddr;
+        uint64_t DIMXAddr;
         GS::tScissor gsrScissor;
-        tU64 ScissorAddr;
+        uint64_t ScissorAddr;
         GS::tFogcol gsrFogCol;
-        tU64 FogColAddr;
+        uint64_t FogColAddr;
     } __attribute__((packed,aligned(16)));
-    tU32 uiNumGSRegs;
+    uint32_t uiNumGSRegs;
 
     CSCDmaPacket GifPacket;
 
     tZTestPassMode eZTestPassMode;
-    tU32 uiFBWidth, uiFBHeight;
+    uint32_t uiFBWidth, uiFBHeight;
     float InterlacedOffset;
 
 private:
@@ -242,7 +242,7 @@ private:
     */
 
 inline void
-CDrawEnv::SetAlphaBlendFunc(tAlphaBlendVal a, tAlphaBlendVal b, tAlphaBlendVal c, tAlphaBlendVal d, tU32 fix)
+CDrawEnv::SetAlphaBlendFunc(tAlphaBlendVal a, tAlphaBlendVal b, tAlphaBlendVal c, tAlphaBlendVal d, uint32_t fix)
 {
     gsrAlpha.a     = a;
     gsrAlpha.b     = b;
@@ -257,26 +257,26 @@ CDrawEnv::SetDitherMatrix(tDitherVal dm00, tDitherVal dm01, tDitherVal dm02, tDi
     tDitherVal dm20, tDitherVal dm21, tDitherVal dm22, tDitherVal dm23,
     tDitherVal dm30, tDitherVal dm31, tDitherVal dm32, tDitherVal dm33)
 {
-    gsrDIMX.DIMX00 = (tU64)dm00;
-    gsrDIMX.DIMX01 = (tU64)dm01;
-    gsrDIMX.DIMX02 = (tU64)dm02;
-    gsrDIMX.DIMX03 = (tU64)dm03;
-    gsrDIMX.DIMX10 = (tU64)dm10;
-    gsrDIMX.DIMX11 = (tU64)dm11;
-    gsrDIMX.DIMX12 = (tU64)dm12;
-    gsrDIMX.DIMX13 = (tU64)dm13;
-    gsrDIMX.DIMX20 = (tU64)dm20;
-    gsrDIMX.DIMX21 = (tU64)dm21;
-    gsrDIMX.DIMX22 = (tU64)dm22;
-    gsrDIMX.DIMX23 = (tU64)dm23;
-    gsrDIMX.DIMX30 = (tU64)dm30;
-    gsrDIMX.DIMX31 = (tU64)dm31;
-    gsrDIMX.DIMX32 = (tU64)dm32;
-    gsrDIMX.DIMX33 = (tU64)dm33;
+    gsrDIMX.DIMX00 = (uint64_t)dm00;
+    gsrDIMX.DIMX01 = (uint64_t)dm01;
+    gsrDIMX.DIMX02 = (uint64_t)dm02;
+    gsrDIMX.DIMX03 = (uint64_t)dm03;
+    gsrDIMX.DIMX10 = (uint64_t)dm10;
+    gsrDIMX.DIMX11 = (uint64_t)dm11;
+    gsrDIMX.DIMX12 = (uint64_t)dm12;
+    gsrDIMX.DIMX13 = (uint64_t)dm13;
+    gsrDIMX.DIMX20 = (uint64_t)dm20;
+    gsrDIMX.DIMX21 = (uint64_t)dm21;
+    gsrDIMX.DIMX22 = (uint64_t)dm22;
+    gsrDIMX.DIMX23 = (uint64_t)dm23;
+    gsrDIMX.DIMX30 = (uint64_t)dm30;
+    gsrDIMX.DIMX31 = (uint64_t)dm31;
+    gsrDIMX.DIMX32 = (uint64_t)dm32;
+    gsrDIMX.DIMX33 = (uint64_t)dm33;
 }
 
 inline void
-CDrawEnv::SetScissorArea(tU32 scX, tU32 scY, tU32 scWidth, tU32 scHeight)
+CDrawEnv::SetScissorArea(uint32_t scX, uint32_t scY, uint32_t scWidth, uint32_t scHeight)
 {
     gsrScissor.clip_x0 = scX;
     gsrScissor.clip_y0 = scY;

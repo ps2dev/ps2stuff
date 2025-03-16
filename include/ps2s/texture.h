@@ -75,32 +75,32 @@ class CTexEnv {
 public:
     // if you must use the short constructor, be sure to call SetDimensions() and SetPSM()!!
     CTexEnv(GS::tContext context = GS::kContext1);
-    CTexEnv(GS::tContext context, tU32 width, tU32 height, GS::tPSM psm);
+    CTexEnv(GS::tContext context, uint32_t width, uint32_t height, GS::tPSM psm);
     virtual ~CTexEnv(void) {}
 
     // accessors
 
-    inline tU32 GetImageGsAddr(void) const { return gsrTex0.tb_addr * 64; }
-    inline tU32 GetClutGsAddr(void) const { return gsrTex0.cb_addr * 64; }
+    inline uint32_t GetImageGsAddr(void) const { return gsrTex0.tb_addr * 64; }
+    inline uint32_t GetClutGsAddr(void) const { return gsrTex0.cb_addr * 64; }
     inline GS::tContext GetContext(void) const;
     inline GS::tPSM GetPSM(void) const { return (GS::tPSM)gsrTex0.psm; }
-    inline tU32 GetW(void) const { return uiTexPixelWidth; }
-    inline tU32 GetH(void) const { return uiTexPixelHeight; }
+    inline uint32_t GetW(void) const { return uiTexPixelWidth; }
+    inline uint32_t GetH(void) const { return uiTexPixelHeight; }
 
     // mutators
 
     inline void ClearRegion(void);
     inline void SetClutLoadConditions(int mode) { gsrTex0.clut_loadmode = mode; }
-    virtual void SetClutGsAddr(tU32 gsMemWordAddress);
+    virtual void SetClutGsAddr(uint32_t gsMemWordAddress);
     void SetContext(GS::tContext context);
-    virtual void SetDimensions(tU32 w, tU32 h);
+    virtual void SetDimensions(uint32_t w, uint32_t h);
     inline void SetFlush(bool flush);
-    virtual void SetImageGsAddr(tU32 gsMemWordAddress);
-    inline void SetMagMode(tMagMode newMode) { gsrTex1.mmag = (tU64)newMode; }
-    inline void SetMinMode(tMinMode newMode) { gsrTex1.mmin = (tU64)newMode; }
+    virtual void SetImageGsAddr(uint32_t gsMemWordAddress);
+    inline void SetMagMode(tMagMode newMode) { gsrTex1.mmag = (uint64_t)newMode; }
+    inline void SetMinMode(tMinMode newMode) { gsrTex1.mmin = (uint64_t)newMode; }
     void SetPSM(GS::tPSM newPSM);
-    void SetRegion(tU32 originU, tU32 originV, tU32 w, tU32 h);
-    inline void SetTexMode(tTexMode newMode) { gsrTex0.tex_funtion = (tU64)newMode; }
+    void SetRegion(uint32_t originU, uint32_t originV, uint32_t w, uint32_t h);
+    inline void SetTexMode(tTexMode newMode) { gsrTex0.tex_funtion = (uint64_t)newMode; }
     void SetWrapModeS(tTexWrapMode sMode);
     void SetWrapModeT(tTexWrapMode tMode);
     inline void SetWrapMode(tTexWrapMode sMode, tTexWrapMode tMode)
@@ -130,19 +130,19 @@ protected:
         tSourceChainTag SettingsDmaTag;
         tGifTag SettingsGifTag;
         GS::tTexflush gsrTexflush;
-        tU64 TexflushAddr;
+        uint64_t TexflushAddr;
         GS::tClamp gsrClamp;
-        tU64 ClampAddr;
+        uint64_t ClampAddr;
         GS::tTex1 gsrTex1;
-        tU64 Tex1Addr;
+        uint64_t Tex1Addr;
         GS::tTex0 gsrTex0;
-        tU64 Tex0Addr;
+        uint64_t Tex0Addr;
         GS::tTexa gsrTexA;
-        tU64 TexAAddr;
+        uint64_t TexAAddr;
     } __attribute__((packed,aligned(16)));
 
-    tU32 uiNumSettingsGSRegs;
-    tU32 uiTexPixelWidth, uiTexPixelHeight;
+    uint32_t uiNumSettingsGSRegs;
+    uint32_t uiTexPixelWidth, uiTexPixelHeight;
 
     CSCDmaPacket SettingsPacket;
 
@@ -166,8 +166,8 @@ class CTexture : public CTexEnv {
 public:
     // mutators
 
-    virtual void SetImageGsAddr(tU32 gsMemWordAddress);
-    virtual void SetClutGsAddr(tU32 gsMemWordAddress);
+    virtual void SetImageGsAddr(uint32_t gsMemWordAddress);
+    virtual void SetClutGsAddr(uint32_t gsMemWordAddress);
 
     // other
 
@@ -180,8 +180,8 @@ public:
     void SendClut(CVifSCDmaPacket& packet);
 
 protected:
-    tU128 *pImage, *pClut;
-    tU32 uiGsAddr;
+    uint128_t *pImage, *pClut;
+    uint32_t uiGsAddr;
 
     CImageUploadPkt* pImageUploadPkt;
     CClutUploadPkt* pClutUploadPkt;
@@ -190,8 +190,8 @@ protected:
     CTexture(GS::tContext context);
     virtual ~CTexture(void);
 
-    tU128* AllocMem(tU32 w, tU32 h, GS::tPSM psm);
-    virtual void SetImage(tU128* imagePtr, tU32 w, tU32 h, GS::tPSM psm, tU32* clutPtr = NULL);
+    uint128_t* AllocMem(uint32_t w, uint32_t h, GS::tPSM psm);
+    virtual void SetImage(uint128_t* imagePtr, uint32_t w, uint32_t h, GS::tPSM psm, uint32_t* clutPtr = NULL);
 
     void Reset();
 
@@ -240,13 +240,13 @@ public:
 class CCheckTex : public CTexture {
 public:
     CCheckTex(GS::tContext context,
-        tU32 width, tU32 height,
-        tU32 xCellSize, tU32 yCellSize,
-        tU32 color1, tU32 color2);
+        uint32_t width, uint32_t height,
+        uint32_t xCellSize, uint32_t yCellSize,
+        uint32_t color1, uint32_t color2);
     virtual ~CCheckTex(void) {}
 
 private:
-    void MakeCheckerboard(tU32 xCellSize, tU32 yCellSize, tU32 color1, tU32 color2);
+    void MakeCheckerboard(uint32_t xCellSize, uint32_t yCellSize, uint32_t color1, uint32_t color2);
 };
 
 /********************************************

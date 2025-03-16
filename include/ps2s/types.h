@@ -7,29 +7,15 @@
 #ifndef ps2s_types_h
 #define ps2s_types_h
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #ifdef __cplusplus
 
-typedef unsigned char tU8;
-typedef unsigned short int tU16;
-typedef unsigned int tU32;
-typedef unsigned long long tU64;
-// it doesn't really make sense to have a non-16-byte-aligned qword type...
-typedef unsigned int tU128 __attribute__((mode(TI), aligned(16)));
-
-typedef char t8;
-typedef short int t16;
-typedef int t32;
-typedef long long t64;
-typedef int t128 __attribute__((mode(TI), aligned(16)));
-
-typedef struct {
-    tU16 whole : 12;
-    tU16 frac : 4;
-} tFix12_4;
+// Custom 128-bit types (16-byte aligned) - not available in stdint.h
+typedef unsigned int uint128_t __attribute__((mode(TI), aligned(16)));
+typedef int int128_t __attribute__((mode(TI), aligned(16)));
 
 #endif // __cplusplus
-
-// this needs to stay outside of the namespace for C routines..
-typedef int tBool;
 
 #endif // ps2s_types_h

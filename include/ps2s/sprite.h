@@ -21,7 +21,7 @@
  */
 
 typedef union {
-    tU32 uv[4];
+    uint32_t uv[4];
     float stq[4];
 } tTexCoords;
 
@@ -31,7 +31,7 @@ typedef union {
 
 class CSprite {
 public:
-    CSprite(GS::tContext context, tU32 minX, tU32 minY, tU32 width, tU32 height);
+    CSprite(GS::tContext context, uint32_t minX, uint32_t minY, uint32_t width, uint32_t height);
 
     void Draw(bool waitForEnd = false, bool flushCache = true)
     {
@@ -40,15 +40,15 @@ public:
     void Draw(CSCDmaPacket& packet);
     void Draw(CVifSCDmaPacket& packet);
 
-    void SetColor(tU32 r, tU32 g, tU32 b, tU32 a, tU8 fog = 255)
+    void SetColor(uint32_t r, uint32_t g, uint32_t b, uint32_t a, uint8_t fog = 255)
     {
         Color[0]   = r;
         Color[1]   = g;
         Color[2]   = b;
         Color[3]   = a;
-        Vertex2[3] = (tU32)fog << 4;
+        Vertex2[3] = (uint32_t)fog << 4;
     }
-    void SetColor(tU32 rgba)
+    void SetColor(uint32_t rgba)
     {
         Color[0] = 0xff & rgba;
         Color[1] = (0xff00 & rgba) >> 8;
@@ -56,19 +56,19 @@ public:
         Color[3] = (0xff000000 & rgba) >> 24;
     }
 
-    void SetDepth(tU32 depth) { Vertex1[2] = Vertex2[2] = depth; }
+    void SetDepth(uint32_t depth) { Vertex1[2] = Vertex2[2] = depth; }
 
     void SetSTQs(float minS, float minT, float width, float height);
 
     void SetUVs(float minU, float minV, float width, float height);
-    void SetUVs(tU16 minU, tU16 minV, tU16 width, tU16 height);
-    void SetUVs(t32 minU, t32 minV, t32 width, t32 height)
+    void SetUVs(uint16_t minU, uint16_t minV, uint16_t width, uint16_t height);
+    void SetUVs(int32_t minU, int32_t minV, int32_t width, int32_t height)
     {
-        SetUVs((tU16)minU, (tU16)minV, (tU16)width, (tU16)height);
+        SetUVs((uint16_t)minU, (uint16_t)minV, (uint16_t)width, (uint16_t)height);
     }
-    void SetUVsFix4(tU16 minU, tU16 minV, tU16 maxU, tU16 maxV);
+    void SetUVsFix4(uint16_t minU, uint16_t minV, uint16_t maxU, uint16_t maxV);
 
-    void SetVertices(tU32 minX, tU32 minY, tU32 width, tU32 height)
+    void SetVertices(uint32_t minX, uint32_t minY, uint32_t width, uint32_t height)
     {
         Vertex1[0] = minX << 4;
         Vertex1[1] = minY << 4;
@@ -90,11 +90,11 @@ private:
     struct {
         // GIF tag + 5 qwords data
         tGifTag DrawGifTag;
-        tU32 Color[4];
+        uint32_t Color[4];
         tTexCoords TexCoords1;
-        tU32 Vertex1[4];
+        uint32_t Vertex1[4];
         tTexCoords TexCoords2;
-        tU32 Vertex2[4];
+        uint32_t Vertex2[4];
     } __attribute__((packed,aligned(16)));
 
     CDmaPacket GifPacket;
@@ -109,9 +109,9 @@ inline CSprite&
 CSprite::SetUseAlphaBlend(bool useAlpha)
 {
     if (useAlpha)
-        DrawGifTag.PRIM |= (tU64)1 << 6; // abe
+        DrawGifTag.PRIM |= (uint64_t)1 << 6; // abe
     else
-        DrawGifTag.PRIM &= ~((tU64)1 << 6);
+        DrawGifTag.PRIM &= ~((uint64_t)1 << 6);
 
     return *this;
 }
@@ -120,9 +120,9 @@ inline CSprite&
 CSprite::SetUseTexture(bool useTex)
 {
     if (useTex)
-        DrawGifTag.PRIM |= (tU64)1 << 4; // tme
+        DrawGifTag.PRIM |= (uint64_t)1 << 4; // tme
     else
-        DrawGifTag.PRIM &= ~((tU64)1 << 4);
+        DrawGifTag.PRIM &= ~((uint64_t)1 << 4);
 
     return *this;
 }
@@ -131,9 +131,9 @@ inline CSprite&
 CSprite::SetUseFog(bool useFog)
 {
     if (useFog)
-        DrawGifTag.PRIM |= (tU64)1 << 5; // fge
+        DrawGifTag.PRIM |= (uint64_t)1 << 5; // fge
     else
-        DrawGifTag.PRIM &= ~((tU64)1 << 5);
+        DrawGifTag.PRIM &= ~((uint64_t)1 << 5);
 
     return *this;
 }

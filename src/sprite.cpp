@@ -16,8 +16,8 @@
  * methods
  */
 
-CSprite::CSprite(GS::tContext context, tU32 minX, tU32 minY, tU32 width, tU32 height)
-    : GifPacket((tU128*)&DrawGifTag, 6, DMAC::Channels::gif, Core::MemMappings::Normal, Packet::kFull)
+CSprite::CSprite(GS::tContext context, uint32_t minX, uint32_t minY, uint32_t width, uint32_t height)
+    : GifPacket((uint128_t*)&DrawGifTag, 6, DMAC::Channels::gif, Core::MemMappings::Normal, Packet::kFull)
 {
     GS::tPrim prim;
 
@@ -38,21 +38,21 @@ CSprite::CSprite(GS::tContext context, tU32 minX, tU32 minY, tU32 width, tU32 he
     prim.abe         = 0;   // no alpha
     prim.aa1         = 0;   // no aa
     prim.fst         = 0;   // stq coords
-    prim.ctxt        = (tU64)context;
+    prim.ctxt        = (uint64_t)context;
     prim.fix         = 0; // what the hell does this do?
-    DrawGifTag.PRIM  = *(tU64*)&prim;
+    DrawGifTag.PRIM  = *(uint64_t*)&prim;
 
     SetVertices(minX, minY, width, height);
 
-    mAssert(((tU32)&DrawGifTag & 0xf) == 0);
+    mAssert(((uint32_t)&DrawGifTag & 0xf) == 0);
 }
 
 void CSprite::SetSTQs(float minS, float minT, float width, float height)
 {
     GS::tPrim prim;
-    *(tU64*)&prim    = DrawGifTag.PRIM;
+    *(uint64_t*)&prim    = DrawGifTag.PRIM;
     prim.fst         = 0; // stq
-    DrawGifTag.PRIM  = *(tU64*)&prim;
+    DrawGifTag.PRIM  = *(uint64_t*)&prim;
     DrawGifTag.REGS1 = 0x2;
     DrawGifTag.REGS3 = 0x2;
 
@@ -67,9 +67,9 @@ void CSprite::SetSTQs(float minS, float minT, float width, float height)
 void CSprite::SetUVs(float minU, float minV, float width, float height)
 {
     GS::tPrim prim;
-    *(tU64*)&prim    = DrawGifTag.PRIM;
+    *(uint64_t*)&prim    = DrawGifTag.PRIM;
     prim.fst         = 1; // uv
-    DrawGifTag.PRIM  = *(tU64*)&prim;
+    DrawGifTag.PRIM  = *(uint64_t*)&prim;
     DrawGifTag.REGS1 = 0x3;
     DrawGifTag.REGS3 = 0x3;
 
@@ -81,12 +81,12 @@ void CSprite::SetUVs(float minU, float minV, float width, float height)
     SetUseTexture(true);
 }
 
-void CSprite::SetUVs(tU16 minU, tU16 minV, tU16 width, tU16 height)
+void CSprite::SetUVs(uint16_t minU, uint16_t minV, uint16_t width, uint16_t height)
 {
     GS::tPrim prim;
-    *(tU64*)&prim    = DrawGifTag.PRIM;
+    *(uint64_t*)&prim    = DrawGifTag.PRIM;
     prim.fst         = 1; // uv
-    DrawGifTag.PRIM  = *(tU64*)&prim;
+    DrawGifTag.PRIM  = *(uint64_t*)&prim;
     DrawGifTag.REGS1 = 0x3;
     DrawGifTag.REGS3 = 0x3;
 
@@ -98,12 +98,12 @@ void CSprite::SetUVs(tU16 minU, tU16 minV, tU16 width, tU16 height)
     SetUseTexture(true);
 }
 
-void CSprite::SetUVsFix4(tU16 minU, tU16 minV, tU16 maxU, tU16 maxV)
+void CSprite::SetUVsFix4(uint16_t minU, uint16_t minV, uint16_t maxU, uint16_t maxV)
 {
     GS::tPrim prim;
-    *(tU64*)&prim    = DrawGifTag.PRIM;
+    *(uint64_t*)&prim    = DrawGifTag.PRIM;
     prim.fst         = 1; // uv
-    DrawGifTag.PRIM  = *(tU64*)&prim;
+    DrawGifTag.PRIM  = *(uint64_t*)&prim;
     DrawGifTag.REGS1 = 0x3;
     DrawGifTag.REGS3 = 0x3;
 
@@ -118,7 +118,7 @@ void CSprite::SetUVsFix4(tU16 minU, tU16 minV, tU16 maxU, tU16 maxV)
 void CSprite::Draw(CSCDmaPacket& packet)
 {
     packet.Cnt();
-    packet.Add((tU128*)&DrawGifTag, 6);
+    packet.Add((uint128_t*)&DrawGifTag, 6);
     packet.CloseTag();
 }
 
@@ -134,7 +134,7 @@ void CSprite::Draw(CVifSCDmaPacket& packet)
         }
 
         packet.OpenDirect();
-        packet.Add((tU128*)&DrawGifTag, 6);
+        packet.Add((uint128_t*)&DrawGifTag, 6);
         packet.CloseDirect();
     }
     packet.CloseTag();

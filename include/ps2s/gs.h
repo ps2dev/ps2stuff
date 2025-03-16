@@ -150,13 +150,13 @@ namespace ControlRegs {
     * methods
     */
 
-inline tU32 PackRGB(tU8 r, tU8 g, tU8 b)
+inline uint32_t PackRGB(uint8_t r, uint8_t g, uint8_t b)
 {
-    return (tU32)r | ((tU32)g << 8) | ((tU32)b << 16);
+    return (uint32_t)r | ((uint32_t)g << 8) | ((uint32_t)b << 16);
 }
-inline tU32 PackRGBA(tU8 r, tU8 g, tU8 b, tU8 a)
+inline uint32_t PackRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
-    return (tU32)r | ((tU32)g << 8) | ((tU32)b << 16) | ((tU32)a << 24);
+    return (uint32_t)r | ((uint32_t)g << 8) | ((uint32_t)b << 16) | ((uint32_t)a << 24);
 }
 
 void Init(void);
@@ -165,14 +165,14 @@ void Flush(void);
 void Flush(CSCDmaPacket& packet);
 
 inline unsigned int GetBitsPerPixel(tPSM psm);
-void ReorderClut(tU32* oldClut, tU32* newClut);
+void ReorderClut(uint32_t* oldClut, uint32_t* newClut);
 
 } // namespace GS
 
 namespace GIF {
 namespace Registers {
-    static volatile tU32* const ctrl = (volatile tU32*)0x10003000;
-    static volatile tU128* const fifo = (volatile tU128*)0x10006000;
+    static volatile uint32_t* const ctrl = (volatile uint32_t*)0x10003000;
+    static volatile uint128_t* const fifo = (volatile uint128_t*)0x10006000;
 }
 }
 
@@ -207,7 +207,7 @@ typedef struct tGifTag_t {
 inline unsigned int
 GS::GetBitsPerPixel(tPSM psm)
 {
-    tU32 bpp = 0;
+    uint32_t bpp = 0;
 
     switch (psm) {
     case kPsm32:

@@ -60,8 +60,8 @@ DegToRad(float deg)
     return deg * (kPi / 180.0f);
 }
 
-inline tU32
-DivUp(tU32 num, tU32 divisor)
+inline uint32_t
+DivUp(uint32_t num, uint32_t divisor)
 {
     return (num % divisor) ? num / divisor + 1 : num / divisor;
 }
@@ -153,7 +153,7 @@ IsEven(int a)
 }
 
 inline bool
-IsPow2(tU32 num)
+IsPow2(uint32_t num)
 {
     return ((num & (num - 1)) == 0);
 }
@@ -164,10 +164,10 @@ Lerp(float t, float f1, float f2)
     return (f1 + t * (f2 - f1));
 }
 
-inline tU32
-Log2(tU32 num)
+inline uint32_t
+Log2(uint32_t num)
 {
-    tU32 logNum = 0;
+    uint32_t logNum = 0;
     while (num > 1) {
         num = num >> 1;
         logNum++;
@@ -195,6 +195,12 @@ Min(int a, int b)
 
 inline int
 Min(unsigned int a, unsigned int b)
+{
+    return (a < b) ? a : b;
+}
+
+inline uint32_t
+Min(uint32_t a, uint32_t b)
 {
     return (a < b) ? a : b;
 }

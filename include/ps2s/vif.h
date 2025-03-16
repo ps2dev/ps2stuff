@@ -16,7 +16,7 @@ namespace Vifs {
     */
 
 namespace Opcodes {
-    static const tU32 nop      = 0,
+    static const uint32_t nop      = 0,
                       stcycl   = 1,
                       offset   = 2,
                       base     = 3,
@@ -39,7 +39,7 @@ namespace Opcodes {
 }
 
 namespace UnpackModes {
-    static const tU32 s_32  = 0,
+    static const uint32_t s_32  = 0,
                       s_16  = 1,
                       s_8   = 2,
                       v2_32 = 4,
@@ -55,7 +55,7 @@ namespace UnpackModes {
 }
 
 namespace AddModes {
-    static const tU32 kNone       = 0,
+    static const uint32_t kNone       = 0,
                       kOffset     = 1,
                       kAccumulate = 2;
 }
@@ -65,9 +65,9 @@ namespace AddModes {
     */
 
 typedef struct {
-    tU32 immediate : 16;
-    tU32 num : 8;
-    tU32 cmd : 8;
+    uint32_t immediate : 16;
+    uint32_t num : 8;
+    uint32_t cmd : 8;
 } tVifCode;
 
 typedef struct {

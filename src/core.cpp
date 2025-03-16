@@ -48,7 +48,7 @@ const char* ev1_Name[COP0_NUM_PERF_EVENTS] = {
     "PRFEVT_1_NO_EVENT"
 };
 
-void SetupPerfCounters(tU32 evt_0, tU32 evt_1)
+void SetupPerfCounters(uint32_t evt_0, uint32_t evt_1)
 {
     asm __volatile__(
 

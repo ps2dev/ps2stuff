@@ -21,7 +21,7 @@ namespace Core {
     */
 
 namespace MemMappings {
-    static const tU32 Normal       = 0x00000000,
+    static const uint32_t Normal       = 0x00000000,
                       Uncached     = 0x20000000,
                       UncachedAccl = 0x30000000,
 
@@ -36,19 +36,19 @@ namespace MemMappings {
 template <class ptrType>
 inline ptrType MakePtrNormal(ptrType ptr)
 {
-    return reinterpret_cast<ptrType>((tU32)ptr & 0x0fffffff);
+    return reinterpret_cast<ptrType>((uint32_t)ptr & 0x0fffffff);
 }
 
 template <class ptrType>
 inline ptrType MakePtrUncached(ptrType ptr)
 {
-    return reinterpret_cast<ptrType>((tU32)MakePtrNormal(ptr) | MemMappings::Uncached);
+    return reinterpret_cast<ptrType>((uint32_t)MakePtrNormal(ptr) | MemMappings::Uncached);
 }
 
 template <class ptrType>
 inline ptrType MakePtrUncachedAccl(ptrType ptr)
 {
-    return reinterpret_cast<ptrType>((tU32)MakePtrNormal(ptr) | MemMappings::UncachedAccl);
+    return reinterpret_cast<ptrType>((uint32_t)MakePtrNormal(ptr) | MemMappings::UncachedAccl);
 }
 
 /********************************************
@@ -70,24 +70,24 @@ inline void Delete16(void* p)
 // cop0 counter
 
 inline void ZeroCount(void);
-inline tU32 GetCount(void);
+inline uint32_t GetCount(void);
 
 // fpu
 
-inline tU32 FToI4(float flp);
+inline uint32_t FToI4(float flp);
 
 // cop0 performance counter
 
-static const tU32 COP0_NUM_PERF_COUNTERS = 2;
-static const tU32 COP0_NUM_PERF_EVENTS   = 17;
+static const uint32_t COP0_NUM_PERF_COUNTERS = 2;
+static const uint32_t COP0_NUM_PERF_EVENTS   = 17;
 
-void SetupPerfCounters(tU32 evt_0, tU32 evt_1); // set up,also zero + halt
+void SetupPerfCounters(uint32_t evt_0, uint32_t evt_1); // set up,also zero + halt
 
 inline void HaltPerfCounters();      // stop both counters
 inline void ZeroStartPerfCounters(); // clear and start both counters
 
-inline tU32 ReadPerfCounter0(); // read counter 0
-inline tU32 ReadPerfCounter1(); // read counter 1
+inline uint32_t ReadPerfCounter0(); // read counter 0
+inline uint32_t ReadPerfCounter1(); // read counter 1
 
 // names of the events for people
 
@@ -106,10 +106,10 @@ Core::ZeroCount(void)
                      "sync.p		  ");
 }
 
-inline tU32
+inline uint32_t
 Core::GetCount(void)
 {
-    tU32 ret;
+    uint32_t ret;
 
     asm __volatile__("mfc0	%0, $9	\n"
                      "sync.p		  "
@@ -118,10 +118,10 @@ Core::GetCount(void)
     return ret;
 }
 
-inline tU32
+inline uint32_t
 Core::FToI4(float flp)
 {
-    tU32 fip;
+    uint32_t fip;
 
     asm __volatile__("qmtc2		%1, $vf1	\n"
                      "vftoi4	$vf1, $vf1	\n"
@@ -154,18 +154,18 @@ inline void Core::ZeroStartPerfCounters()
                      : "v0");
 };
 
-inline tU32 Core::ReadPerfCounter0()
+inline uint32_t Core::ReadPerfCounter0()
 {
-    tU32 ret;
+    uint32_t ret;
     asm __volatile__("	mfpc	%0,0	\n"
                      "	sync.p		"
                      : "=r"(ret));
     return ret;
 }
 
-inline tU32 Core::ReadPerfCounter1()
+inline uint32_t Core::ReadPerfCounter1()
 {
-    tU32 ret;
+    uint32_t ret;
     asm __volatile__("	mfpc	%0,1	\n"
                      "	sync.p		"
                      : "=r"(ret));

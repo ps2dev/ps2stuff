@@ -110,14 +110,14 @@ public:
     inline void BlendRC1WithBG(void) { gsrPMode.SLBG = 1; }
     inline void BlendRC1WithRC2(void) { gsrPMode.SLBG = 0; }
     inline void BlendUsingRC1Alpha(void) { gsrPMode.MMOD = 0; }
-    inline void BlendUsingConstAlpha(tU8 alpha)
+    inline void BlendUsingConstAlpha(uint8_t alpha)
     {
         gsrPMode.MMOD = 1;
         gsrPMode.ALP  = alpha;
     }
     void DontBlend(void);
 
-    inline void SetBGColor(tU8 r, tU8 g, tU8 b)
+    inline void SetBGColor(uint8_t r, uint8_t g, uint8_t b)
     {
         gsrBGColor.R = r;
         gsrBGColor.G = g;

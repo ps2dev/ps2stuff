@@ -15,8 +15,8 @@ namespace GS {
 
 typedef struct {
     tGifTag gt;
-    tU64 texFlush;
-    tU64 texFlushAddr;
+    uint64_t texFlush;
+    uint64_t texFlushAddr;
 } __attribute__((packed,aligned(16))) tFlushPkt;
 static tFlushPkt FlushPkt;
 
@@ -46,36 +46,36 @@ void Flush(void)
     gifTag.NREG  = 1;
     gifTag.REGS0 = 0xe;
     // PLIN
-    *GIF::Registers::fifo = *(tU128*)&gifTag;
+    *GIF::Registers::fifo = *(uint128_t*)&gifTag;
 
     struct {
-        tU64 data;
-        tU64 addr;
+        uint64_t data;
+        uint64_t addr;
     } texFlush;
     texFlush.addr = GS::RegAddrs::texflush;
     // PLIN
-    *GIF::Registers::fifo = *(tU128*)&texFlush;
+    *GIF::Registers::fifo = *(uint128_t*)&texFlush;
 }
 
 void Flush(CSCDmaPacket& packet)
 {
     packet.Cnt();
-    packet.Add((tU128*)&FlushPkt, 2);
+    packet.Add((uint128_t*)&FlushPkt, 2);
     packet.CloseTag();
 }
 
-void ReorderClut(tU32* oldClut, tU32* newClut)
+void ReorderClut(uint32_t* oldClut, uint32_t* newClut)
 {
     // make sure both are qword aligned
-    mAssert(((tU32)oldClut & 0xf) == 0 && ((tU32)newClut & 0xf) == 0);
+    mAssert(((uint32_t)oldClut & 0xf) == 0 && ((uint32_t)newClut & 0xf) == 0);
     // oldClut and newClut can't be the same
     mAssert(oldClut != newClut);
 
-    tU128* curNewEntry = (tU128*)newClut;
-    tU128* oldEntry1   = (tU128*)oldClut;
-    tU128* oldEntry2   = (tU128*)oldClut + 4;
+    uint128_t* curNewEntry = (uint128_t*)newClut;
+    uint128_t* oldEntry1   = (uint128_t*)oldClut;
+    uint128_t* oldEntry2   = (uint128_t*)oldClut + 4;
 
-    tU32 i;
+    uint32_t i;
     for (i = 0; i < 8; i++) {
         *curNewEntry++ = *oldEntry1++;
         *curNewEntry++ = *oldEntry1++;

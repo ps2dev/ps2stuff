@@ -24,21 +24,21 @@ namespace GS {
 
 CDrawEnv::CDrawEnv(GS::tContext context)
     : uiNumGSRegs(13)
-    , GifPacket((tU128*)&SettingsDmaTag, uiNumGSRegs + 2, DMAC::Channels::gif, Packet::kDontXferTags, Core::MemMappings::Normal, Packet::kFull)
+    , GifPacket((uint128_t*)&SettingsDmaTag, uiNumGSRegs + 2, DMAC::Channels::gif, Packet::kDontXferTags, Core::MemMappings::Normal, Packet::kFull)
 {
     InitCommon(context);
 }
 
 CDrawEnv::CDrawEnv(const CDrawEnv& rhs)
     : uiNumGSRegs(13)
-    , GifPacket((tU128*)&SettingsDmaTag, uiNumGSRegs + 2, DMAC::Channels::gif, Packet::kDontXferTags, Core::MemMappings::Normal, Packet::kFull)
+    , GifPacket((uint128_t*)&SettingsDmaTag, uiNumGSRegs + 2, DMAC::Channels::gif, Packet::kDontXferTags, Core::MemMappings::Normal, Packet::kFull)
 {
     *this = rhs;
 }
 
-CDrawEnv::CDrawEnv(GS::tContext context, tU32 fbW, tU32 fbH, tU32 fbWordAddr, tU32 zbufWordAddr)
+CDrawEnv::CDrawEnv(GS::tContext context, uint32_t fbW, uint32_t fbH, uint32_t fbWordAddr, uint32_t zbufWordAddr)
     : uiNumGSRegs(13)
-    , GifPacket((tU128*)&SettingsDmaTag, uiNumGSRegs + 2, DMAC::Channels::gif, Core::MemMappings::Normal, Packet::kFull)
+    , GifPacket((uint128_t*)&SettingsDmaTag, uiNumGSRegs + 2, DMAC::Channels::gif, Core::MemMappings::Normal, Packet::kFull)
 {
     InitCommon(context);
 
@@ -144,10 +144,10 @@ void CDrawEnv::InitCommon(GS::tContext context)
     gsrTest.datest_enable     = 0;    // disable destination alpha test
     gsrTest.datest_mode       = 0;    // 0 = pass
     gsrTest.ztest_enable      = 1;    // enable z-test
-    gsrTest.ztest_method      = (tU64)eZTestPassMode;
+    gsrTest.ztest_method      = (uint64_t)eZTestPassMode;
 
     // make sure things are qword aligned (I don't trust the compiler...)
-    mAssert(((tU32)&SettingsGifTag & 0xf) == 0);
+    mAssert(((uint32_t)&SettingsGifTag & 0xf) == 0);
 }
 
 void CDrawEnv::CalculateClippedFBXYOffsets(bool addHalfPixel)
@@ -162,8 +162,8 @@ void CDrawEnv::CalculateClippedFBXYOffsets(bool addHalfPixel)
     if (addHalfPixel)
         gsOffsetY += InterlacedOffset;
 
-    gsrXYOffset.offset_x = (tU16)Core::FToI4(gsOffsetX);
-    gsrXYOffset.offset_y = (tU16)Core::FToI4(gsOffsetY);
+    gsrXYOffset.offset_x = (uint16_t)Core::FToI4(gsOffsetX);
+    gsrXYOffset.offset_y = (uint16_t)Core::FToI4(gsOffsetY);
 }
 
 void CDrawEnv::SendSettings(bool waitForEnd, bool flushCache)
@@ -206,7 +206,7 @@ void CDrawEnv::SendSettings(CVifSCDmaPacket& packet)
         packet.CloseTag();
 }
 
-void CDrawEnv::SetFrameBufferDim(tU32 pixelW, tU32 pixelH)
+void CDrawEnv::SetFrameBufferDim(uint32_t pixelW, uint32_t pixelH)
 {
     // width must be a multiple of 64
     if (pixelW < 64)
@@ -225,7 +225,7 @@ void CDrawEnv::SetFrameBufferDim(tU32 pixelW, tU32 pixelH)
 
 void CDrawEnv::operator=(const CDrawEnv& otherDE)
 {
-    Utils::MemCpy128((tU128*)&SettingsGifTag, (tU128*)&otherDE.SettingsGifTag, uiNumGSRegs + 2);
+    Utils::MemCpy128((uint128_t*)&SettingsGifTag, (uint128_t*)&otherDE.SettingsGifTag, uiNumGSRegs + 2);
     eZTestPassMode = otherDE.eZTestPassMode;
     uiFBWidth      = otherDE.uiFBWidth;
     uiFBHeight     = otherDE.uiFBHeight;
