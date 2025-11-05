@@ -211,25 +211,11 @@ public:
 
     inline vec_x(float x)
     {
-        asm(
-            " ### init vec_x with a float ###       \n"
-            "  .if %A0                              \n"
-            "  move %[_this], %[new_x]              \n"
-            "  .endif                               \n"
-            "                                       \n"
-            "  .if %A1                              \n"
-            "  lw %[_this], %[new_x]                \n"
-            "  .endif                               \n"
-            "                                       \n"
-            "  .if %A2                              \n"
-            "  mfc1 %[_this], %[new_x]              \n"
-            "  .endif                               \n"
-            "                                       \n"
-            "  .if %A3                              \n"
-            "  qmtc2 %[new_x], %[_this]             \n"
-            "  .endif                               \n"
-            : [_this] "=r,r,r,j"(vec128)
-            : [new_x] "r,m,f,r"(x));
+        vec128_t temp;
+        asm __volatile__(
+            "mfc1       %[vec128], %[x]              \n"
+            : [vec128] "=r"(vec128)
+            : [x] "f"(x));
     }
 
     explicit inline vec_x(const vec_xyz rhs);
@@ -240,25 +226,14 @@ public:
     inline operator float() const
     {
         float new_float;
-        asm(
-            " ### vec_x to float ###                \n"
-            "  .if %A0                              \n"
-            "  move %[new_float], %[_this]          \n"
-            "  .endif                               \n"
-            "                                       \n"
-            "  .if %A1                              \n"
-            "  sw %[_this], %[new_float]            \n"
-            "  .endif                               \n"
-            "                                       \n"
-            "  .if %A2                              \n"
-            "  mtc1 %[_this], %[new_float]          \n"
-            "  .endif                               \n"
-            "                                       \n"
-            "  .if %A3                              \n"
-            "  qmfc2 %[new_float], %[_this]         \n"
-            "  .endif                               \n"
-            : [new_float] "=r,m,f,r"(new_float)
-            : [_this] "r,r,r,j"(*this));
+        vec128_t this_val = this->vec128;
+        uint32_t x_bits;
+        asm __volatile__(
+            "move       %[x_bits], %[this_val]       \n"
+            : [x_bits] "=r"(x_bits)
+            : [this_val] "r"(this_val)
+            : "memory");
+        new_float = *reinterpret_cast<float*>(&x_bits);
         return new_float;
     }
 
@@ -367,13 +342,16 @@ public:
 
     inline vec_y(float y)
     {
-        asm(
-            " ### init vec_y with a float ### \n"
-            "ctc2	%[f_y], $vi21 \n"
-            "vnop \n"
-            "vaddi.y	%[_this], vf00, I \n"
-            : [_this] "=j"(vec128)
-            : [f_y] "r"(y));
+        vec128_t result;
+        asm __volatile__(
+            "ctc2       %[f_y], $vi21            \n"
+            "vnop                                 \n"
+            "vaddi.y    $vf1, $vf0, $I           \n"
+            "qmfc2      %[result], $vf1          \n"
+            : [result] "=r"(result)
+            : [f_y] "r"(y)
+            : "memory");
+        vec128 = result;
     }
 
     explicit inline vec_y(const vec_xyz rhs);
@@ -490,13 +468,16 @@ public:
 
     inline vec_z(float z)
     {
-        asm(
-            " ### init vec_z with a float ### \n"
-            "ctc2	%[f_z], $vi21 \n"
-            "vnop \n"
-            "vaddi.z	%[_this], vf00, I \n"
-            : [_this] "=j"(vec128)
-            : [f_z] "r"(z));
+        vec128_t result;
+        asm __volatile__(
+            "ctc2       %[f_z], $vi21            \n"
+            "vnop                                 \n"
+            "vaddi.z    $vf1, $vf0, $I           \n"
+            "qmfc2      %[result], $vf1          \n"
+            : [result] "=r"(result)
+            : [f_z] "r"(z)
+            : "memory");
+        vec128 = result;
     }
 
     explicit inline vec_z(const vec_xyz rhs);
@@ -613,13 +594,16 @@ public:
 
     inline vec_w(float w)
     {
-        asm(
-            " ### init vec_w with a float ### \n"
-            "ctc2		%[f_w], $vi21 \n"
-            "vnop \n"
-            "vmuli.w	%[_this], vf00, I \n"
-            : [_this] "=j"(vec128)
-            : [f_w] "r"(w));
+        vec128_t result;
+        asm __volatile__(
+            "ctc2       %[f_w], $vi21            \n"
+            "vnop                                 \n"
+            "vmuli.w    $vf1, $vf0, $I           \n"
+            "qmfc2      %[result], $vf1          \n"
+            : [result] "=r"(result)
+            : [f_w] "r"(w)
+            : "memory");
+        vec128 = result;
     }
 
     explicit inline vec_w(const vec_xyzw rhs);
@@ -1082,15 +1066,19 @@ public:
     inline vec_xy one_over() const
     {
         vec128_t result;
-        asm(" ### reciprocal of vec_xy ### \n"
-            "vdiv		Q, vf00w, %[_this]x \n"
-            "vwaitq \n"
-            "vaddq.x	%[result], vf00, Q \n"
-            "vdiv		Q, vf00w, %[_this]y \n"
-            "vwaitq \n"
-            "vaddq.y	%[result], vf00, Q \n"
-            : [result] "=&j"(result)
-            : [_this] "j"(*this));
+        vec128_t this_val = this->vec128;
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1        \n"
+            "vdiv       $Q, $vf0w, $vf1x        \n"
+            "vwaitq                              \n"
+            "vaddq.x    $vf2, $vf0, $Q          \n"
+            "vdiv       $Q, $vf0w, $vf1y        \n"
+            "vwaitq                              \n"
+            "vaddq.y    $vf2, $vf0, $Q          \n"
+            "qmfc2      %[result], $vf2         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val)
+            : "memory");
         return vec_xy(result);
     }
 
@@ -1330,18 +1318,22 @@ public:
     inline vec_xyz one_over() const
     {
         vec128_t result;
-        asm(" ### reciprocal of vec_xyz ### \n"
-            "vdiv		Q, vf00w, %[_this]x \n"
-            "vwaitq \n"
-            "vaddq.x	%[result], vf00, Q \n"
-            "vdiv		Q, vf00w, %[_this]y \n"
-            "vwaitq \n"
-            "vaddq.y	%[result], vf00, Q \n"
-            "vdiv		Q, vf00w, %[_this]z \n"
-            "vwaitq \n"
-            "vaddq.z	%[result], vf00, Q \n"
-            : [result] "=&j"(result)
-            : [_this] "j"(*this));
+        vec128_t this_val = this->vec128;
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1        \n"
+            "vdiv       $Q, $vf0w, $vf1x        \n"
+            "vwaitq                              \n"
+            "vaddq.x    $vf2, $vf0, $Q          \n"
+            "vdiv       $Q, $vf0w, $vf1y        \n"
+            "vwaitq                              \n"
+            "vaddq.y    $vf2, $vf0, $Q          \n"
+            "vdiv       $Q, $vf0w, $vf1z        \n"
+            "vwaitq                              \n"
+            "vaddq.z    $vf2, $vf0, $Q          \n"
+            "qmfc2      %[result], $vf2         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val)
+            : "memory");
         return vec_xyz(result);
     }
 
@@ -1376,14 +1368,20 @@ public:
     dot(const vec_xyz rhs) const
     {
         vec128_t result, one;
-        asm(
-            " ### vec_xyz dot vec_xyz ### \n"
-            "vmul		%[result], %[lhs], %[rhs] \n"
-            "vaddw.x	%[one], vf00, vf00 \n"
-            "vadday.x	ACC, %[result], %[result] \n"
-            "vmaddz.x	%[result], %[one], %[result] \n"
-            : [result] "=j"(result), [one] "=j"(one)
-            : [lhs] "j"(*this), [rhs] "j"(rhs));
+        vec128_t lhs_val = this->vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1            \n"
+            "qmtc2      %[rhs_val], $vf2            \n"
+            "vmul       $vf3, $vf1, $vf2            \n"
+            "vaddw.x    $vf4, $vf0, $vf0            \n"
+            "vadday.x   $ACC, $vf3, $vf3            \n"
+            "vmaddz.x   $vf5, $vf4, $vf3            \n"
+            "qmfc2      %[result], $vf5             \n"
+            "qmfc2      %[one], $vf4                \n"
+            : [result] "=r"(result), [one] "=r"(one), [acc] "=r"(vu0_ACC)
+            : [lhs_val] "r"(lhs_val), [rhs_val] "r"(rhs_val)
+            : "memory");
         return vec_x(result);
     }
 
@@ -1394,24 +1392,28 @@ public:
     {
         vec128_t result, dot, one;
         int cond;
-        asm(
-            "### vec_xyz normalized ###\n"
-            "vmul	%[dot], %[_this], %[_this] \n"
-            "vaddw.x	%[one], vf00, vf00 \n"
-            "vadday.x	ACC, %[dot], %[dot] \n"
-            "vmaddz.x	%[dot], %[one], %[dot] \n"
-            "vrsqrt	Q, vf00w, %[dot]x\n"
-            "cfc2	%[cond], $vi17\n"
-            "vsub	%[result], %[result], %[result]\n"
-            "andi	%[cond], %[cond], 8\n"
-            "bgtz	%[cond], 0f \n"
-            "nop\n"
-            "vwaitq\n"
-            "vmulq	%[result], %[_this], Q\n"
-            "0:\n"
-            : [result] "=&j"(result), [one] "=&j"(one), [dot] "=&j"(dot), [cond] "=r"(cond)
-            : [_this] "j"(*this));
-
+        vec128_t this_val = this->vec128;
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1            \n"
+            "vmul       $vf2, $vf1, $vf1             \n"
+            "vaddw.x    $vf3, $vf0, $vf0             \n"
+            "vadday.x   $ACC, $vf2, $vf2             \n"
+            "vmaddz.x   $vf2, $vf3, $vf2             \n"
+            "vrsqrt $Q, $vf0w, $vf2x             \n"
+            "cfc2       %[cond], $vi17               \n"
+            "vsub       $vf4, $vf0, $vf0             \n"
+            "andi       %[cond], %[cond], 8          \n"
+            "bgtz       %[cond], 0f                   \n"
+            "nop                                     \n"
+            "vwaitq                                  \n"
+            "vmulq      $vf4, $vf1, $Q               \n"
+            "0:                                      \n"
+            "qmfc2      %[result], $vf4              \n"
+            "qmfc2      %[dot], $vf2                 \n"
+            "qmfc2      %[one], $vf3                 \n"
+            : [result] "=&r"(result), [one] "=&r"(one), [dot] "=&r"(dot), [cond] "=r"(cond)
+            : [this_val] "r"(this_val)
+            : "memory");
         return vec_xyz(result);
     }
 
@@ -1419,12 +1421,17 @@ public:
     cross(const vec_xyz rhs) const
     {
         vec128_t result;
-        asm(
-            " ### vec_xyz cross vec_xyz ### \n"
-            "vopmula.xyz	ACC, %[lhs], %[rhs] \n"
-            "vopmsub.xyz	%[result], %[rhs], %[lhs] \n"
-            : [result] "=j"(result)
-            : [lhs] "j"(*this), [rhs] "j"(rhs));
+        vec128_t lhs_val = this->vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1            \n"
+            "qmtc2      %[rhs_val], $vf2            \n"
+            "vopmula    $ACC, $vf1, $vf2            \n"
+            "vopmsub    $vf3, $vf2, $vf1            \n"
+            "qmfc2      %[result], $vf3             \n"
+            : [result] "=r"(result), [acc] "=r"(vu0_ACC)
+            : [lhs_val] "r"(lhs_val), [rhs_val] "r"(rhs_val)
+            : "memory");
         return vec_xyz(result);
     }
 
@@ -1725,21 +1732,25 @@ public:
     inline vec_xyzw one_over() const
     {
         vec128_t result;
-        asm(" ### reciprocal of vec_xyzw ### \n"
-            "vdiv		Q, vf00w, %[_this]x \n"
-            "vwaitq \n"
-            "vaddq.x	%[result], vf00, Q \n"
-            "vdiv		Q, vf00w, %[_this]y \n"
-            "vwaitq \n"
-            "vaddq.y	%[result], vf00, Q \n"
-            "vdiv		Q, vf00w, %[_this]z \n"
-            "vwaitq \n"
-            "vaddq.z	%[result], vf00, Q \n"
-            "vdiv		Q, vf00w, %[_this]w \n"
-            "vwaitq \n"
-            "vmulq.w	%[result], vf00, Q \n"
-            : [result] "=&j"(result)
-            : [_this] "j"(*this));
+        vec128_t this_val = this->vec128;
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1        \n"
+            "vdiv       $Q, $vf0w, $vf1x        \n"
+            "vwaitq                              \n"
+            "vaddq.x    $vf2, $vf0, $Q          \n"
+            "vdiv       $Q, $vf0w, $vf1y        \n"
+            "vwaitq                              \n"
+            "vaddq.y    $vf2, $vf0, $Q          \n"
+            "vdiv       $Q, $vf0w, $vf1z        \n"
+            "vwaitq                              \n"
+            "vaddq.z    $vf2, $vf0, $Q          \n"
+            "vdiv       $Q, $vf0w, $vf1w        \n"
+            "vwaitq                              \n"
+            "vmulq.w    $vf2, $vf0, $Q          \n"
+            "qmfc2      %[result], $vf2         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val)
+            : "memory");
         return vec_xyzw(result);
     }
 
@@ -1807,10 +1818,10 @@ public:
         asm(
             "### vec_xyzw normalized ###\n"
             "vmul	%[dot], %[_this], %[_this] \n"
-            "vaddw.x	%[one, vf00, vf00 \n"
+            "vaddw.x	%[one], vf00, vf00 \n"
             "vadday.x	ACC, %[dot], %[dot] \n"
             "vmaddaz.x	ACC, %[one], %[dot] \n"
-            "vmaddw.x	%[dot, %[one, %[dot] \n"
+            "vmaddw.x	%[dot], %[one], %[dot] \n"
             "vrsqrt	Q, vf00w, %[dot]x\n"
             "cfc2	%[cond], $vi17\n"
             "vsub	%[result], %[result], %[result]\n"
@@ -2330,13 +2341,13 @@ public:
         vec128_t temp0;
         asm volatile(
             "mtsab		$0, 4				# get ready to shift right 4 bytes	\n"
-            "mtc1		%[_vec, %[_x]			# x = value.x	\n"
+            "mtc1		%[_vec], %[_x]			# x = value.x	\n"
             "qfsrv		%[_temp0], $0, %[_vec]		# temp0 = value >> 8	\n"
             "mtc1		%[_temp0], %[_y]		# y = value.y \n"
             "qfsrv		%[_temp0], $0, %[_temp0]	# temp0 >>= 8 \n"
             "mtc1		%[_temp0], %[_z]		# z = value.z \n"
             : [_x] "=f"(x), [_y] "=f"(y), [_z] "=f"(z), [_temp0] "=r"(temp0)
-            : [_vec] "r"(vec128));
+            : [_vec] "r"(this->vec128));
 
         printf("(%f %f %f (0.0))\n", x, y, z);
     }

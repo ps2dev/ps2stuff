@@ -80,6 +80,7 @@ public:
 inline cpu_vec_4
     cpu_mat_44::operator*(const cpu_vec_4& rhs) const
 {
+#if defined(NO_ASM) || defined(NO_VU0_VECTORS)
     cpu_vec_4 result;
 
     cpu_vec_4 row0(col0(0), col1(0), col2(0), col3(0));
@@ -95,11 +96,33 @@ inline cpu_vec_4
     result[3] = row3.dot(rhs);
 
     return result;
+#else
+    // VU0 macro-mode: result = col0*rhs.x + col1*rhs.y + col2*rhs.z + col3*rhs.w
+    // Requires cpu_vec_4 / cpu_mat_44 to be 16-byte aligned (enforced via alignas).
+    cpu_vec_4 result;
+    asm volatile(
+        " ### cpu_mat_44 * cpu_vec_4 ### \n"
+        "lqc2     $vf1,  0(%[M])    \n"
+        "lqc2     $vf2, 16(%[M])    \n"
+        "lqc2     $vf3, 32(%[M])    \n"
+        "lqc2     $vf4, 48(%[M])    \n"
+        "lqc2     $vf5,  0(%[V])    \n"
+        "vmulax    $ACC, $vf1, $vf5 \n"
+        "vmadday   $ACC, $vf2, $vf5 \n"
+        "vmaddaz   $ACC, $vf3, $vf5 \n"
+        "vmaddw    $vf6, $vf4, $vf5 \n"
+        "sqc2     $vf6,  0(%[R])    \n"
+        :
+        : [M] "r"(this), [V] "r"(&rhs), [R] "r"(&result)
+        : "memory");
+    return result;
+#endif
 }
 
 inline cpu_mat_44
     cpu_mat_44::operator*(const cpu_mat_44& rhs) const
 {
+#if defined(NO_ASM) || defined(NO_VU0_VECTORS)
     cpu_mat_44 result;
 
     result.col0 = *this * rhs.get_col0();
@@ -108,6 +131,48 @@ inline cpu_mat_44
     result.col3 = *this * rhs.get_col3();
 
     return result;
+#else
+    // VU0 macro-mode: load this once into vf1..vf4, apply to each col of rhs.
+    cpu_mat_44 result;
+    asm volatile(
+        " ### cpu_mat_44 * cpu_mat_44 ### \n"
+        "lqc2     $vf1,  0(%[A])    \n"
+        "lqc2     $vf2, 16(%[A])    \n"
+        "lqc2     $vf3, 32(%[A])    \n"
+        "lqc2     $vf4, 48(%[A])    \n"
+
+        "lqc2     $vf5,  0(%[B])    \n"
+        "vmulax    $ACC, $vf1, $vf5 \n"
+        "vmadday   $ACC, $vf2, $vf5 \n"
+        "vmaddaz   $ACC, $vf3, $vf5 \n"
+        "vmaddw    $vf6, $vf4, $vf5 \n"
+        "sqc2     $vf6,  0(%[R])    \n"
+
+        "lqc2     $vf5, 16(%[B])    \n"
+        "vmulax    $ACC, $vf1, $vf5 \n"
+        "vmadday   $ACC, $vf2, $vf5 \n"
+        "vmaddaz   $ACC, $vf3, $vf5 \n"
+        "vmaddw    $vf6, $vf4, $vf5 \n"
+        "sqc2     $vf6, 16(%[R])    \n"
+
+        "lqc2     $vf5, 32(%[B])    \n"
+        "vmulax    $ACC, $vf1, $vf5 \n"
+        "vmadday   $ACC, $vf2, $vf5 \n"
+        "vmaddaz   $ACC, $vf3, $vf5 \n"
+        "vmaddw    $vf6, $vf4, $vf5 \n"
+        "sqc2     $vf6, 32(%[R])    \n"
+
+        "lqc2     $vf5, 48(%[B])    \n"
+        "vmulax    $ACC, $vf1, $vf5 \n"
+        "vmadday   $ACC, $vf2, $vf5 \n"
+        "vmaddaz   $ACC, $vf3, $vf5 \n"
+        "vmaddw    $vf6, $vf4, $vf5 \n"
+        "sqc2     $vf6, 48(%[R])    \n"
+        :
+        : [A] "r"(this), [B] "r"(&rhs), [R] "r"(&result)
+        : "memory");
+    return result;
+#endif
 }
 
 #endif // ps2s_cpu_matrix_h

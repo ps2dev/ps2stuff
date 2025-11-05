@@ -30,11 +30,17 @@ make
 
 ### Building with Tests
 
-To build the test executables (when available):
+To build the test executables:
 
 ```bash
 cmake -DBUILD_TESTS=ON ..
 make
+```
+
+If `ps2client` is installed and available in `PATH`, you can run:
+
+```bash
+make run_test_vu0
 ```
 
 ## Installing
@@ -57,15 +63,21 @@ The following CMake options are available:
 |--------|---------|-------------|
 | `DEBUG` | OFF | Enable debug build with `_DEBUG` definition |
 | `BUILD_TESTS` | OFF | Build test executables |
+| `ENABLE_VU0_VECTORS` | ON | Enable VU0 vector code paths |
+| `ENABLE_ASM` | ON | Enable assembly optimizations |
 
 ## Build Flags
 
-The CMake build automatically applies the following flags:
+The CMake build automatically applies the following warning flags:
 
-- `-DNO_VU0_VECTORS` - Disables VU0 vector code (currently broken)
-- `-DNO_ASM` - Disables assembly optimizations
 - `-Wno-strict-aliasing` - Suppresses strict aliasing warnings
 - `-Wno-conversion-null` - Suppresses conversion null warnings
+
+To disable VU0 vectors or assembly paths, configure with:
+
+```bash
+cmake -DENABLE_VU0_VECTORS=OFF -DENABLE_ASM=OFF ..
+```
 
 ## CMake Toolchain
 

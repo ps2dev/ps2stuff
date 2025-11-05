@@ -70,8 +70,8 @@ public:
             "mtc1    _temp0, _z          # z = value.z \n"
 
             ".endif \n"
-            : "=&r,f _x"(x), "=&r,f _y"(y), "=&r,f _z"(z), "=&r,&r _temp0"(temp0)
-            : "r,r _vec"(vec));
+            : "=&r,&f"(x), "=&r,&f"(y), "=&r,&f"(z), "=&r"(temp0)
+            : "r"(vec));
     }
 
     explicit inline cpu_vec_3(const vec_3 vec) { set(vec.vec128); }
@@ -156,7 +156,7 @@ typedef cpu_vec_3 cpu_vec_xyz;
  * cpu_vec_4 (or cpu_vec_xyzw)
  */
 
-class cpu_vec_4 {
+class alignas(16) cpu_vec_4 {
 public:
     float x, y, z, w;
 
@@ -215,8 +215,8 @@ public:
             "mtc1    _temp0, _w          # w = value.w \n"
 
             ".endif \n"
-            : "=&r,f _x"(x), "=&r,f _y"(y), "=&r,f _z"(z), "=&r,f _w"(w), "=&r,&r _temp0"(temp0)
-            : "r,r _vec"(vec));
+            : "=&r,&f"(x), "=&r,&f"(y), "=&r,&f"(z), "=&r,&f"(w), "=&r"(temp0)
+            : "r"(vec));
     }
 
     explicit inline cpu_vec_4(const vec_4 vec) { set(vec.vec128); }
@@ -335,12 +335,12 @@ cpu_vec_3::operator+(const cpu_vec_3& vec)
 #else
 
     asm(" ### cpu_vec_3 + cpu_vec_3 ### \n"
-        "add.s rx, v0x, v1x \n"
-        "add.s ry, v0y, v1y \n"
-        "add.s rz, v0z, v1z \n"
-        : "=&f rx"(result.x), "=&f ry"(result.y), "=&f rz"(result.z)
-        : "f v0x"(x), "f v0y"(y), "f v0z"(z),
-        "f v1x"(vec.x), "f v1y"(vec.y), "f v1z"(vec.z));
+        "add.s %[rx], %[v0x], %[v1x] \n"
+        "add.s %[ry], %[v0y], %[v1y] \n"
+        "add.s %[rz], %[v0z], %[v1z] \n"
+        : [rx] "=&f"(result.x), [ry] "=&f"(result.y), [rz] "=&f"(result.z)
+        : [v0x] "f"(x), [v0y] "f"(y), [v0z] "f"(z),
+        [v1x] "f"(vec.x), [v1y] "f"(vec.y), [v1z] "f"(vec.z));
 
 #endif
     return result;
@@ -359,12 +359,12 @@ cpu_vec_3::operator-(const cpu_vec_3& vec)
 #else
 
     asm(" ### cpu_vec_3 - cpu_vec_3 ### \n"
-        "sub.s rx, v0x, v1x \n"
-        "sub.s ry, v0y, v1y \n"
-        "sub.s rz, v0z, v1z \n"
-        : "=&f rx"(result.x), "=&f ry"(result.y), "=&f rz"(result.z)
-        : "f v0x"(x), "f v0y"(y), "f v0z"(z),
-        "f v1x"(vec.x), "f v1y"(vec.y), "f v1z"(vec.z));
+        "sub.s %[rx], %[v0x], %[v1x] \n"
+        "sub.s %[ry], %[v0y], %[v1y] \n"
+        "sub.s %[rz], %[v0z], %[v1z] \n"
+        : [rx] "=&f"(result.x), [ry] "=&f"(result.y), [rz] "=&f"(result.z)
+        : [v0x] "f"(x), [v0y] "f"(y), [v0z] "f"(z),
+        [v1x] "f"(vec.x), [v1y] "f"(vec.y), [v1z] "f"(vec.z));
 
 #endif
     return result;
@@ -488,12 +488,21 @@ inline cpu_vec_4
 cpu_vec_4::operator+(const cpu_vec_4& vec)
 {
     cpu_vec_4 result;
-
+#if defined(NO_ASM) || defined(NO_VU0_VECTORS)
     result.x = x + vec.x;
     result.y = y + vec.y;
     result.z = z + vec.z;
     result.w = w + vec.w;
-
+#else
+    asm volatile(" ### cpu_vec_4 + cpu_vec_4 (VU0) ### \n"
+                 "lqc2  $vf1, 0(%[A]) \n"
+                 "lqc2  $vf2, 0(%[B]) \n"
+                 "vadd.xyzw $vf3, $vf1, $vf2 \n"
+                 "sqc2  $vf3, 0(%[R]) \n"
+        :
+        : [A] "r"(this), [B] "r"(&vec), [R] "r"(&result)
+        : "memory");
+#endif
     return result;
 }
 
@@ -501,12 +510,21 @@ inline cpu_vec_4
 cpu_vec_4::operator-(const cpu_vec_4& vec)
 {
     cpu_vec_4 result;
-
+#if defined(NO_ASM) || defined(NO_VU0_VECTORS)
     result.x = x - vec.x;
     result.y = y - vec.y;
     result.z = z - vec.z;
     result.w = w - vec.w;
-
+#else
+    asm volatile(" ### cpu_vec_4 - cpu_vec_4 (VU0) ### \n"
+                 "lqc2  $vf1, 0(%[A]) \n"
+                 "lqc2  $vf2, 0(%[B]) \n"
+                 "vsub.xyzw $vf3, $vf1, $vf2 \n"
+                 "sqc2  $vf3, 0(%[R]) \n"
+        :
+        : [A] "r"(this), [B] "r"(&vec), [R] "r"(&result)
+        : "memory");
+#endif
     return result;
 }
 
@@ -514,12 +532,21 @@ inline cpu_vec_4
 cpu_vec_4::operator-()
 {
     cpu_vec_4 result;
-
+#if defined(NO_ASM) || defined(NO_VU0_VECTORS)
     result.x = -x;
     result.y = -y;
     result.z = -z;
     result.w = -w;
-
+#else
+    asm volatile(" ### -cpu_vec_4 (VU0) ### \n"
+                 "lqc2  $vf1, 0(%[A]) \n"
+                 "vsub.xyzw $vf2, $vf1, $vf1 \n"   // vf2 = 0 (vf0.w is 1.0, can't use it)
+                 "vsub.xyzw $vf3, $vf2, $vf1 \n"   // vf3 = 0 - v
+                 "sqc2  $vf3, 0(%[R]) \n"
+        :
+        : [A] "r"(this), [R] "r"(&result)
+        : "memory");
+#endif
     return result;
 }
 
@@ -527,12 +554,21 @@ inline cpu_vec_4
     cpu_vec_4::operator*(const cpu_vec_4& vec)
 {
     cpu_vec_4 result;
-
+#if defined(NO_ASM) || defined(NO_VU0_VECTORS)
     result.x = x * vec.x;
     result.y = y * vec.y;
     result.z = z * vec.z;
     result.w = w * vec.w;
-
+#else
+    asm volatile(" ### cpu_vec_4 * cpu_vec_4 (VU0) ### \n"
+                 "lqc2  $vf1, 0(%[A]) \n"
+                 "lqc2  $vf2, 0(%[B]) \n"
+                 "vmul.xyzw $vf3, $vf1, $vf2 \n"
+                 "sqc2  $vf3, 0(%[R]) \n"
+        :
+        : [A] "r"(this), [B] "r"(&vec), [R] "r"(&result)
+        : "memory");
+#endif
     return result;
 }
 

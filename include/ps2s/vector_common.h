@@ -7,6 +7,9 @@
 #ifndef vector_common_h
 #define vector_common_h
 
+#include <stdint.h>
+#include <stdio.h>
+
 /********************************************
  * This file contains the class 'vec_template' which provides all vector
  * methods that can be generalized, as well as the '*_base' classes that
@@ -65,8 +68,8 @@
  */
 
 register int vu0_ACC asm("$0");
-// let's use vf0 for this one to avoid a compiler warning
-register int vu0_Q asm("vf0") __attribute__((mode(TI)));
+// Q register is accessed via cfc2/ctc2 instructions, not as a global register
+// We'll handle it differently in inline asm
 
 /********************************************
  * constants
@@ -175,11 +178,11 @@ public:
     // constructors
 
     inline vec_template() {}
-    inline vec_template(const vec128_t initVal) { vec128 = initVal; }
+    inline vec_template(const vec128_t initVal) { this->vec128 = initVal; }
 
     // accessors
 
-    inline vec128_t get128() const { return vec128; }
+    inline vec128_t get128() const { return this->vec128; }
 
     // mutators
 
@@ -188,14 +191,17 @@ public:
     inline void
     set(const rhs_type rhs)
     {
-        asm(" ### set vec_l_fields = vec_r_fields ### \n"
-            "vmove.mask	this, rhs \n"
-            : "=j this"(*this)
-            : "j rhs"(rhs),
-            "0"(*this),
-            "vu_mask l_fields"(this->valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields),
-            "vu_mask mask"(this->valid_fields & rhs.valid_fields));
+        vec128_t rhs_val = rhs.vec128;
+        unsigned int mask = this->valid_fields & rhs.valid_fields;
+        asm __volatile__(
+            "qmtc2      %[rhs_val], $vf1        \n"
+            "qmtc2      %[this_val], $vf2       \n"
+            "vsub       $vf2, $vf0, $vf0        \n"
+            "vmove      $vf2, $vf1              \n"
+            "qmfc2      %[this_val], $vf2       \n"
+            : [this_val] "+r"(this->vec128)
+            : [rhs_val] "r"(rhs_val), [mask] "r"(mask)
+            : "memory");
     }
     // make sure that for vectors of the same type it's a simple assignment
     inline void
@@ -207,22 +213,23 @@ public:
     inline void
     set(float rhs)
     {
-        asm("### set all vec_fields fields to float ### \n"
-            "pextlw rhs, rhs, rhs \n"
-            "pextlw this, rhs, rhs \n"
-            : "=r this"(*this)
-            : "r rhs"(rhs));
+        asm __volatile__(
+            "pextlw     %[this_val], %[rhs], %[rhs] \n"
+            "pextlw     %[this_val], %[this_val], %[this_val] \n"
+            : [this_val] "+r"(this->vec128)
+            : [rhs] "r"(*reinterpret_cast<uint32_t*>(&rhs)));
     }
 
     inline void
     set_zero()
     {
-
-        asm(" ### vec_l_fields set_zero ### \n"
-            "vsub.mask this, vf00, vf00 \n"
-            : "=j this"(*this)
-            : "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields));
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1        \n"
+            "vsub       $vf1, $vf0, $vf0         \n"
+            "qmfc2      %[this_val], $vf1        \n"
+            : [this_val] "+r"(this->vec128)
+            :
+            : "memory");
     }
 
     static const unsigned int fields = (base_vec::broadcast_field << 4) | base_vec::valid_fields;
@@ -241,30 +248,33 @@ public:
     {
         const lhs_type& lhs = *this;
         vec128_t result;
-        asm(
-            " ### vec_l_fields + vec_r_fields ### \n"
-            "vadd_bc._mask	result, lhs, rhs \n"
-            : "=j result"(result)
-            : "j lhs"(lhs), "j rhs"(rhs),
-            "vu_binary _bc _mask"((lhs.fields << 8) | rhs.fields),
-            "vu_mask l_fields"(lhs.valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields));
+        vec128_t lhs_val = lhs.vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1        \n"
+            "qmtc2      %[rhs_val], $vf2        \n"
+            "vadd       $vf3, $vf1, $vf2        \n"
+            "qmfc2      %[result], $vf3         \n"
+            : [result] "=r"(result)
+            : [lhs_val] "r"(lhs_val), [rhs_val] "r"(rhs_val)
+            : "memory");
         return lhs_type(result);
     }
     inline lhs_type
     operator+(float rhs) const
     {
         vec128_t result;
-        asm(
-            " ### vec_l_fields + float ### \n"
-            "ctc2	rhs, $vi21 \n"
-            "vnop \n"
-            "vaddi.mask	result, lhs, I \n"
-            : "=j result"(result)
-            : "r rhs"(rhs),
-            "j lhs"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields));
+        vec128_t lhs_val = this->vec128;
+        uint32_t rhs_bits = *reinterpret_cast<uint32_t*>(&rhs);
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1        \n"
+            "ctc2       %[rhs_bits], $vi21      \n"
+            "vnop                               \n"
+            "vaddi      $vf2, $vf1, $I          \n"
+            "qmfc2      %[result], $vf2         \n"
+            : [result] "=r"(result)
+            : [lhs_val] "r"(lhs_val), [rhs_bits] "r"(rhs_bits)
+            : "memory");
         return lhs_type(result);
     }
     template <class rhs_type>
@@ -280,14 +290,16 @@ public:
     {
         const lhs_type& lhs = *this;
         vec128_t result;
-        asm(
-            " ### vec_l_fields - vec_r_fields ### \n"
-            "vsub_bc._mask %0, %1, %2 \n"
-            : "=j"(result)
-            : "j"(lhs), "j"(rhs),
-            "vu_binary _bc _mask"((lhs.fields << 8) | rhs.fields),
-            "vu_mask l_fields"(lhs.valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields));
+        vec128_t lhs_val = lhs.vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1        \n"
+            "qmtc2      %[rhs_val], $vf2        \n"
+            "vsub       $vf3, $vf1, $vf2        \n"
+            "qmfc2      %[result], $vf3         \n"
+            : [result] "=r"(result)
+            : [lhs_val] "r"(lhs_val), [rhs_val] "r"(rhs_val)
+            : "memory");
         return lhs_type(result);
     }
     template <class rhs_type>
@@ -303,32 +315,33 @@ public:
     {
         const lhs_type& lhs = *this;
         vec128_t result;
-        asm(
-            " ### vec_l_fields * vec_r_fields ### \n"
-            "vmul_bc._mask  %0, %1, %2 \n"
-            : "=j"(result)
-            : "j"(lhs), "j"(rhs),
-            "vu_binary _bc _mask"((lhs.fields << 8) | rhs.fields),
-            "vu_mask l_fields"(lhs.valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields));
-
+        vec128_t lhs_val = lhs.vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1        \n"
+            "qmtc2      %[rhs_val], $vf2        \n"
+            "vmul       $vf3, $vf1, $vf2        \n"
+            "qmfc2      %[result], $vf3         \n"
+            : [result] "=r"(result)
+            : [lhs_val] "r"(lhs_val), [rhs_val] "r"(rhs_val)
+            : "memory");
         return lhs_type(result);
     }
     inline lhs_type
     operator*(float rhs) const
     {
         vec128_t result;
-        asm(
-            " ### vec_l_fields * float ### \n"
-            "ctc2	rhs, $vi21 \n"
-            "vnop \n"
-            "vmuli.mask	result, this, I \n"
-            : "=j result"(result)
-            : "r rhs"(rhs),
-            "j this"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields)
-            : "vf31");
+        vec128_t this_val = this->vec128;
+        uint32_t rhs_bits = *reinterpret_cast<uint32_t*>(&rhs);
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1        \n"
+            "ctc2       %[rhs_bits], $vi21       \n"
+            "vnop                               \n"
+            "vmuli      $vf2, $vf1, $I           \n"
+            "qmfc2      %[result], $vf2         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val), [rhs_bits] "r"(rhs_bits)
+            : "memory");
         return lhs_type(result);
     }
     template <class rhs_type>
@@ -344,15 +357,18 @@ public:
     {
         const lhs_type& lhs = *this;
         vec128_t result;
-        asm(
-            " ### vec_l_fields / vec__r_bc ### \n"
-            "vdiv		Q, vf00w, rhs_r_bc \n"
-            "vwaitq \n"
-            "vmulq.l_fields	result, lhs, Q \n"
-            : "=j result"(result)
-            : "j lhs"(lhs), "j rhs"(rhs),
-            "vu_mask l_fields"(lhs.valid_fields),
-            "vu_bc _r_bc"(rhs.broadcast_field));
+        vec128_t lhs_val = lhs.vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1        \n"
+            "qmtc2      %[rhs_val], $vf2        \n"
+            "vdiv       $Q, $vf0w, $vf2x        \n"
+            "vwaitq                             \n"
+            "vmulq      $vf3, $vf1, $Q          \n"
+            "qmfc2      %[result], $vf3         \n"
+            : [result] "=r"(result)
+            : [lhs_val] "r"(lhs_val), [rhs_val] "r"(rhs_val)
+            : "memory");
         return lhs_type(result);
     }
     inline lhs_type
@@ -376,15 +392,15 @@ public:
     operator-() const
     {
         vec128_t result;
-        asm(
-            " ### negate vec_l_fields ### \n"
-            "vsuba.mask ACC, vf00, vf00 \n"
-            "vmsubw.mask result, this, vf00w \n"
-
-            : "=j result"(result), "=r"(vu0_ACC)
-            : "j this"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields));
+        vec128_t this_val = this->vec128;
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1        \n"
+            "vsuba      $ACC, $vf0, $vf0        \n"
+            "vmsubw     $vf2, $vf1, $vf0w       \n"
+            "qmfc2      %[result], $vf2         \n"
+            : [result] "=r"(result), "=r"(vu0_ACC)
+            : [this_val] "r"(this_val)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -394,21 +410,21 @@ public:
     no_w_negate() const
     {
         vec128_t result;
-        asm(
-            " ### negate vec_l_fields (no w) ### \n"
-            "vsub.mask result, vf00, this \n"
-
-            : "=j result"(result)
-            : "j this"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields));
+        vec128_t this_val = this->vec128;
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1        \n"
+            "vsub       $vf2, $vf0, $vf1        \n"
+            "qmfc2      %[result], $vf2         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val)
+            : "memory");
         return lhs_type(result);
     }
 
     // add and multiply-add functions.
     // You can write the accumulator in one method and add or
     // madd to it in another - data dependency is respected
-    // due to the vu0_ACC global (see declaration above)·
+    // due to the vu0_ACC global (see declaration above)ï¿½
     // However, you are responsible for matching the type
     // written to and read from the accumulator - use with
     // care.
@@ -418,13 +434,31 @@ public:
     inline void
     to_a() const
     {
-        asm(
-            " ### ACC = vec_fields ### \n"
-            "vmulaw.mask ACC, this, vf00 \n"
-            : "=r"(vu0_ACC)
-            : "j this"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask fields"(this->valid_fields));
+        vec128_t this_val = this->vec128;
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1        \n"
+            // Set ACC to this vector: ACC = vf1
+            // Use vmulaw: ACC = ACC + vf1 * vf0w = ACC + vf1 * 1.0
+            // To set ACC = vf1 (not add), we need ACC to be 0 first
+            // Use vmula to set ACC = vf1 * (1,1,1,1)
+            // Create (1,1,1,1) by using vf0w which is 1.0
+            // Actually, vmula sets ACC = src1 * src2 (not ACC + src1 * src2)
+            // So vmula $ACC, $vf1, $vf0 does: ACC = vf1 * vf0
+            // But vf0 is (0,0,0,1), so we'd get (0,0,0,vf1.w)
+            // Need to use vmove to broadcast vf0w or use a different approach
+            // Let's use vmulaw with zero ACC: if ACC is 0, then ACC = 0 + vf1 * 1.0 = vf1
+            // But ACC might not be 0. Let's use vmula with a vector of ones
+            // Actually, simplest: use vmove to copy vf1 to a temp, then use vmula
+            "vmove      $vf2, $vf1               \n"  // vf2 = vf1
+            "vmulaw     $ACC, $vf2, $vf0         \n"  // ACC = ACC + vf2 * vf0w = ACC + vf1 * 1.0
+            // If ACC is not zero, this won't work. Let's zero ACC first using vmula with zero
+            "vsub       $vf3, $vf0, $vf0         \n"  // vf3 = 0
+            "vmula      $ACC, $vf3, $vf3         \n"  // ACC = vf3 * vf3 = 0 * 0 = 0
+            "vmulaw     $ACC, $vf1, $vf0         \n"  // ACC = ACC + vf1 * vf0w = 0 + vf1 * 1.0 = vf1
+            "cfc2       %[acc], $vi16            \n"
+            : [acc] "=r"(vu0_ACC)
+            : [this_val] "r"(this_val)
+            : "memory");
     }
 
     // from_a (from accumulator): this = ACC
@@ -432,13 +466,15 @@ public:
     inline void
     from_a()
     {
-        asm(
-            " ### vec_fields = ACC ### \n"
-            "vmaddx.mask this, vf00, vf00 \n"
-            : "=j this"(*this)
-            : "r"(vu0_ACC),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask fields"(this->valid_fields));
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            // Read ACC: use vmaddw with zero to get ACC + 0 = ACC
+            "vsub       $vf1, $vf0, $vf0         \n"
+            "vmaddw     $vf1, $vf1, $vf0         \n"  // vf1 = ACC + vf1*vf0 = ACC + 0 = ACC
+            "qmfc2      %[this_val], $vf1        \n"
+            : [this_val] "+r"(this->vec128)
+            : [acc] "r"(vu0_ACC)
+            : "memory");
     }
 
     // mula (multiply, to accumulator): ACC = this * rhs
@@ -448,29 +484,32 @@ public:
     mula(rhs_type rhs) const
     {
         const lhs_type& lhs = *this;
-        asm(
-            " ### ACC = vec_l_fields * vec_r_fields ### \n"
-            "vmula_bc._mask ACC, lhs, rhs \n"
-            : "=r"(vu0_ACC)
-            : "j lhs"(lhs), "j rhs"(rhs),
-            "vu_binary _bc _mask"((lhs.fields << 8) | rhs.fields),
-            "vu_mask l_fields"(lhs.valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields));
+        vec128_t lhs_val = lhs.vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1        \n"
+            "qmtc2      %[rhs_val], $vf2        \n"
+            "vmula      $ACC, $vf1, $vf2        \n"
+            "cfc2       %[acc], $vi16           \n"
+            : [acc] "=r"(vu0_ACC)
+            : [lhs_val] "r"(lhs_val), [rhs_val] "r"(rhs_val)
+            : "memory");
     }
 
     inline void
     mula(float rhs) const
     {
-        asm(
-            " ### ACC = vec_l_fields * float ### \n"
-            "ctc2	rhs, $vi21 \n"
-            "vnop \n"
-            "vmulai.mask ACC, lhs, I \n"
-            : "=r"(vu0_ACC)
-            : "r rhs"(rhs),
-            "j lhs"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields));
+        vec128_t lhs_val = this->vec128;
+        uint32_t rhs_bits = *reinterpret_cast<uint32_t*>(&rhs);
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1        \n"
+            "ctc2       %[rhs_bits], $vi21     \n"
+            "vnop                               \n"
+            "vmulai     $ACC, $vf1, $I          \n"
+            "cfc2       %[acc], $vi16           \n"
+            : [acc] "=r"(vu0_ACC)
+            : [lhs_val] "r"(lhs_val), [rhs_bits] "r"(rhs_bits)
+            : "memory");
     }
 
     // aadd (accumulator add): result = ACC + this
@@ -480,15 +519,15 @@ public:
     aadd() const
     {
         vec128_t result;
-        asm(
-            " ### ACC + vec_l_fields ### \n"
-            "vmaddw.mask result, this, vf00 \n"
-
-            : "=j result"(result)
-            : "j this"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields),
-            "r"(vu0_ACC));
+        vec128_t this_val = this->vec128;
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            "qmtc2      %[this_val], $vf1        \n"
+            "vmaddw     $vf2, $vf1, $vf0         \n"
+            "qmfc2      %[result], $vf2         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val), [acc] "r"(vu0_ACC)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -496,15 +535,15 @@ public:
     asub() const
     {
         vec128_t result;
-        asm(
-            " ### ACC - vec_l_fields ### \n"
-            "vmsubw.mask result, this, vf00 \n"
-
-            : "=j result"(result)
-            : "j this"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields),
-            "r"(vu0_ACC));
+        vec128_t this_val = this->vec128;
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            "qmtc2      %[this_val], $vf1        \n"
+            "vmsubw     $vf2, $vf1, $vf0         \n"
+            "qmfc2      %[result], $vf2         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val), [acc] "r"(vu0_ACC)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -516,29 +555,32 @@ public:
     adda(rhs_type rhs) const
     {
         const lhs_type& lhs = *this;
-        asm(
-            " ### ACC = vec_l_fields + vec_r_fields ### \n"
-            "vadda_bc._mask ACC, lhs, rhs \n"
-            : "=r"(vu0_ACC)
-            : "j lhs"(lhs), "j rhs"(rhs),
-            "vu_binary _bc _mask"((lhs.fields << 8) | rhs.fields),
-            "vu_mask l_fields"(lhs.valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields));
+        vec128_t lhs_val = lhs.vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1        \n"
+            "qmtc2      %[rhs_val], $vf2        \n"
+            "vadda      $ACC, $vf1, $vf2        \n"
+            "cfc2       %[acc], $vi16           \n"
+            : [acc] "=r"(vu0_ACC)
+            : [lhs_val] "r"(lhs_val), [rhs_val] "r"(rhs_val)
+            : "memory");
     }
 
     inline void
     adda(float rhs) const
     {
-        asm(
-            " ### ACC = vec_l_fields + float ### \n"
-            "ctc2	rhs, $vi21 \n"
-            "vnop \n"
-            "vaddai.mask ACC, lhs, I \n"
-            : "=r"(vu0_ACC)
-            : "r rhs"(rhs),
-            "j lhs"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields));
+        vec128_t lhs_val = this->vec128;
+        uint32_t rhs_bits = *reinterpret_cast<uint32_t*>(&rhs);
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1        \n"
+            "ctc2       %[rhs_bits], $vi21     \n"
+            "vnop                               \n"
+            "vaddai     $ACC, $vf1, $I          \n"
+            "cfc2       %[acc], $vi16           \n"
+            : [acc] "=r"(vu0_ACC)
+            : [lhs_val] "r"(lhs_val), [rhs_bits] "r"(rhs_bits)
+            : "memory");
     }
 
     template <class rhs_type>
@@ -546,29 +588,32 @@ public:
     suba(rhs_type rhs) const
     {
         const lhs_type& lhs = *this;
-        asm(
-            " ### ACC = vec_l_fields - vec_r_fields ### \n"
-            "vsuba_bc._mask ACC, lhs, rhs \n"
-            : "=r"(vu0_ACC)
-            : "j lhs"(lhs), "j rhs"(rhs),
-            "vu_binary _bc _mask"((lhs.fields << 8) | rhs.fields),
-            "vu_mask l_fields"(lhs.valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields));
+        vec128_t lhs_val = lhs.vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1        \n"
+            "qmtc2      %[rhs_val], $vf2        \n"
+            "vsuba      $ACC, $vf1, $vf2        \n"
+            "cfc2       %[acc], $vi16           \n"
+            : [acc] "=r"(vu0_ACC)
+            : [lhs_val] "r"(lhs_val), [rhs_val] "r"(rhs_val)
+            : "memory");
     }
 
     inline void
     suba(float rhs) const
     {
-        asm(
-            " ### ACC = vec_l_fields - float ### \n"
-            "ctc2	rhs, $vi21 \n"
-            "vnop \n"
-            "vsubai.mask ACC, lhs, I \n"
-            : "=r"(vu0_ACC)
-            : "r rhs"(rhs),
-            "j lhs"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields));
+        vec128_t lhs_val = this->vec128;
+        uint32_t rhs_bits = *reinterpret_cast<uint32_t*>(&rhs);
+        asm __volatile__(
+            "qmtc2      %[lhs_val], $vf1        \n"
+            "ctc2       %[rhs_bits], $vi21     \n"
+            "vnop                               \n"
+            "vsubai     $ACC, $vf1, $I          \n"
+            "cfc2       %[acc], $vi16           \n"
+            : [acc] "=r"(vu0_ACC)
+            : [lhs_val] "r"(lhs_val), [rhs_bits] "r"(rhs_bits)
+            : "memory");
     }
 
     // aadda (accumulator add, to accumulator): ACC = ACC + this
@@ -577,15 +622,26 @@ public:
     inline lhs_type
     aadda() const
     {
+        // Add this vector to ACC: ACC = ACC + this
+        // Then return ACC
+        vec128_t this_val = this->vec128;
         vec128_t result;
-        asm(
-            " ### ACC = ACC + vec_l_fields ### \n"
-            "vmaddaw.mask ACC, this, vf00 \n"
-
-            : "+r"(vu0_ACC)
-            : "j this"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields));
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            "qmtc2      %[this_val], $vf1        \n"
+            // First, read ACC into vf2: vf2 = ACC
+            "vsub       $vf2, $vf0, $vf0         \n"  // vf2 = 0
+            "vmaddw     $vf2, $vf2, $vf0         \n"  // vf2 = ACC + vf2 * vf0w = ACC + 0 = ACC
+            // Now add this vector: ACC = vf2 + vf1 = ACC + this
+            "vadda      $ACC, $vf2, $vf1         \n"  // ACC = vf2 + vf1 = (old ACC) + this
+            "cfc2       %[acc], $vi16            \n"
+            // Read result from ACC
+            "vsub       $vf3, $vf0, $vf0         \n"  // vf3 = 0
+            "vmaddw     $vf3, $vf3, $vf0         \n"  // vf3 = ACC + 0 = ACC
+            "qmfc2      %[result], $vf3          \n"
+            : [result] "=r"(result), [acc] "+r"(vu0_ACC)
+            : [this_val] "r"(this_val)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -593,14 +649,23 @@ public:
     asuba() const
     {
         vec128_t result;
-        asm(
-            " ### ACC = ACC - vec_l_fields ### \n"
-            "vmsubaw.mask ACC, this, vf00 \n"
-
-            : "+r"(vu0_ACC)
-            : "j this"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields));
+        vec128_t this_val = this->vec128;
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            "qmtc2      %[this_val], $vf1        \n"
+            // First, read ACC into vf2: vf2 = ACC
+            "vsub       $vf2, $vf0, $vf0         \n"  // vf2 = 0
+            "vmaddw     $vf2, $vf2, $vf0         \n"  // vf2 = ACC + 0 = ACC
+            // Now subtract this vector: ACC = vf2 - vf1 = ACC - this
+            "vsuba      $ACC, $vf2, $vf1         \n"  // ACC = vf2 - vf1 = (old ACC) - this
+            "cfc2       %[acc], $vi16            \n"
+            // Read result from ACC
+            "vsub       $vf3, $vf0, $vf0         \n"  // vf3 = 0
+            "vmaddw     $vf3, $vf3, $vf0         \n"  // vf3 = ACC + 0 = ACC
+            "qmfc2      %[result], $vf3          \n"
+            : [result] "=r"(result), [acc] "+r"(vu0_ACC)
+            : [this_val] "r"(this_val)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -612,16 +677,17 @@ public:
     madd(rhs_type rhs) const
     {
         vec128_t result;
-        asm(
-            " ### ACC + vec_l_fields * vec_r_fields ### \n"
-            "vmadd_bc._mask result, this, rhs \n"
-
-            : "=j result"(result)
-            : "j this"(*this), "j rhs"(rhs),
-            "vu_binary _bc _mask"(this->fields << 8 | rhs.fields),
-            "vu_mask l_fields"(this->valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields),
-            "r"(vu0_ACC));
+        vec128_t this_val = this->vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            "qmtc2      %[this_val], $vf1        \n"
+            "qmtc2      %[rhs_val], $vf2         \n"
+            "vmadd      $vf3, $vf1, $vf2         \n"
+            "qmfc2      %[result], $vf3         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val), [rhs_val] "r"(rhs_val), [acc] "r"(vu0_ACC)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -629,16 +695,18 @@ public:
     madd(float rhs) const
     {
         vec128_t result;
-        asm(
-            " ### ACC + vec_l_fields * float ### \n"
-            "ctc2	rhs, $vi21 \n"
-            "vnop \n"
-            "vmaddi._mask result, this, I \n"
-            : "=j result"(result)
-            : "j this"(*this), "r rhs"(rhs),
-            "vu_mask _mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields),
-            "r"(vu0_ACC));
+        vec128_t this_val = this->vec128;
+        uint32_t rhs_bits = *reinterpret_cast<uint32_t*>(&rhs);
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            "qmtc2      %[this_val], $vf1        \n"
+            "ctc2       %[rhs_bits], $vi21       \n"
+            "vnop                               \n"
+            "vmaddi     $vf2, $vf1, $I           \n"
+            "qmfc2      %[result], $vf2         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val), [rhs_bits] "r"(rhs_bits), [acc] "r"(vu0_ACC)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -647,16 +715,17 @@ public:
     msub(rhs_type rhs) const
     {
         vec128_t result;
-        asm(
-            " ### ACC - vec_l_fields * vec_r_fields ### \n"
-            "vmsub_bc._mask result, this, rhs \n"
-
-            : "=j result"(result)
-            : "j this"(*this), "j rhs"(rhs),
-            "vu_binary _bc _mask"(this->fields << 8 | rhs.fields),
-            "vu_mask l_fields"(this->valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields),
-            "r"(vu0_ACC));
+        vec128_t this_val = this->vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            "qmtc2      %[this_val], $vf1        \n"
+            "qmtc2      %[rhs_val], $vf2         \n"
+            "vmsub      $vf3, $vf1, $vf2         \n"
+            "qmfc2      %[result], $vf3         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val), [rhs_val] "r"(rhs_val), [acc] "r"(vu0_ACC)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -664,16 +733,18 @@ public:
     msub(float rhs) const
     {
         vec128_t result;
-        asm(
-            " ### ACC - vec_l_fields * float ### \n"
-            "ctc2	rhs, $vi21 \n"
-            "vnop \n"
-            "vmsubi._mask result, this, I \n"
-            : "=j result"(result)
-            : "j this"(*this), "r rhs"(rhs),
-            "vu_mask _mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields),
-            "r"(vu0_ACC));
+        vec128_t this_val = this->vec128;
+        uint32_t rhs_bits = *reinterpret_cast<uint32_t*>(&rhs);
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            "qmtc2      %[this_val], $vf1        \n"
+            "ctc2       %[rhs_bits], $vi21       \n"
+            "vnop                               \n"
+            "vmsubi     $vf2, $vf1, $I           \n"
+            "qmfc2      %[result], $vf2         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val), [rhs_bits] "r"(rhs_bits), [acc] "r"(vu0_ACC)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -685,29 +756,34 @@ public:
     madda(rhs_type rhs) const
     {
         const lhs_type& lhs = *this;
-        asm(
-            " ### ACC = ACC + vec_l_fields * vec_r_fields ### \n"
-            "vmadda_bc._mask ACC, lhs, rhs \n"
-            : "+r"(vu0_ACC)
-            : "j lhs"(lhs), "j rhs"(rhs),
-            "vu_binary _bc _mask"((lhs.fields << 8) | rhs.fields),
-            "vu_mask l_fields"(lhs.valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields));
+        vec128_t lhs_val = lhs.vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            "qmtc2      %[lhs_val], $vf1         \n"
+            "qmtc2      %[rhs_val], $vf2         \n"
+            "vmadda     $ACC, $vf1, $vf2         \n"
+            "cfc2       %[acc], $vi16            \n"
+            : [acc] "+r"(vu0_ACC)
+            : [lhs_val] "r"(lhs_val), [rhs_val] "r"(rhs_val)
+            : "memory");
     }
 
     inline void
     madda(float rhs) const
     {
-        asm(
-            " ### ACC = ACC + vec_l_fields * float ### \n"
-            "ctc2	rhs, $vi21 \n"
-            "vnop \n"
-            "vmaddai.mask ACC, lhs, I \n"
-            : "+r"(vu0_ACC)
-            : "r rhs"(rhs),
-            "j lhs"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields));
+        vec128_t lhs_val = this->vec128;
+        uint32_t rhs_bits = *reinterpret_cast<uint32_t*>(&rhs);
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            "qmtc2      %[lhs_val], $vf1         \n"
+            "ctc2       %[rhs_bits], $vi21       \n"
+            "vnop                               \n"
+            "vmaddai    $ACC, $vf1, $I           \n"
+            "cfc2       %[acc], $vi16            \n"
+            : [acc] "+r"(vu0_ACC)
+            : [lhs_val] "r"(lhs_val), [rhs_bits] "r"(rhs_bits)
+            : "memory");
     }
 
     template <class rhs_type>
@@ -715,42 +791,48 @@ public:
     msuba(rhs_type rhs) const
     {
         const lhs_type& lhs = *this;
-        asm(
-            " ### ACC = ACC - vec_l_fields * vec_r_fields ### \n"
-            "vmsuba_bc._mask ACC, lhs, rhs \n"
-            : "+r"(vu0_ACC)
-            : "j lhs"(lhs), "j rhs"(rhs),
-            "vu_binary _bc _mask"((lhs.fields << 8) | rhs.fields),
-            "vu_mask l_fields"(lhs.valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields));
+        vec128_t lhs_val = lhs.vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            "qmtc2      %[lhs_val], $vf1         \n"
+            "qmtc2      %[rhs_val], $vf2         \n"
+            "vmsuba     $ACC, $vf1, $vf2         \n"
+            "cfc2       %[acc], $vi16            \n"
+            : [acc] "+r"(vu0_ACC)
+            : [lhs_val] "r"(lhs_val), [rhs_val] "r"(rhs_val)
+            : "memory");
     }
 
     inline void
     msuba(float rhs) const
     {
-        asm(
-            " ### ACC = ACC - vec_l_fields * float ### \n"
-            "ctc2	rhs, $vi21 \n"
-            "vnop \n"
-            "vmsubai.mask ACC, lhs, I \n"
-            : "+r"(vu0_ACC)
-            : "r rhs"(rhs),
-            "j lhs"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask l_fields"(this->valid_fields));
+        vec128_t lhs_val = this->vec128;
+        uint32_t rhs_bits = *reinterpret_cast<uint32_t*>(&rhs);
+        asm __volatile__(
+            "ctc2       %[acc], $vi16            \n"
+            "qmtc2      %[lhs_val], $vf1         \n"
+            "ctc2       %[rhs_bits], $vi21       \n"
+            "vnop                               \n"
+            "vmsubai    $ACC, $vf1, $I           \n"
+            "cfc2       %[acc], $vi16            \n"
+            : [acc] "+r"(vu0_ACC)
+            : [lhs_val] "r"(lhs_val), [rhs_bits] "r"(rhs_bits)
+            : "memory");
     }
 
     inline lhs_type
     abs() const
     {
         vec128_t result;
-        asm(
-            " ### absolute value of vec_fields ### \n"
-            "vabs.mask result, this \n"
-            : "=j result"(result)
-            : "j this"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask fields"(this->valid_fields));
+        vec128_t this_val = this->vec128;
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1        \n"
+            "vabs       $vf2, $vf1               \n"
+            "qmfc2      %[result], $vf2         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -758,20 +840,45 @@ public:
     sign() const
     {
         vec128_t result;
-        int temp;
-        int ones = 0x3f800000;
-        asm(
-            " ### signs of vec_fields ### \n"
-            "vmulx.mask result, this, vf00 \n"
-            "pextlw ones, ones, ones \n"
-            "pextlw ones, ones, ones \n"
-            "qmfc2 temp, result \n"
-            "por temp, temp, ones \n"
-            "qmtc2 temp, result \n"
-            : "=j result"(result), "=r temp"(temp), "+r ones"(ones)
-            : "j this"(*this),
-            "vu_mask mask"(this->valid_fields),
-            "vu_mask fields"(this->valid_fields));
+        vec128_t this_val = this->vec128;
+        uint32_t macflag;
+        
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1        \n"
+            // Get absolute value
+            "vabs       $vf2, $vf1               \n"
+            // Divide original by absolute value to get sign
+            // For non-zero: sign = original / abs = Â±1
+            // For zero: division by zero will set MACflag
+            "vdiv       $Q, $vf0w, $vf2x         \n"
+            "vwaitq                              \n"
+            "vmulq.x    $vf3, $vf1, $Q          \n"
+            "vdiv       $Q, $vf0w, $vf2y         \n"
+            "vwaitq                              \n"
+            "vmulq.y    $vf3, $vf1, $Q          \n"
+            "vdiv       $Q, $vf0w, $vf2z         \n"
+            "vwaitq                              \n"
+            "vmulq.z    $vf3, $vf1, $Q          \n"
+            "vdiv       $Q, $vf0w, $vf2w         \n"
+            "vwaitq                              \n"
+            "vmulq.w    $vf3, $vf1, $Q          \n"
+            // Check MACflag for each component to detect zero
+            // If division by zero occurred, set that component to 0
+            "cfc2       %[macflag], $vi17        \n"
+            "andi       %[macflag], %[macflag], 8 \n"  // Check DZ (divide by zero) flag
+            "bgtz       %[macflag], 1f           \n"
+            "nop                                 \n"
+            "qmfc2      %[result], $vf3         \n"
+            "j          2f                       \n"
+            "nop                                 \n"
+            "1:                                  \n"
+            // If zero detected, set result to zero
+            "vsub       $vf3, $vf0, $vf0        \n"
+            "qmfc2      %[result], $vf3         \n"
+            "2:                                  \n"
+            : [result] "=r"(result), [macflag] "=r"(macflag)
+            : [this_val] "r"(this_val)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -780,13 +887,16 @@ public:
     max(rhs_type rhs) const
     {
         vec128_t result;
-        asm(" ### maximum of vec_l_fields and vec_r_fields ### \n"
-            "vmax_bc._mask result, this, rhs \n"
-            : "=j result"(result)
-            : "j this"(*this), "j rhs"(rhs),
-            "vu_binary _bc _mask"(this->fields << 8 | rhs.fields),
-            "vu_mask l_fields"(this->valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields));
+        vec128_t this_val = this->vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1        \n"
+            "qmtc2      %[rhs_val], $vf2          \n"
+            "vmax       $vf3, $vf1, $vf2         \n"
+            "qmfc2      %[result], $vf3         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val), [rhs_val] "r"(rhs_val)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -795,13 +905,16 @@ public:
     min(rhs_type rhs) const
     {
         vec128_t result;
-        asm(" ### minimum of vec_l_fields and vec_r_fields ### \n"
-            "vmini_bc._mask result, this, rhs \n"
-            : "=j result"(result)
-            : "j this"(*this), "j rhs"(rhs),
-            "vu_binary _bc _mask"(this->fields << 8 | rhs.fields),
-            "vu_mask l_fields"(this->valid_fields),
-            "vu_mask r_fields"(rhs.valid_fields));
+        vec128_t this_val = this->vec128;
+        vec128_t rhs_val = rhs.vec128;
+        asm __volatile__(
+            "qmtc2      %[this_val], $vf1        \n"
+            "qmtc2      %[rhs_val], $vf2          \n"
+            "vmini      $vf3, $vf1, $vf2         \n"
+            "qmfc2      %[result], $vf3         \n"
+            : [result] "=r"(result)
+            : [this_val] "r"(this_val), [rhs_val] "r"(rhs_val)
+            : "memory");
         return lhs_type(result);
     }
 
@@ -819,7 +932,7 @@ public:
             "qfsrv	%4, $0, %4 	# temp0 >>= 8 \n"
             "mtc1	%4, %3		# w = value.w \n"
             : "=f"(x), "=f"(y), "=f"(z), "=f"(w), "=r"(temp0)
-            : "r"(vec128));
+            : "r"(this->vec128));
 
         printf("(%f %f %f %f)\n", x, y, z, w);
     }
