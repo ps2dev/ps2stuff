@@ -3,7 +3,6 @@ objs_*
 prebuilddone
 *.o
 *.a
-
 # CMake
 build/
 CMakeCache.txt
@@ -12,3 +11,4 @@ cmake_install.cmake
 install_manifest.txt
 *.cmake
 !CMakeLists.txt
+*.elf

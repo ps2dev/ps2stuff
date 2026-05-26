@@ -34,14 +34,16 @@ public:
 
     void set_zero()
     {
-        asm(
-            " ### mat_x3::set_zero ### \n"
-            "vsub    col0, col0, col0 \n"
-            "vsub    col1, col1, col1 \n"
-            "vsub    col2, col2, col2 \n"
-            : "=j col0"(col0.vec128),
-            "=j col1"(col1.vec128),
-            "=j col2"(col2.vec128));
+        asm __volatile__(
+            "vsub       $vf1, $vf0, $vf0         \n"
+            "vsub       $vf2, $vf0, $vf0         \n"
+            "vsub       $vf3, $vf0, $vf0         \n"
+            "qmfc2      %[col0], $vf1           \n"
+            "qmfc2      %[col1], $vf2            \n"
+            "qmfc2      %[col2], $vf3            \n"
+            : [col0] "=r"(col0.vec128), [col1] "=r"(col1.vec128), [col2] "=r"(col2.vec128)
+            :
+            : "memory");
     }
 
     void set_col0(column_type new_col) { col0 = new_col; }
@@ -50,54 +52,78 @@ public:
 
     void set_row0(vec_3 new_row)
     {
-        asm(
-            " ### mat_x3::set_row0 ### \n"
-            "vaddx.x       col0, vf00, new_row \n"
-            "vaddy.x       col1, vf00, new_row \n"
-            "vaddz.x       col2, vf00, new_row \n"
-            : "+j col0"(col0.vec128),
-            "+j col1"(col1.vec128),
-            "+j col2"(col2.vec128)
-            : "j new_row"(new_row.vec128));
+        vec128_t new_row_val = new_row.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0], $vf1            \n"
+            "qmtc2      %[col1], $vf2            \n"
+            "qmtc2      %[col2], $vf3            \n"
+            "qmtc2      %[new_row_val], $vf4    \n"
+            "vaddx.x    $vf1, $vf0, $vf4         \n"
+            "vaddy.x    $vf2, $vf0, $vf4         \n"
+            "vaddz.x    $vf3, $vf0, $vf4         \n"
+            "qmfc2      %[col0], $vf1            \n"
+            "qmfc2      %[col1], $vf2            \n"
+            "qmfc2      %[col2], $vf3            \n"
+            : [col0] "+r"(col0.vec128), [col1] "+r"(col1.vec128), [col2] "+r"(col2.vec128)
+            : [new_row_val] "r"(new_row_val)
+            : "memory");
     }
 
     void set_row1(vec_3 new_row)
     {
-        asm(
-            " ### mat_x3::set_row1 ### \n"
-            "vaddx.y       col0, vf00, new_row \n"
-            "vaddy.y       col1, vf00, new_row \n"
-            "vaddz.y       col2, vf00, new_row \n"
-            : "+j col0"(col0.vec128),
-            "+j col1"(col1.vec128),
-            "+j col2"(col2.vec128)
-            : "j new_row"(new_row.vec128));
+        vec128_t new_row_val = new_row.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0], $vf1            \n"
+            "qmtc2      %[col1], $vf2            \n"
+            "qmtc2      %[col2], $vf3            \n"
+            "qmtc2      %[new_row_val], $vf4    \n"
+            "vaddx.y    $vf1, $vf0, $vf4         \n"
+            "vaddy.y    $vf2, $vf0, $vf4         \n"
+            "vaddz.y    $vf3, $vf0, $vf4         \n"
+            "qmfc2      %[col0], $vf1            \n"
+            "qmfc2      %[col1], $vf2            \n"
+            "qmfc2      %[col2], $vf3            \n"
+            : [col0] "+r"(col0.vec128), [col1] "+r"(col1.vec128), [col2] "+r"(col2.vec128)
+            : [new_row_val] "r"(new_row_val)
+            : "memory");
     }
 
     void set_row2(vec_3 new_row)
     {
-        asm(
-            " ### mat_x3::set_row2 ### \n"
-            "vaddx.z        col0, vf00, new_row \n"
-            "vaddy.z        col1, vf00, new_row \n"
-            "vaddz.z        col2, vf00, new_row \n"
-            : "+j col0"(col0.vec128),
-            "+j col1"(col1.vec128),
-            "+j col2"(col2.vec128)
-            : "j new_row"(new_row.vec128));
+        vec128_t new_row_val = new_row.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0], $vf1            \n"
+            "qmtc2      %[col1], $vf2            \n"
+            "qmtc2      %[col2], $vf3            \n"
+            "qmtc2      %[new_row_val], $vf4    \n"
+            "vaddx.z    $vf1, $vf0, $vf4         \n"
+            "vaddy.z    $vf2, $vf0, $vf4         \n"
+            "vaddz.z    $vf3, $vf0, $vf4         \n"
+            "qmfc2      %[col0], $vf1            \n"
+            "qmfc2      %[col1], $vf2            \n"
+            "qmfc2      %[col2], $vf3            \n"
+            : [col0] "+r"(col0.vec128), [col1] "+r"(col1.vec128), [col2] "+r"(col2.vec128)
+            : [new_row_val] "r"(new_row_val)
+            : "memory");
     }
 
     void set_row3(vec_3 new_row)
     {
-        asm(
-            " ### mat_x3::set_row3 ### \n"
-            "vmulx.w        col0, vf00, new_row \n"
-            "vmuly.w        col1, vf00, new_row \n"
-            "vmulz.w        col2, vf00, new_row \n"
-            : "+j col0"(col0.vec128),
-            "+j col1"(col1.vec128),
-            "+j col2"(col2.vec128)
-            : "j new_row"(new_row.vec128));
+        vec128_t new_row_val = new_row.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0], $vf1            \n"
+            "qmtc2      %[col1], $vf2            \n"
+            "qmtc2      %[col2], $vf3            \n"
+            "qmtc2      %[new_row_val], $vf4    \n"
+            "vmulx.w    $vf1, $vf0, $vf4         \n"
+            "vmuly.w    $vf2, $vf0, $vf4         \n"
+            "vmulz.w    $vf3, $vf0, $vf4         \n"
+            "qmfc2      %[col0], $vf1            \n"
+            "qmfc2      %[col1], $vf2            \n"
+            "qmfc2      %[col2], $vf3            \n"
+            : [col0] "+r"(col0.vec128), [col1] "+r"(col1.vec128), [col2] "+r"(col2.vec128)
+            : [new_row_val] "r"(new_row_val)
+            : "memory");
     }
 
     column_type get_col0() const { return col0; }
@@ -107,60 +133,84 @@ public:
     vec_3 get_row0() const
     {
         vec128_t row;
-        asm(
-            " ### mat_x3::get_row0 ### \n"
-            "vaddx.x row_, vf00, col0 \n"
-            "vaddx.y row_, vf00, col1 \n"
-            "vaddx.z row_, vf00, col2 \n"
-            : "=&j row_"(row)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "vsub       $vf4, $vf0, $vf0         \n"
+            "vaddx.x $vf4, $vf0, $vf1        \n"
+            "vaddx.y $vf4, $vf0, $vf2        \n"
+            "vaddx.z $vf4, $vf0, $vf3        \n"
+            "qmfc2      %[row], $vf4             \n"
+            : [row] "=&r"(row)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val)
+            : "memory");
         return vec_3(row);
     }
 
     vec_3 get_row1() const
     {
         vec128_t row;
-        asm(
-            " ### mat_x3::get_row1 ### \n"
-            "vaddy.x row_, vf00, col0 \n"
-            "vaddy.y row_, vf00, col1 \n"
-            "vaddy.z row_, vf00, col2 \n"
-            : "=&j row_"(row)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "vsub       $vf4, $vf0, $vf0         \n"
+            "vaddy.x $vf4, $vf0, $vf1        \n"
+            "vaddy.y $vf4, $vf0, $vf2        \n"
+            "vaddy.z $vf4, $vf0, $vf3        \n"
+            "qmfc2      %[row], $vf4             \n"
+            : [row] "=&r"(row)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val)
+            : "memory");
         return vec_3(row);
     }
 
     vec_3 get_row2() const
     {
         vec128_t row;
-        asm(
-            " ### mat_x3::get_row2 ### \n"
-            "vaddz.x row_, vf00, col0 \n"
-            "vaddz.y row_, vf00, col1 \n"
-            "vaddz.z row_, vf00, col2 \n"
-            : "=&j row_"(row)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "vsub       $vf4, $vf0, $vf0         \n"
+            "vaddz.x $vf4, $vf0, $vf1        \n"
+            "vaddz.y $vf4, $vf0, $vf2        \n"
+            "vaddz.z $vf4, $vf0, $vf3        \n"
+            "qmfc2      %[row], $vf4             \n"
+            : [row] "=&r"(row)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val)
+            : "memory");
         return vec_3(row);
     }
 
     vec_3 get_row3() const
     {
         vec128_t row;
-        asm(
-            " ### mat_x3::get_row3 ### \n"
-            "vaddw.x row_, vf00, col0 \n"
-            "vaddw.y row_, vf00, col1 \n"
-            "vaddw.z row_, vf00, col2 \n"
-            : "=&j row_"(row)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "vsub       $vf4, $vf0, $vf0         \n"
+            "vaddw.x $vf4, $vf0, $vf1        \n"
+            "vaddw.y $vf4, $vf0, $vf2        \n"
+            "vaddw.z $vf4, $vf0, $vf3        \n"
+            "qmfc2      %[row], $vf4             \n"
+            : [row] "=&r"(row)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val)
+            : "memory");
         return vec_3(row);
     }
 
@@ -168,14 +218,23 @@ public:
     operator*(vec_3 vec) const
     {
         vec128_t result;
-        asm(
-            " ### mat_x3 * vec_3 ### \n"
-            "vmulax    ACC, col0, vec      \n"
-            "vmadday    ACC, col1, vec      \n"
-            "vmaddz    result, col2, vec      \n"
-            : "=&j result"(result), "=r"(vu0_ACC)
-            : "j vec"(vec.vec128),
-            "j col0"(col0.vec128), "j col1"(col1.vec128), "j col2"(col2.vec128));
+        vec128_t vec_val = vec.vec128;
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[vec_val], $vf4         \n"
+            "vsuba      $ACC, $vf0, $vf0         \n"
+            "vmulax     $ACC, $vf1, $vf4         \n"
+            "vmadday    $ACC, $vf2, $vf4         \n"
+            "vmaddz     $vf5, $vf3, $vf4         \n"
+            "qmfc2      %[result], $vf5          \n"
+            : [result] "=&r"(result), [acc] "=r"(vu0_ACC)
+            : [vec_val] "r"(vec_val), [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val)
+            : "memory");
         return column_type(result);
     }
 
@@ -184,17 +243,28 @@ public:
     mult_trans_col0(const mat_x3_template<mat_column_type>& mat) const
     {
         vec128_t result;
-        asm("### mat_x3 mult_trans mat_x3, column 0 of result ### \n"
-            "vmulax ACC, col0, mat0 \n"
-            "vmaddax ACC, col1, mat1 \n"
-            "vmaddx res0, col2, mat2 \n"
-            : "=&j res0"(result), "=r"(vu0_ACC)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128),
-            "j mat0"(mat.col0.vec128),
-            "j mat1"(mat.col1.vec128),
-            "j mat2"(mat.col2.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t mat0_val = mat.col0.vec128;
+        vec128_t mat1_val = mat.col1.vec128;
+        vec128_t mat2_val = mat.col2.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[mat0_val], $vf4        \n"
+            "qmtc2      %[mat1_val], $vf5        \n"
+            "qmtc2      %[mat2_val], $vf6        \n"
+            "vsuba      $ACC, $vf0, $vf0         \n"
+            "vmulax     $ACC, $vf1, $vf4         \n"
+            "vmaddax    $ACC, $vf2, $vf5         \n"
+            "vmaddx     $vf7, $vf3, $vf6         \n"
+            "qmfc2      %[result], $vf7          \n"
+            : [result] "=&r"(result), [acc] "=r"(vu0_ACC)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val),
+              [mat0_val] "r"(mat0_val), [mat1_val] "r"(mat1_val), [mat2_val] "r"(mat2_val)
+            : "memory");
         return column_type(result);
     }
 
@@ -203,17 +273,28 @@ public:
     mult_trans_col1(const mat_x3_template<mat_column_type>& mat) const
     {
         vec128_t result;
-        asm("### mat_x3 mult_trans mat_x3, column 1 of result ### \n"
-            "vmulay ACC, col0, mat0 \n"
-            "vmadday ACC, col1, mat1 \n"
-            "vmaddy res1, col2, mat2 \n"
-            : "=&j res1"(result), "=r"(vu0_ACC)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128),
-            "j mat0"(mat.col0.vec128),
-            "j mat1"(mat.col1.vec128),
-            "j mat2"(mat.col2.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t mat0_val = mat.col0.vec128;
+        vec128_t mat1_val = mat.col1.vec128;
+        vec128_t mat2_val = mat.col2.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[mat0_val], $vf4        \n"
+            "qmtc2      %[mat1_val], $vf5        \n"
+            "qmtc2      %[mat2_val], $vf6        \n"
+            "vsuba      $ACC, $vf0, $vf0         \n"
+            "vmulay     $ACC, $vf1, $vf4         \n"
+            "vmadday    $ACC, $vf2, $vf5         \n"
+            "vmaddy     $vf7, $vf3, $vf6         \n"
+            "qmfc2      %[result], $vf7          \n"
+            : [result] "=&r"(result), [acc] "=r"(vu0_ACC)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val),
+              [mat0_val] "r"(mat0_val), [mat1_val] "r"(mat1_val), [mat2_val] "r"(mat2_val)
+            : "memory");
         return column_type(result);
     }
 
@@ -222,17 +303,28 @@ public:
     mult_trans_col2(const mat_x3_template<mat_column_type>& mat) const
     {
         vec128_t result;
-        asm("### mat_x3 mult_trans mat_x3, column 2 of result ### \n"
-            "vmulaz ACC, col0, mat0 \n"
-            "vmaddaz ACC, col1, mat1 \n"
-            "vmaddz res2, col2, mat2 \n"
-            : "=&j res2"(result), "=r"(vu0_ACC)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128),
-            "j mat0"(mat.col0.vec128),
-            "j mat1"(mat.col1.vec128),
-            "j mat2"(mat.col2.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t mat0_val = mat.col0.vec128;
+        vec128_t mat1_val = mat.col1.vec128;
+        vec128_t mat2_val = mat.col2.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[mat0_val], $vf4        \n"
+            "qmtc2      %[mat1_val], $vf5        \n"
+            "qmtc2      %[mat2_val], $vf6        \n"
+            "vsuba      $ACC, $vf0, $vf0         \n"
+            "vmulaz     $ACC, $vf1, $vf4         \n"
+            "vmaddaz    $ACC, $vf2, $vf5         \n"
+            "vmaddz     $vf7, $vf3, $vf6         \n"
+            "qmfc2      %[result], $vf7          \n"
+            : [result] "=&r"(result), [acc] "=r"(vu0_ACC)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val),
+              [mat0_val] "r"(mat0_val), [mat1_val] "r"(mat1_val), [mat2_val] "r"(mat2_val)
+            : "memory");
         return column_type(result);
     }
 
@@ -241,17 +333,28 @@ public:
     mult_trans_col3(const mat_x3_template<mat_column_type>& mat) const
     {
         vec128_t result;
-        asm("### mat_x3 mult_trans mat_x3, column 3 of result ### \n"
-            "vmulaw ACC, col0, mat0 \n"
-            "vmaddaw ACC, col1, mat1 \n"
-            "vmaddw res3, col2, mat2 \n"
-            : "=&j res3"(result), "=r"(vu0_ACC)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128),
-            "j mat0"(mat.col0.vec128),
-            "j mat1"(mat.col1.vec128),
-            "j mat2"(mat.col2.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t mat0_val = mat.col0.vec128;
+        vec128_t mat1_val = mat.col1.vec128;
+        vec128_t mat2_val = mat.col2.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[mat0_val], $vf4        \n"
+            "qmtc2      %[mat1_val], $vf5        \n"
+            "qmtc2      %[mat2_val], $vf6        \n"
+            "vsuba      $ACC, $vf0, $vf0         \n"
+            "vmulaw     $ACC, $vf1, $vf4         \n"
+            "vmaddaw    $ACC, $vf2, $vf5         \n"
+            "vmaddw     $vf7, $vf3, $vf6         \n"
+            "qmfc2      %[result], $vf7          \n"
+            : [result] "=&r"(result), [acc] "=r"(vu0_ACC)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val),
+              [mat0_val] "r"(mat0_val), [mat1_val] "r"(mat1_val), [mat2_val] "r"(mat2_val)
+            : "memory");
         return column_type(result);
     }
 };
@@ -284,16 +387,18 @@ public:
 
     void set_zero()
     {
-        asm(
-            " ### mat_x4::set_zero ### \n"
-            "vsub    col0, col0, col0 \n"
-            "vsub    col1, col1, col1 \n"
-            "vsub    col2, col2, col2 \n"
-            "vsub    col3, col3, col3 \n"
-            : "=j col0"(col0.vec128),
-            "=j col1"(col1.vec128),
-            "=j col2"(col2.vec128),
-            "=j col3"(col3.vec128));
+        asm __volatile__(
+            "vsub       $vf1, $vf0, $vf0         \n"
+            "vsub       $vf2, $vf0, $vf0         \n"
+            "vsub       $vf3, $vf0, $vf0         \n"
+            "vsub       $vf4, $vf0, $vf0         \n"
+            "qmfc2      %[col0], $vf1            \n"
+            "qmfc2      %[col1], $vf2            \n"
+            "qmfc2      %[col2], $vf3            \n"
+            "qmfc2      %[col3], $vf4            \n"
+            : [col0] "=r"(col0.vec128), [col1] "=r"(col1.vec128), [col2] "=r"(col2.vec128), [col3] "=r"(col3.vec128)
+            :
+            : "memory");
     }
 
     void set_col0(column_type new_col) { col0 = new_col; }
@@ -303,62 +408,90 @@ public:
 
     void set_row0(vec_4 new_row)
     {
-        asm(
-            " ### mat_x4::set_row0 ### \n"
-            "vaddx.x       col0, vf00, new_row \n"
-            "vaddy.x       col1, vf00, new_row \n"
-            "vaddz.x       col2, vf00, new_row \n"
-            "vaddw.x       col3, vf00, new_row \n"
-            : "+j col0"(col0.vec128),
-            "+j col1"(col1.vec128),
-            "+j col2"(col2.vec128),
-            "+j col3"(col3.vec128)
-            : "j new_row"(new_row.vec128));
+        vec128_t new_row_val = new_row.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0], $vf1            \n"
+            "qmtc2      %[col1], $vf2            \n"
+            "qmtc2      %[col2], $vf3            \n"
+            "qmtc2      %[col3], $vf4            \n"
+            "qmtc2      %[new_row_val], $vf5     \n"
+            "vaddx.x    $vf1, $vf0, $vf5         \n"
+            "vaddy.x    $vf2, $vf0, $vf5         \n"
+            "vaddz.x    $vf3, $vf0, $vf5         \n"
+            "vaddw.x    $vf4, $vf0, $vf5         \n"
+            "qmfc2      %[col0], $vf1            \n"
+            "qmfc2      %[col1], $vf2            \n"
+            "qmfc2      %[col2], $vf3            \n"
+            "qmfc2      %[col3], $vf4            \n"
+            : [col0] "+r"(col0.vec128), [col1] "+r"(col1.vec128), [col2] "+r"(col2.vec128), [col3] "+r"(col3.vec128)
+            : [new_row_val] "r"(new_row_val)
+            : "memory");
     }
 
     void set_row1(vec_4 new_row)
     {
-        asm(
-            " ### mat_x4::set_row1 ### \n"
-            "vaddx.y       col0, vf00, new_row \n"
-            "vaddy.y       col1, vf00, new_row \n"
-            "vaddz.y       col2, vf00, new_row \n"
-            "vaddw.y       col3, vf00, new_row \n"
-            : "+j col0"(col0.vec128),
-            "+j col1"(col1.vec128),
-            "+j col2"(col2.vec128),
-            "+j col3"(col3.vec128)
-            : "j new_row"(new_row.vec128));
+        vec128_t new_row_val = new_row.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0], $vf1            \n"
+            "qmtc2      %[col1], $vf2            \n"
+            "qmtc2      %[col2], $vf3            \n"
+            "qmtc2      %[col3], $vf4            \n"
+            "qmtc2      %[new_row_val], $vf5     \n"
+            "vaddx.y    $vf1, $vf0, $vf5         \n"
+            "vaddy.y    $vf2, $vf0, $vf5         \n"
+            "vaddz.y    $vf3, $vf0, $vf5         \n"
+            "vaddw.y    $vf4, $vf0, $vf5         \n"
+            "qmfc2      %[col0], $vf1            \n"
+            "qmfc2      %[col1], $vf2            \n"
+            "qmfc2      %[col2], $vf3            \n"
+            "qmfc2      %[col3], $vf4            \n"
+            : [col0] "+r"(col0.vec128), [col1] "+r"(col1.vec128), [col2] "+r"(col2.vec128), [col3] "+r"(col3.vec128)
+            : [new_row_val] "r"(new_row_val)
+            : "memory");
     }
 
     void set_row2(vec_4 new_row)
     {
-        asm(
-            " ### mat_x4::set_row2 ### \n"
-            "vaddx.z        col0, vf00, new_row \n"
-            "vaddy.z        col1, vf00, new_row \n"
-            "vaddz.z        col2, vf00, new_row \n"
-            "vaddw.z        col3, vf00, new_row \n"
-            : "+j col0"(col0.vec128),
-            "+j col1"(col1.vec128),
-            "+j col2"(col2.vec128),
-            "+j col3"(col3.vec128)
-            : "j new_row"(new_row.vec128));
+        vec128_t new_row_val = new_row.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0], $vf1            \n"
+            "qmtc2      %[col1], $vf2            \n"
+            "qmtc2      %[col2], $vf3            \n"
+            "qmtc2      %[col3], $vf4            \n"
+            "qmtc2      %[new_row_val], $vf5     \n"
+            "vaddx.z    $vf1, $vf0, $vf5         \n"
+            "vaddy.z    $vf2, $vf0, $vf5         \n"
+            "vaddz.z    $vf3, $vf0, $vf5         \n"
+            "vaddw.z    $vf4, $vf0, $vf5         \n"
+            "qmfc2      %[col0], $vf1            \n"
+            "qmfc2      %[col1], $vf2            \n"
+            "qmfc2      %[col2], $vf3            \n"
+            "qmfc2      %[col3], $vf4            \n"
+            : [col0] "+r"(col0.vec128), [col1] "+r"(col1.vec128), [col2] "+r"(col2.vec128), [col3] "+r"(col3.vec128)
+            : [new_row_val] "r"(new_row_val)
+            : "memory");
     }
 
     void set_row3(vec_4 new_row)
     {
-        asm(
-            " ### mat_x4::set_row3 ### \n"
-            "vmulx.w        col0, vf00, new_row \n"
-            "vmuly.w        col1, vf00, new_row \n"
-            "vmulz.w        col2, vf00, new_row \n"
-            "vmulw.w        col3, vf00, new_row \n"
-            : "+j col0"(col0.vec128),
-            "+j col1"(col1.vec128),
-            "+j col2"(col2.vec128),
-            "+j col3"(col3.vec128)
-            : "j new_row"(new_row.vec128));
+        vec128_t new_row_val = new_row.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0], $vf1            \n"
+            "qmtc2      %[col1], $vf2            \n"
+            "qmtc2      %[col2], $vf3            \n"
+            "qmtc2      %[col3], $vf4            \n"
+            "qmtc2      %[new_row_val], $vf5     \n"
+            "vmulx.w    $vf1, $vf0, $vf5         \n"
+            "vmuly.w    $vf2, $vf0, $vf5         \n"
+            "vmulz.w    $vf3, $vf0, $vf5         \n"
+            "vmulw.w    $vf4, $vf0, $vf5         \n"
+            "qmfc2      %[col0], $vf1            \n"
+            "qmfc2      %[col1], $vf2            \n"
+            "qmfc2      %[col2], $vf3            \n"
+            "qmfc2      %[col3], $vf4            \n"
+            : [col0] "+r"(col0.vec128), [col1] "+r"(col1.vec128), [col2] "+r"(col2.vec128), [col3] "+r"(col3.vec128)
+            : [new_row_val] "r"(new_row_val)
+            : "memory");
     }
 
     column_type get_col0() const { return col0; }
@@ -369,68 +502,96 @@ public:
     vec_4 get_row0() const
     {
         vec128_t row;
-        asm(
-            " ### mat_x4::get_row0 ### \n"
-            "vaddx.x row_, vf00, col0 \n"
-            "vaddx.y row_, vf00, col1 \n"
-            "vaddx.z row_, vf00, col2 \n"
-            "vmulx.w row_, vf00, col3 \n"
-            : "=&j row_"(row)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128),
-            "j col3"(col3.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t col3_val = col3.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[col3_val], $vf4        \n"
+            "vsub       $vf5, $vf0, $vf0         \n"
+            "vaddx.x $vf5, $vf0, $vf1        \n"
+            "vaddx.y $vf5, $vf0, $vf2        \n"
+            "vaddx.z $vf5, $vf0, $vf3        \n"
+            "vmulx.w $vf5, $vf0, $vf4        \n"
+            "qmfc2      %[row], $vf5             \n"
+            : [row] "=&r"(row)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val), [col3_val] "r"(col3_val)
+            : "memory");
         return vec_4(row);
     }
 
     vec_4 get_row1() const
     {
         vec128_t row;
-        asm(
-            " ### mat_x4::get_row1 ### \n"
-            "vaddy.x row_, vf00, col0 \n"
-            "vaddy.y row_, vf00, col1 \n"
-            "vaddy.z row_, vf00, col2 \n"
-            "vmuly.w row_, vf00, col3 \n"
-            : "=&j row_"(row)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128),
-            "j col3"(col3.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t col3_val = col3.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[col3_val], $vf4        \n"
+            "vsub       $vf5, $vf0, $vf0         \n"
+            "vaddy.x $vf5, $vf0, $vf1        \n"
+            "vaddy.y $vf5, $vf0, $vf2        \n"
+            "vaddy.z $vf5, $vf0, $vf3        \n"
+            "vmuly.w $vf5, $vf0, $vf4        \n"
+            "qmfc2      %[row], $vf5             \n"
+            : [row] "=&r"(row)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val), [col3_val] "r"(col3_val)
+            : "memory");
         return vec_4(row);
     }
 
     vec_4 get_row2() const
     {
         vec128_t row;
-        asm(
-            " ### mat_x4::get_row2 ### \n"
-            "vaddz.x row_, vf00, col0 \n"
-            "vaddz.y row_, vf00, col1 \n"
-            "vaddz.z row_, vf00, col2 \n"
-            "vmulz.w row_, vf00, col3 \n"
-            : "=&j row_"(row)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128),
-            "j col3"(col3.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t col3_val = col3.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[col3_val], $vf4        \n"
+            "vsub       $vf5, $vf0, $vf0         \n"
+            "vaddz.x $vf5, $vf0, $vf1        \n"
+            "vaddz.y $vf5, $vf0, $vf2        \n"
+            "vaddz.z $vf5, $vf0, $vf3        \n"
+            "vmulz.w $vf5, $vf0, $vf4        \n"
+            "qmfc2      %[row], $vf5             \n"
+            : [row] "=&r"(row)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val), [col3_val] "r"(col3_val)
+            : "memory");
         return vec_4(row);
     }
 
     vec_4 get_row3() const
     {
         vec128_t row;
-        asm(
-            " ### mat_x4::get_row3 ### \n"
-            "vaddw.x row_, vf00, col0 \n"
-            "vaddw.y row_, vf00, col1 \n"
-            "vaddw.z row_, vf00, col2 \n"
-            "vmulw.w row_, vf00, col3 \n"
-            : "=&j row_"(row)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128),
-            "j col3"(col3.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t col3_val = col3.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[col3_val], $vf4        \n"
+            "vsub       $vf5, $vf0, $vf0         \n"
+            "vaddw.x $vf5, $vf0, $vf1        \n"
+            "vaddw.y $vf5, $vf0, $vf2        \n"
+            "vaddw.z $vf5, $vf0, $vf3        \n"
+            "vmulw.w    $vf5, $vf0, $vf4        \n"
+            "qmfc2      %[row], $vf5             \n"
+            : [row] "=&r"(row)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val), [col3_val] "r"(col3_val)
+            : "memory");
         return vec_4(row);
     }
 
@@ -438,16 +599,26 @@ public:
     operator*(vec_4 vec) const
     {
         vec128_t result;
-        asm(
-            " ### mat_x4 * vec_4 ### \n"
-            "vmulax    ACC, col0, vec      \n"
-            "vmadday    ACC, col1, vec      \n"
-            "vmaddaz    ACC, col2, vec      \n"
-            "vmaddw    result, col3, vec      \n"
-            : "=&j result"(result), "=r"(vu0_ACC)
-            : "j vec"(vec.vec128),
-            "j col0"(col0.vec128), "j col1"(col1.vec128),
-            "j col2"(col2.vec128), "j col3"(col3.vec128));
+        vec128_t vec_val = vec.vec128;
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t col3_val = col3.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[col3_val], $vf4        \n"
+            "qmtc2      %[vec_val], $vf5         \n"
+            "vsuba      $ACC, $vf0, $vf0         \n"
+            "vmulax     $ACC, $vf1, $vf5         \n"
+            "vmadday    $ACC, $vf2, $vf5         \n"
+            "vmaddaz    $ACC, $vf3, $vf5         \n"
+            "vmaddw     $vf6, $vf4, $vf5         \n"
+            "qmfc2      %[result], $vf6          \n"
+            : [result] "=&r"(result), [acc] "=r"(vu0_ACC)
+            : [vec_val] "r"(vec_val), [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val), [col3_val] "r"(col3_val)
+            : "memory");
         return column_type(result);
     }
 
@@ -455,14 +626,23 @@ public:
     operator*(vector_t vec) const
     {
         vec128_t result;
-        asm(
-            " ### mat_x4 * vector_t ### \n"
-            "vmulax    ACC, col0, vec      \n"
-            "vmadday    ACC, col1, vec      \n"
-            "vmaddz    result, col2, vec      \n"
-            : "=&j result"(result), "=r"(vu0_ACC)
-            : "j vec"(vec.vec128),
-            "j col0"(col0.vec128), "j col1"(col1.vec128), "j col2"(col2.vec128));
+        vec128_t vec_val = vec.vec128;
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[vec_val], $vf4         \n"
+            "vsuba      $ACC, $vf0, $vf0         \n"
+            "vmulax     $ACC, $vf1, $vf4         \n"
+            "vmadday    $ACC, $vf2, $vf4         \n"
+            "vmaddz     $vf5, $vf3, $vf4         \n"
+            "qmfc2      %[result], $vf5          \n"
+            : [result] "=&r"(result), [acc] "=r"(vu0_ACC)
+            : [vec_val] "r"(vec_val), [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val)
+            : "memory");
         return column_type(result);
     }
 
@@ -470,16 +650,26 @@ public:
     operator*(point_t pt) const
     {
         vec128_t result;
-        asm(
-            " ### mat_x4 * point_t ### \n"
-            "vmulax    ACC, col0, pt      \n"
-            "vmadday    ACC, col1, pt      \n"
-            "vmaddaz    ACC, col2, pt      \n"
-            "vmaddw    result, col3, vf00    \n"
-            : "=&j result"(result), "=r"(vu0_ACC)
-            : "j pt"(pt.vec128),
-            "j col0"(col0.vec128), "j col1"(col1.vec128),
-            "j col2"(col2.vec128), "j col3"(col3.vec128));
+        vec128_t pt_val = pt.vec128;
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t col3_val = col3.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[col3_val], $vf4        \n"
+            "qmtc2      %[pt_val], $vf5          \n"
+            "vsuba      $ACC, $vf0, $vf0         \n"
+            "vmulax     $ACC, $vf1, $vf5         \n"
+            "vmadday    $ACC, $vf2, $vf5         \n"
+            "vmaddaz    $ACC, $vf3, $vf5         \n"
+            "vmaddw     $vf6, $vf4, $vf0         \n"
+            "qmfc2      %[result], $vf6          \n"
+            : [result] "=&r"(result), [acc] "=r"(vu0_ACC)
+            : [pt_val] "r"(pt_val), [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val), [col3_val] "r"(col3_val)
+            : "memory");
         return column_type(result);
     }
 
@@ -488,20 +678,33 @@ public:
     mult_trans_col0(const mat_x4_template<mat_column_type>& mat) const
     {
         vec128_t result;
-        asm("### mat_x4 mult_trans mat_x4, column 0 of result ### \n"
-            "vmulax ACC, col0, mat0 \n"
-            "vmaddax ACC, col1, mat1 \n"
-            "vmaddax ACC, col2, mat2 \n"
-            "vmaddx res0, col3, mat3 \n"
-            : "=&j res0"(result), "=r"(vu0_ACC)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128),
-            "j col3"(col3.vec128),
-            "j mat0"(mat.col0.vec128),
-            "j mat1"(mat.col1.vec128),
-            "j mat2"(mat.col2.vec128),
-            "j mat3"(mat.col3.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t col3_val = col3.vec128;
+        vec128_t mat0_val = mat.col0.vec128;
+        vec128_t mat1_val = mat.col1.vec128;
+        vec128_t mat2_val = mat.col2.vec128;
+        vec128_t mat3_val = mat.col3.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[col3_val], $vf4        \n"
+            "qmtc2      %[mat0_val], $vf5        \n"
+            "qmtc2      %[mat1_val], $vf6        \n"
+            "qmtc2      %[mat2_val], $vf7        \n"
+            "qmtc2      %[mat3_val], $vf8        \n"
+            "vsuba      $ACC, $vf0, $vf0         \n"
+            "vmulax     $ACC, $vf1, $vf5         \n"
+            "vmaddax    $ACC, $vf2, $vf6         \n"
+            "vmaddax    $ACC, $vf3, $vf7         \n"
+            "vmaddx     $vf9, $vf4, $vf8         \n"
+            "qmfc2      %[result], $vf9          \n"
+            : [result] "=&r"(result), [acc] "=r"(vu0_ACC)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val), [col3_val] "r"(col3_val),
+              [mat0_val] "r"(mat0_val), [mat1_val] "r"(mat1_val), [mat2_val] "r"(mat2_val), [mat3_val] "r"(mat3_val)
+            : "memory");
         return column_type(result);
     }
 
@@ -510,20 +713,33 @@ public:
     mult_trans_col1(const mat_x4_template<mat_column_type>& mat) const
     {
         vec128_t result;
-        asm("### mat_x4 mult_trans mat_x4, column 1 of result ### \n"
-            "vmulay ACC, col0, mat0 \n"
-            "vmadday ACC, col1, mat1 \n"
-            "vmadday ACC, col2, mat2 \n"
-            "vmaddy res1, col3, mat3 \n"
-            : "=&j res1"(result), "=r"(vu0_ACC)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128),
-            "j col3"(col3.vec128),
-            "j mat0"(mat.col0.vec128),
-            "j mat1"(mat.col1.vec128),
-            "j mat2"(mat.col2.vec128),
-            "j mat3"(mat.col3.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t col3_val = col3.vec128;
+        vec128_t mat0_val = mat.col0.vec128;
+        vec128_t mat1_val = mat.col1.vec128;
+        vec128_t mat2_val = mat.col2.vec128;
+        vec128_t mat3_val = mat.col3.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[col3_val], $vf4        \n"
+            "qmtc2      %[mat0_val], $vf5        \n"
+            "qmtc2      %[mat1_val], $vf6        \n"
+            "qmtc2      %[mat2_val], $vf7        \n"
+            "qmtc2      %[mat3_val], $vf8        \n"
+            "vsuba      $ACC, $vf0, $vf0         \n"
+            "vmulay     $ACC, $vf1, $vf5         \n"
+            "vmadday    $ACC, $vf2, $vf6         \n"
+            "vmadday    $ACC, $vf3, $vf7         \n"
+            "vmaddy     $vf9, $vf4, $vf8         \n"
+            "qmfc2      %[result], $vf9          \n"
+            : [result] "=&r"(result), [acc] "=r"(vu0_ACC)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val), [col3_val] "r"(col3_val),
+              [mat0_val] "r"(mat0_val), [mat1_val] "r"(mat1_val), [mat2_val] "r"(mat2_val), [mat3_val] "r"(mat3_val)
+            : "memory");
         return column_type(result);
     }
 
@@ -532,20 +748,33 @@ public:
     mult_trans_col2(const mat_x4_template<mat_column_type>& mat) const
     {
         vec128_t result;
-        asm("### mat_x4 mult_trans mat_x4, column 2 of result ### \n"
-            "vmulaz ACC, col0, mat0 \n"
-            "vmaddaz ACC, col1, mat1 \n"
-            "vmaddaz ACC, col2, mat2 \n"
-            "vmaddz res2, col3, mat3 \n"
-            : "=&j res2"(result), "=r"(vu0_ACC)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128),
-            "j col3"(col3.vec128),
-            "j mat0"(mat.col0.vec128),
-            "j mat1"(mat.col1.vec128),
-            "j mat2"(mat.col2.vec128),
-            "j mat3"(mat.col3.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t col3_val = col3.vec128;
+        vec128_t mat0_val = mat.col0.vec128;
+        vec128_t mat1_val = mat.col1.vec128;
+        vec128_t mat2_val = mat.col2.vec128;
+        vec128_t mat3_val = mat.col3.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[col3_val], $vf4        \n"
+            "qmtc2      %[mat0_val], $vf5        \n"
+            "qmtc2      %[mat1_val], $vf6        \n"
+            "qmtc2      %[mat2_val], $vf7        \n"
+            "qmtc2      %[mat3_val], $vf8        \n"
+            "vsuba      $ACC, $vf0, $vf0         \n"
+            "vmulaz     $ACC, $vf1, $vf5         \n"
+            "vmaddaz    $ACC, $vf2, $vf6         \n"
+            "vmaddaz    $ACC, $vf3, $vf7         \n"
+            "vmaddz     $vf9, $vf4, $vf8         \n"
+            "qmfc2      %[result], $vf9          \n"
+            : [result] "=&r"(result), [acc] "=r"(vu0_ACC)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val), [col3_val] "r"(col3_val),
+              [mat0_val] "r"(mat0_val), [mat1_val] "r"(mat1_val), [mat2_val] "r"(mat2_val), [mat3_val] "r"(mat3_val)
+            : "memory");
         return column_type(result);
     }
 
@@ -554,20 +783,33 @@ public:
     mult_trans_col3(const mat_x4_template<mat_column_type>& mat) const
     {
         vec128_t result;
-        asm("### mat_x4 mult_trans mat_x4, column 3 of result ### \n"
-            "vmulaw ACC, col0, mat0 \n"
-            "vmaddaw ACC, col1, mat1 \n"
-            "vmaddaw ACC, col2, mat2 \n"
-            "vmaddw res3, col3, mat3 \n"
-            : "=&j res3"(result), "=r"(vu0_ACC)
-            : "j col0"(col0.vec128),
-            "j col1"(col1.vec128),
-            "j col2"(col2.vec128),
-            "j col3"(col3.vec128),
-            "j mat0"(mat.col0.vec128),
-            "j mat1"(mat.col1.vec128),
-            "j mat2"(mat.col2.vec128),
-            "j mat3"(mat.col3.vec128));
+        vec128_t col0_val = col0.vec128;
+        vec128_t col1_val = col1.vec128;
+        vec128_t col2_val = col2.vec128;
+        vec128_t col3_val = col3.vec128;
+        vec128_t mat0_val = mat.col0.vec128;
+        vec128_t mat1_val = mat.col1.vec128;
+        vec128_t mat2_val = mat.col2.vec128;
+        vec128_t mat3_val = mat.col3.vec128;
+        asm __volatile__(
+            "qmtc2      %[col0_val], $vf1        \n"
+            "qmtc2      %[col1_val], $vf2        \n"
+            "qmtc2      %[col2_val], $vf3        \n"
+            "qmtc2      %[col3_val], $vf4        \n"
+            "qmtc2      %[mat0_val], $vf5        \n"
+            "qmtc2      %[mat1_val], $vf6        \n"
+            "qmtc2      %[mat2_val], $vf7        \n"
+            "qmtc2      %[mat3_val], $vf8        \n"
+            "vsuba      $ACC, $vf0, $vf0         \n"
+            "vmulaw     $ACC, $vf1, $vf5         \n"
+            "vmaddaw    $ACC, $vf2, $vf6         \n"
+            "vmaddaw    $ACC, $vf3, $vf7         \n"
+            "vmaddw     $vf9, $vf4, $vf8         \n"
+            "qmfc2      %[result], $vf9          \n"
+            : [result] "=&r"(result), [acc] "=r"(vu0_ACC)
+            : [col0_val] "r"(col0_val), [col1_val] "r"(col1_val), [col2_val] "r"(col2_val), [col3_val] "r"(col3_val),
+              [mat0_val] "r"(mat0_val), [mat1_val] "r"(mat1_val), [mat2_val] "r"(mat2_val), [mat3_val] "r"(mat3_val)
+            : "memory");
         return column_type(result);
     }
 };

@@ -19,11 +19,11 @@ jobs:
         apk update
         apk add cmake build-base git make
 
-    - name: Configure with CMake
+    - name: Configure with CMake (library + tests)
       run: |
         mkdir build
         cd build
-        cmake ..
+        cmake -DBUILD_TESTS=ON ..
 
     - name: Build project with CMake
       run: |
@@ -46,3 +46,4 @@ jobs:
         name: libps2stuff-${{ steps.slug.outputs.sha8 }}
         path: |
           build/*.a
+          build/tests/*.elf

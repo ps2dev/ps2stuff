@@ -14,6 +14,8 @@ project(ps2stuff VERSION 1.0.0 LANGUAGES CXX C)
 # Options
 option(BUILD_TESTS "Build test projects" OFF)
 option(DEBUG "Enable debug build" OFF)
+option(ENABLE_VU0_VECTORS "Enable VU0 vector code paths" ON)
+option(ENABLE_ASM "Enable assembly optimizations" ON)
 
 # Check if PS2SDK is set (should be done by toolchain file)
 if(NOT DEFINED PS2SDK)
@@ -45,11 +47,13 @@ set(WARNING_FLAGS
     -Wno-conversion-null
 )
 
-# VU0 code is broken so disable for now
-add_compile_definitions(
-    NO_VU0_VECTORS
-    NO_ASM
-)
+if(NOT ENABLE_VU0_VECTORS)
+    add_compile_definitions(NO_VU0_VECTORS)
+endif()
+
+if(NOT ENABLE_ASM)
+    add_compile_definitions(NO_ASM)
+endif()
 
 add_compile_options(${WARNING_FLAGS})
 
@@ -122,6 +126,6 @@ message(STATUS "  Debug build: ${DEBUG}")
 message(STATUS "  Build tests: ${BUILD_TESTS}")
 message(STATUS "  Output library: ${EE_LIB}")
 message(STATUS "  Install prefix: ${PS2SDK}/ports")
-message(STATUS "  VU0 vectors: DISABLED")
-message(STATUS "  ASM optimizations: DISABLED")
+message(STATUS "  VU0 vectors: ${ENABLE_VU0_VECTORS}")
+message(STATUS "  ASM optimizations: ${ENABLE_ASM}")
 message(STATUS "")

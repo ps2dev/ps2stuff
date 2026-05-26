@@ -9,6 +9,7 @@
 
 #include "ps2s/debug.h"
 #include "ps2s/types.h"
+#include "ps2s/core.h"
 
 /********************************************
 	 * common
@@ -43,20 +44,25 @@ void VU0::CopyQwordsToVU0(uint32_t vu0QwordOffset, uint128_t* mainMemSrc, uint32
 {
     mAssert(((uint32_t)mainMemSrc & 0xf) == 0);
 
-    asm volatile("
-                         .set noreorder
-                             ctc2
-                     % 2,
-                 $vi03
-                     sll $8,
-                 % 0, 4 /* num bytes */
-                 addu $8,
-                 % 1, $8 /* ending address */
-                          .align 8 0
-                 : lqc2 vf02, 0(% 1) addiu % 1, % 1, 16 bne % 1, $8, 0b vsqi vf02, ($vi03++).set reorder "
-                 : "+r"(numQwords), "+r"(mainMemSrc)
-                 : "r"(vu0QwordOffset)
-                 : "cc", "$8");
+    // VU0 memory is mapped starting at VU0Code
+    // Each qword is 16 bytes, so address = VU0Code + (vu0QwordOffset * 16)
+    uint32_t vu0_addr = Core::MemMappings::VU0Code + (vu0QwordOffset << 4);
+
+    asm __volatile__(
+        "addu      $8, %0, $zero   \n"
+        "sll       $9, %1, 4       \n"
+        "addu      $10, $8, $9     \n"
+        "addu      $11, %2, $zero  \n"
+        "0:                        \n"
+        "lqc2      $vf2, 0($8)     \n"
+        "addiu     $8, $8, 16      \n"
+        "sqc2      $vf2, 0($11)    \n"
+        "addiu     $11, $11, 16    \n"
+        "bne       $8, $10, 0b     \n"
+        "nop                       \n"
+        :
+        : "r"(mainMemSrc), "r"(numQwords), "r"(vu0_addr)
+        : "memory", "$8", "$9", "$10", "$11");
 }
 
 void VU0::CopyEvenQwordsToVU0(uint32_t vu0QwordOffset, uint128_t* mainMemSrc, uint32_t numQwords)
@@ -64,47 +70,54 @@ void VU0::CopyEvenQwordsToVU0(uint32_t vu0QwordOffset, uint128_t* mainMemSrc, ui
     mAssert(((uint32_t)mainMemSrc & 0xf) == 0);
     mErrorIf(numQwords & 1, "numQwords must be EVEN!");
 
-    asm volatile("
-                         .set noreorder
+    // VU0 memory is mapped starting at VU0Code
+    // Each qword is 16 bytes, so address = VU0Code + (vu0QwordOffset * 16)
+    uint32_t vu0_addr = Core::MemMappings::VU0Code + (vu0QwordOffset << 4);
 
-                             ctc2
-                     % 2,
-                 $vi04
-                     sll $8,
-                 % 0, 4 /* num bytes */
-                 addu $8,
-                 % 1, $8 /* ending address */
-                          .balign 8 0
-                 : lqc2 vf02, 0(% 1) addiu % 1, % 1, 16 lqc2 vf03, 0(% 1) addiu % 1, % 1, 16 vsqi vf02, ($vi04++)nop bne % 1, $8, 0b vsqi vf03, ($vi04++)
-
-                                                                                                                                                    .set reorder "
-                 : "+r"(numQwords), "+r"(mainMemSrc)
-                 : "r"(vu0QwordOffset)
-                 : "cc", "$8");
+    asm __volatile__(
+        "addu      $8, %0, $zero   \n"
+        "sll       $9, %1, 4       \n"
+        "addu      $10, $8, $9     \n"
+        "addu      $11, %2, $zero  \n"
+        "0:                        \n"
+        "lqc2      $vf2, 0($8)     \n"
+        "addiu     $8, $8, 16      \n"
+        "lqc2      $vf3, 0($8)     \n"
+        "addiu     $8, $8, 16      \n"
+        "sqc2      $vf2, 0($11)    \n"
+        "addiu     $11, $11, 16    \n"
+        "sqc2      $vf3, 0($11)    \n"
+        "addiu     $11, $11, 16    \n"
+        "bne       $8, $10, 0b     \n"
+        "nop                       \n"
+        :
+        : "r"(mainMemSrc), "r"(numQwords), "r"(vu0_addr)
+        : "memory", "$8", "$9", "$10", "$11");
 }
 
 void VU0::CopyQwordsFromVU0(uint128_t* mainMemDest, uint32_t vu0QwordOffset, uint32_t numQwords)
 {
     mAssert(((uint32_t)mainMemDest & 0xf) == 0);
 
-    asm volatile("
-                         .set noreorder
+    // VU0 memory is mapped starting at VU0Code
+    // Each qword is 16 bytes, so address = VU0Code + (vu0QwordOffset * 16)
+    uint32_t vu0_addr = Core::MemMappings::VU0Code + (vu0QwordOffset << 4);
 
-                             ctc2
-                     % 2,
-                 $vi02
-                         addi
-                     % 0,
-                 % 0, -16 sll $8, % 1, 4 /* num bytes */
-                 addu $8,
-                 $8, % 0 /* ending address */
-                           .balign 8 0
-                 : vlqi vf01, ($vi02++)addiu % 0, % 0, 16 bne % 0, $8, 0b sqc2 vf01, 0(% 0)
-
-                                                                                         .set reorder "
-                 : "+r"(mainMemDest)
-                 : "r"(numQwords), "r"(vu0QwordOffset)
-                 : "$8", "cc", "memory");
+    asm __volatile__(
+        "addu      $8, %0, $zero   \n"
+        "sll       $9, %1, 4       \n"
+        "addu      $10, $8, $9     \n"
+        "addu      $11, %2, $zero  \n"
+        "0:                        \n"
+        "lqc2      $vf1, 0($11)    \n"
+        "addiu     $11, $11, 16    \n"
+        "sqc2      $vf1, 0($8)     \n"
+        "addiu     $8, $8, 16      \n"
+        "bne       $8, $10, 0b     \n"
+        "nop                       \n"
+        :
+        : "r"(mainMemDest), "r"(numQwords), "r"(vu0_addr)
+        : "memory", "$8", "$9", "$10", "$11");
 }
 
 void VU0::CopyEvenQwordsFromVU0(uint128_t* mainMemDest, uint32_t vu0QwordOffset, uint32_t numQwords)
@@ -112,40 +125,29 @@ void VU0::CopyEvenQwordsFromVU0(uint128_t* mainMemDest, uint32_t vu0QwordOffset,
     mAssert(((uint32_t)mainMemDest & 0xf) == 0);
     mErrorIf(numQwords & 1, "numQwords must be EVEN!");
 
-    asm volatile("
-                         .set noreorder
+    // VU0 memory is mapped starting at VU0Code
+    // Each qword is 16 bytes, so address = VU0Code + (vu0QwordOffset * 16)
+    uint32_t vu0_addr = Core::MemMappings::VU0Code + (vu0QwordOffset << 4);
 
-                             ctc2
-                     % 2,
-                 $vi02
-                         addi
-                     % 0,
-                 % 0, -16 sll $8, % 1, 4 /* num bytes */
-                 addu $8,
-                 $8, % 0 /* ending address */
-                           .balign 8 0
-                 : addiu % 0, % 0, 16 vlqi vf01, ($vi02++)
-
-                                                     vlqi vf02,
-                 ($vi02++)
-                     nop
-
-                         sqc2 vf01,
-                 0(% 0)
-                         nop
-
-                             addu
-                     % 0,
-                 % 0, 16 nop
-
-                          bne
-                     % 0,
-                 $8, 0b sqc2 vf02, 0(% 0)
-
-                                       .set reorder "
-                 : "+r"(mainMemDest)
-                 : "r"(numQwords), "r"(vu0QwordOffset)
-                 : "$8", "cc", "memory");
+    asm __volatile__(
+        "addu      $8, %0, $zero   \n"
+        "sll       $9, %1, 4       \n"
+        "addu      $10, $8, $9     \n"
+        "addu      $11, %2, $zero  \n"
+        "0:                        \n"
+        "lqc2      $vf1, 0($11)    \n"
+        "addiu     $11, $11, 16    \n"
+        "sqc2      $vf1, 0($8)     \n"
+        "addiu     $8, $8, 16      \n"
+        "lqc2      $vf2, 0($11)    \n"
+        "addiu     $11, $11, 16    \n"
+        "sqc2      $vf2, 0($8)     \n"
+        "addiu     $8, $8, 16      \n"
+        "bne       $8, $10, 0b     \n"
+        "nop                       \n"
+        :
+        : "r"(mainMemDest), "r"(numQwords), "r"(vu0_addr)
+        : "memory", "$8", "$9", "$10", "$11");
 }
 
 #endif // ps2s_vu_h
